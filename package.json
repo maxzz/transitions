@@ -1,7 +1,7 @@
 {
-    "name": "pm-piggyback",
+    "name": "transitions",
     "version": "0.26.1",
-    "description": "React template with Shadcn UI, Jotai, and Valtio",
+    "description": "Animation Transitions Visualizer",
     "private": true,
     "type": "module",
     "devDependencies": {
