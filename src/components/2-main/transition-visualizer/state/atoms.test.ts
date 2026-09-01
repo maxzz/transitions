@@ -69,6 +69,26 @@ describe("visualizer run state", () => {
         expect(store.get(runResultAtom)).toEqual(result);
         expect(store.get(runStatusAtom)).toBe("settled");
     });
+
+    it("keeps the previous curve while a new run is recording", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        const token = store.get(runTokenAtom);
+        const result: RunResult = {
+            engineId: "gsap",
+            durationMs: 240,
+            samples: [
+                { elapsedMs: 0, value: 0 },
+                { elapsedMs: 240, value: 1 },
+            ],
+        };
+        store.set(completeRunAtom, { token, result });
+
+        store.set(requestRunAtom);
+
+        expect(store.get(runResultAtom)).toEqual(result);
+        expect(store.get(runStatusAtom)).toBe("running");
+    });
 });
 
 describe("auto-record on parameter change", () => {

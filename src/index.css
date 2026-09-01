@@ -154,6 +154,15 @@
     --radius: 0.625rem;
 }
 
+@theme inline {
+    --animate-rec-blink: rec-blink 1s step-end infinite;
+}
+
+@keyframes rec-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.2; }
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;

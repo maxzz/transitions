@@ -62,7 +62,6 @@ function resetRun(set: Setter) {
 function startRun(set: Setter) {
     clearAutoRecordTimer();
     set(runTokenAtom, (token) => token + 1);
-    set(runResultAtom, null);
     set(runStatusAtom, "running");
 }
 
@@ -139,6 +138,3 @@ export const completeRunAtom = atom(
     },
 );
 
-export const backToPreviewAtom = atom(null, (_get, set) => {
-    resetRun(set);
-});
