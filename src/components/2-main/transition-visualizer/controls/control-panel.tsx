@@ -96,6 +96,8 @@ export function ControlPanel() {
                         />
                     );
                 })}
+            </div>
+            <div className="p-2 shrink-0">
                 <CodeSnippetButton />
             </div>
         </div>
