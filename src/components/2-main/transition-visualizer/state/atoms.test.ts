@@ -14,6 +14,7 @@ const appSettings = vi.hoisted(() => ({
     },
     motionParams: {} as Record<string, unknown>,
     gsapParams: {} as Record<string, unknown>,
+    recordedDurations: {} as Record<string, { key: string; durationMs: number }>,
 }));
 
 vi.mock("@/store/1-ui-settings", () => ({
@@ -24,6 +25,7 @@ import {
     AUTO_RECORD_DEBOUNCE_MS,
     applyPresetAtom,
     clearAutoRecordTimer,
+    clearDurationMemory,
     completeRunAtom,
     expectedDurationMsAtom,
     liveSamplesAtom,
@@ -39,6 +41,13 @@ import {
 } from "./atoms";
 
 describe("visualizer run state", () => {
+    afterEach(() => {
+        clearDurationMemory();
+        registerStopActiveRun(null);
+        clearAutoRecordTimer();
+        appSettings.recordedDurations = {};
+    });
+
     it("ignores completion from a stale run token", () => {
         const store = createStore();
         store.set(requestRunAtom);
@@ -71,8 +80,47 @@ describe("visualizer run state", () => {
 
         store.set(completeRunAtom, { token, result });
 
-        expect(store.get(runResultAtom)).toEqual(result);
+        expect(store.get(runResultAtom)).toMatchObject(result);
+        expect(store.get(runResultAtom)?.plotDurationMs).toBeGreaterThanOrEqual(result.durationMs);
         expect(store.get(runStatusAtom)).toBe("settled");
+    });
+
+    it("reuses the measured duration on the next run with the same settings", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        const token = store.get(runTokenAtom);
+        const result: RunResult = {
+            engineId: "react-spring",
+            durationMs: 1234,
+            samples: [
+                { elapsedMs: 0, value: 0 },
+                { elapsedMs: 1234, value: 1 },
+            ],
+        };
+        store.set(completeRunAtom, { token, result });
+        store.set(requestRunAtom);
+
+        expect(store.get(expectedDurationMsAtom)).toBe(1234);
+    });
+
+    it("keeps the predicted time scale when the run settles early", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        const expected = store.get(expectedDurationMsAtom);
+        const token = store.get(runTokenAtom);
+        const result: RunResult = {
+            engineId: "react-spring",
+            durationMs: Math.max(1, Math.round(expected / 2)),
+            samples: [
+                { elapsedMs: 0, value: 0 },
+                { elapsedMs: Math.max(1, Math.round(expected / 2)), value: 1 },
+            ],
+        };
+
+        store.set(completeRunAtom, { token, result });
+
+        expect(store.get(runResultAtom)?.plotDurationMs).toBe(expected);
+        expect(store.get(runResultAtom)?.durationMs).toBe(result.durationMs);
     });
 
     it("clears the previous curve when a new run starts", () => {
@@ -137,6 +185,8 @@ describe("visualizer run state", () => {
 describe("auto-record on parameter change", () => {
     afterEach(() => {
         clearAutoRecordTimer();
+        clearDurationMemory();
+        appSettings.recordedDurations = {};
         vi.useRealTimers();
         appSettings.autoRecordResponse = true;
     });
@@ -175,6 +225,8 @@ describe("auto-record on parameter change", () => {
 describe("persisted library params", () => {
     afterEach(() => {
         clearAutoRecordTimer();
+        clearDurationMemory();
+        appSettings.recordedDurations = {};
         appSettings.autoRecordResponse = true;
     });
 

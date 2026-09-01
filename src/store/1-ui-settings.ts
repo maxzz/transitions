@@ -9,10 +9,16 @@ import {
     reactSpringDefaults,
 } from "@/components/2-main/transition-visualizer/model/definitions";
 import type {
+    EngineId,
     GsapParams,
     MotionParams,
     ReactSpringParams,
 } from "@/components/2-main/transition-visualizer/model/types";
+
+export type RecordedDuration = {
+    key: string;
+    durationMs: number;
+};
 
 const STORE_KEY = "tm-template-shadcn-26";
 const STORE_VER = "v1.0";
@@ -30,6 +36,7 @@ export interface AppSettings {
     reactSpringParams: ReactSpringParams;
     motionParams: MotionParams;
     gsapParams: GsapParams;
+    recordedDurations: Partial<Record<EngineId, RecordedDuration>>;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -42,6 +49,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     reactSpringParams: { ...reactSpringDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
+    recordedDurations: {},
 };
 
 function loadSettings(): AppSettings {
@@ -59,6 +67,7 @@ function loadSettings(): AppSettings {
                 reactSpringParams: getValidEngineParams(engineDefinitions["react-spring"], parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
+                recordedDurations: getValidRecordedDurations(parsed.recordedDurations),
             };
         }
     } catch (error) {
@@ -80,6 +89,21 @@ function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
 
 function getValidBoolean(value: unknown, fallback: boolean): boolean {
     return typeof value === "boolean" ? value : fallback;
+}
+
+function getValidRecordedDurations(value: unknown): AppSettings["recordedDurations"] {
+    if (!value || typeof value !== "object") return {};
+
+    const recorded: AppSettings["recordedDurations"] = {};
+    for (const engineId of ["react-spring", "motion", "gsap"] as const) {
+        const entry = (value as Partial<Record<EngineId, unknown>>)[engineId];
+        if (!entry || typeof entry !== "object") continue;
+        const { key, durationMs } = entry as Partial<RecordedDuration>;
+        if (typeof key === "string" && Number.isFinite(durationMs) && (durationMs ?? 0) > 0) {
+            recorded[engineId] = { key, durationMs: durationMs as number };
+        }
+    }
+    return recorded;
 }
 
 export const appSettings = proxy<AppSettings>(loadSettings());

@@ -11,6 +11,7 @@ export type SamplePoint = {
 export type RunResult = {
     engineId: EngineId;
     durationMs: number;
+    plotDurationMs?: number;
     samples: SamplePoint[];
     stopped?: boolean;
 };

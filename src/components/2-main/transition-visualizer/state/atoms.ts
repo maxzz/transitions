@@ -4,7 +4,7 @@ import {
     engineDefinitions,
     getValidParamsByEngine,
 } from "../model/definitions";
-import { resolveExpectedDurationMs } from "../model/duration";
+import { durationKey, resolveExpectedDurationMs } from "../model/duration";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/types";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
@@ -34,9 +34,17 @@ const lastDurationByEngine: Record<EngineId, number> = {
     motion: 0,
     gsap: 0,
 };
+const lastDurationByParams = new Map<string, number>();
 
 export function registerStopActiveRun(stop: (() => void) | null) {
     stopActiveRun = stop;
+}
+
+export function clearDurationMemory() {
+    lastDurationByEngine["react-spring"] = 0;
+    lastDurationByEngine.motion = 0;
+    lastDurationByEngine.gsap = 0;
+    lastDurationByParams.clear();
 }
 
 function readPersistedParams(): EngineParamsMap {
@@ -80,7 +88,16 @@ function startRun(get: Getter, set: Setter) {
     set(runTokenAtom, (token) => token + 1);
     set(runResultAtom, null);
     set(liveSamplesAtom, []);
-    set(expectedDurationMsAtom, resolveExpectedDurationMs(engineId, params, lastDurationByEngine[engineId]));
+    const key = durationKey(engineId, params);
+    const persisted = appSettings.recordedDurations[engineId];
+    const lastExactMs = lastDurationByParams.get(key)
+        ?? (persisted?.key === key ? persisted.durationMs : 0);
+    set(expectedDurationMsAtom, resolveExpectedDurationMs(
+        engineId,
+        params,
+        lastExactMs,
+        lastDurationByEngine[engineId] || persisted?.durationMs || 0,
+    ));
     set(runStatusAtom, "running");
 }
 
@@ -153,6 +170,10 @@ export const publishLiveSamplesAtom = atom(
     (get, set, update: { token: number; samples: SamplePoint[] }) => {
         if (get(runTokenAtom) !== update.token) return;
         set(liveSamplesAtom, update.samples);
+        const elapsedMs = update.samples.at(-1)?.elapsedMs ?? 0;
+        if (elapsedMs > get(expectedDurationMsAtom)) {
+            set(expectedDurationMsAtom, elapsedMs);
+        }
     },
 );
 
@@ -160,9 +181,17 @@ export const completeRunAtom = atom(
     null,
     (get, set, update: { token: number; result: RunResult }) => {
         if (get(runTokenAtom) !== update.token) return;
-        lastDurationByEngine[update.result.engineId] = update.result.durationMs;
-        set(runResultAtom, update.result);
-        set(liveSamplesAtom, update.result.samples);
+        const plotDurationMs = Math.max(get(expectedDurationMsAtom), update.result.durationMs, 1);
+        const result = { ...update.result, plotDurationMs };
+        lastDurationByEngine[result.engineId] = result.durationMs;
+        const key = durationKey(result.engineId, get(paramsByEngineAtom)[result.engineId]);
+        lastDurationByParams.set(key, result.durationMs);
+        appSettings.recordedDurations = {
+            ...appSettings.recordedDurations,
+            [result.engineId]: { key, durationMs: result.durationMs },
+        };
+        set(runResultAtom, result);
+        set(liveSamplesAtom, result.samples);
         set(runStatusAtom, "settled");
     },
 );

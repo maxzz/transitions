@@ -43,12 +43,11 @@ export function ResponseGraph() {
     const graph = useMemo(() => {
         const bounds = samples.length > 0 ? getSampleBounds(samples) : EMPTY_BOUNDS;
         const elapsedMs = samples.at(-1)?.elapsedMs ?? 0;
-        const predictedMs = recording ? expectedDurationMs : estimateDurationMs(engineId, params);
         const duration = recording
-            ? Math.max(predictedMs, elapsedMs, 1)
-            : samples.length > 0
-                ? Math.max(bounds.durationMs, 1)
-                : Math.max(predictedMs, 1);
+            ? Math.max(expectedDurationMs, elapsedMs, 1)
+            : result
+                ? Math.max(result.plotDurationMs ?? result.durationMs, 1)
+                : Math.max(estimateDurationMs(engineId, params), 1);
         const valueRange = bounds.maxValue - bounds.minValue;
         const pad = Math.max(valueRange * 0.12, 0.08);
         const minValue = bounds.minValue - pad;
@@ -65,7 +64,7 @@ export function ResponseGraph() {
             : "";
 
         return { bounds, toY, line, area, points, hasCurve: points.length > 0, duration, elapsedMs };
-    }, [engineId, expectedDurationMs, params, recording, samples]);
+    }, [engineId, expectedDurationMs, params, recording, result, samples]);
 
     const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
     const durationLabel = result?.stopped

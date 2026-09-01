@@ -31,12 +31,24 @@ describe("estimateDurationMs", () => {
         expect(durationMs).toBeGreaterThan(100);
         expect(durationMs).toBeLessThan(8000);
     });
+});
 
-    it("reuses a recorded duration when it is close to the simulation", () => {
-        const params = { ...reactSpringDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
-        const simulated = estimateDurationMs("react-spring", params);
-        expect(resolveExpectedDurationMs("react-spring", params, 9750)).toBe(9750);
-        expect(simulated).toBeGreaterThan(9750);
+describe("resolveExpectedDurationMs", () => {
+    const wobbly = { ...reactSpringDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
+
+    it("reuses the measured duration for the same settings", () => {
+        expect(resolveExpectedDurationMs("react-spring", wobbly, 9750, 9750)).toBe(9750);
+    });
+
+    it("grows from the last engine duration instead of a longer simulation", () => {
+        const simulated = estimateDurationMs("react-spring", wobbly);
+        const resolved = resolveExpectedDurationMs("react-spring", wobbly, 0, 800);
+        expect(resolved).toBe(800);
+        expect(simulated).toBeGreaterThan(800);
+    });
+
+    it("uses GSAP duration even when a previous measurement exists", () => {
+        expect(resolveExpectedDurationMs("gsap", { ...gsapDefaults, duration: 1.2 }, 4000)).toBe(1200);
     });
 });
 
