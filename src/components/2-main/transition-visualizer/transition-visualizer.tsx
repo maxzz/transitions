@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
 import { Button } from "@/ui/shadcn/button";
 import { cn } from "@/utils/classnames";
+import { CodeSnippetButton } from "./controls/code-snippet-button";
 import { ControlPanel } from "./controls/control-panel";
 import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
@@ -45,15 +46,16 @@ export function TransitionVisualizer() {
                         <EngineTabs />
                     </div>
                     <ControlPanel />
-                    <div className="p-2 bg-muted/20 border-t border-border">
+                    <div className="p-2 bg-muted/20 border-t border-border flex items-center gap-2">
                         {status === "running" ? (
-                            <StopMotionButton className="w-full" />
+                            <StopMotionButton className="min-w-0 flex-1" />
                         ) : (
-                            <Button className="w-full" size="sm" onClick={requestRun}>
+                            <Button className="min-w-0 flex-1" size="sm" onClick={requestRun}>
                                 <Play data-icon="inline-start" />
                                 Play
                             </Button>
                         )}
+                        <CodeSnippetButton />
                     </div>
                 </aside>
 
