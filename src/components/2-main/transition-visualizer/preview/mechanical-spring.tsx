@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef } from "react";
 
 export type MechanicalSpringHandle = {
     getValue: () => number;
@@ -6,11 +6,61 @@ export type MechanicalSpringHandle = {
 };
 
 const LOAD_TOP_Y = 278;
+const SPRING_TOP_Y = 75;
+const SPRING_BOTTOM_Y = 250;
+const SPRING_CENTER_X = 350;
+const SPRING_RADIUS = 35;
+const SPRING_STEM_HEIGHT = 13;
+const MIN_SPRING_TENSION = 30;
+const MAX_SPRING_TENSION = 400;
+const MIN_SPRING_WRAPS = 2;
+const MAX_SPRING_WRAPS = 18;
+const DEFAULT_SPRING_TENSION = 170;
+const SAMPLES_PER_WRAP = 12;
 const MIN_LOAD_HEIGHT = 50;
 const MAX_LOAD_HEIGHT = 210;
 const DEFAULT_LOAD_HEIGHT = 150;
 const MIN_MASS = 0.1;
 const MAX_MASS = 20;
+
+export function getMechanicalSpringWraps(tension?: number): number {
+    const resolvedTension = tension === undefined || !Number.isFinite(tension)
+        ? DEFAULT_SPRING_TENSION
+        : tension;
+    const clampedTension = Math.min(
+        MAX_SPRING_TENSION,
+        Math.max(MIN_SPRING_TENSION, resolvedTension),
+    );
+    const normalizedTension = (clampedTension - MIN_SPRING_TENSION)
+        / (MAX_SPRING_TENSION - MIN_SPRING_TENSION);
+
+    return Math.round(
+        MIN_SPRING_WRAPS
+        + normalizedTension * (MAX_SPRING_WRAPS - MIN_SPRING_WRAPS),
+    );
+}
+
+export function getMechanicalSpringPath(tension?: number): string {
+    const wraps = getMechanicalSpringWraps(tension);
+    const coilTopY = SPRING_TOP_Y + SPRING_STEM_HEIGHT;
+    const coilBottomY = SPRING_BOTTOM_Y - SPRING_STEM_HEIGHT;
+    const sampleCount = wraps * SAMPLES_PER_WRAP;
+    const commands = [
+        `M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`,
+        `L ${SPRING_CENTER_X} ${coilTopY}`,
+    ];
+
+    for (let index = 1; index <= sampleCount; index += 1) {
+        const progress = index / sampleCount;
+        const x = SPRING_CENTER_X
+            + Math.sin(progress * wraps * Math.PI * 2) * SPRING_RADIUS;
+        const y = coilTopY + progress * (coilBottomY - coilTopY);
+        commands.push(`L ${x.toFixed(2)} ${y.toFixed(2)}`);
+    }
+
+    commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
+    return commands.join(" ");
+}
 
 export function getMechanicalLoadHeight(mass?: number): number {
     if (mass === undefined || !Number.isFinite(mass)) return DEFAULT_LOAD_HEIGHT;
@@ -21,13 +71,14 @@ export function getMechanicalLoadHeight(mass?: number): number {
 
 export const MechanicalSpring = forwardRef<
     MechanicalSpringHandle,
-    { clamped?: boolean; mass?: number }
+    { clamped?: boolean; mass?: number; tension?: number }
 >(
-    function MechanicalSpring({ clamped = false, mass }, ref) {
+    function MechanicalSpring({ clamped = false, mass, tension }, ref) {
         const springRef = useRef<SVGGElement>(null);
         const massRef = useRef<SVGGElement>(null);
         const valueRef = useRef<SVGTextElement>(null);
         const currentValueRef = useRef(0);
+        const springPath = useMemo(() => getMechanicalSpringPath(tension), [tension]);
         const loadHeight = getMechanicalLoadHeight(mass);
         const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
 
@@ -88,7 +139,7 @@ export const MechanicalSpring = forwardRef<
 
                 <g ref={springRef}>
                     <path
-                        d="M350 75 L350 88 L315 99 L385 110 L315 121 L385 132 L315 143 L385 154 L315 165 L385 176 L315 187 L385 198 L315 209 L385 220 L350 232 L350 250"
+                        d={springPath}
                         fill="none"
                         className="stroke-primary"
                         strokeLinecap="round"
