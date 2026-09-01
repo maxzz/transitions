@@ -1,8 +1,9 @@
 import { atom, type Setter } from "jotai";
 import { engineDefinitions, gsapDefaults, motionDefaults, reactSpringDefaults } from "../model/definitions";
-import type { EngineId, EngineParamsMap, RunResult, RunStatus } from "../model/types";
+import type { EngineId, EngineParamsMap, RunResult, RunStatus, VisualizationMode } from "../model/types";
 
 export const activeEngineAtom = atom<EngineId>("react-spring");
+export const visualizationModeAtom = atom<VisualizationMode>("spring");
 
 export const paramsByEngineAtom = atom<EngineParamsMap>({
     "react-spring": { ...reactSpringDefaults },

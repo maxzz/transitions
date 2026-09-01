@@ -1,4 +1,5 @@
 export type EngineId = "react-spring" | "motion" | "gsap";
+export type VisualizationMode = "spring" | "translateY" | "scale" | "rotate" | "opacity";
 
 export type RunStatus = "idle" | "running" | "settled";
 

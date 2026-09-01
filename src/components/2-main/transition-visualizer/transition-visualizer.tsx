@@ -7,6 +7,7 @@ import { cn } from "@/utils/classnames";
 import { ControlPanel } from "./controls/control-panel";
 import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
+import { VisualizationModeControl } from "./controls/visualization-mode-control";
 import { ResponseGraph } from "./graph/response-graph";
 import { PreviewStage } from "./preview/preview-stage";
 import {
@@ -72,28 +73,33 @@ export function TransitionVisualizer() {
                     </div>
                 </aside>
 
-                <div
-                    className={cn(
-                        "min-h-0",
-                        visualizerDisplay === "split" && "lg:grid-cols-2 grid",
-                    )}
-                >
+                <div className="min-h-0 flex flex-col">
                     <div
-                        className={cn("min-h-0", visualizerDisplay === "graph" && "hidden")}
-                        aria-hidden={visualizerDisplay === "graph"}
+                        className={cn(
+                            "min-h-0 flex-1",
+                            visualizerDisplay === "split" && "lg:grid-cols-2 grid",
+                        )}
                     >
-                        <PreviewStage />
-                    </div>
-                    {visualizerDisplay !== "mechanical" && (
                         <div
-                            className={cn(
-                                "min-h-0",
-                                visualizerDisplay === "split" && "lg:border-l lg:border-border",
-                            )}
+                            className={cn("min-h-0", visualizerDisplay === "graph" && "hidden")}
+                            aria-hidden={visualizerDisplay === "graph"}
                         >
-                            <ResponseGraph />
+                            <PreviewStage />
                         </div>
-                    )}
+                        {visualizerDisplay !== "mechanical" && (
+                            <div
+                                className={cn(
+                                    "min-h-0",
+                                    visualizerDisplay === "split" && "lg:border-l lg:border-border",
+                                )}
+                            >
+                                <ResponseGraph />
+                            </div>
+                        )}
+                    </div>
+                    <div className="p-2 bg-muted/20 border-t border-border flex items-center justify-center">
+                        <VisualizationModeControl />
+                    </div>
                 </div>
             </div>
         </section>

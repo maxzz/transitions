@@ -5,8 +5,10 @@ import {
     activeEngineAtom,
     paramsByEngineAtom,
     runStatusAtom,
+    visualizationModeAtom,
 } from "../state/atoms";
-import { MechanicalSpring, type MechanicalSpringHandle } from "./mechanical-spring";
+import type { MechanicalSpringHandle } from "./mechanical-spring";
+import { TransitionScene } from "./transition-scene";
 import { useEngineRun } from "./use-engine-run";
 
 export function PreviewStage() {
@@ -16,7 +18,11 @@ export function PreviewStage() {
     const engineId = useAtomValue(activeEngineAtom);
     const params = useAtomValue(paramsByEngineAtom);
     const status = useAtomValue(runStatusAtom);
+    const visualizationMode = useAtomValue(visualizationModeAtom);
     const clamped = engineId === "react-spring" && params["react-spring"].clamp;
+    const title = visualizationMode === "spring"
+        ? "Mechanical response"
+        : `${visualizationMode === "translateY" ? "Translation" : visualizationMode[0].toUpperCase() + visualizationMode.slice(1)} response`;
 
     useEngineRun(scopeRef, sceneRef);
 
@@ -24,7 +30,7 @@ export function PreviewStage() {
         <div ref={scopeRef} className="h-full min-h-[28rem] bg-muted/20 flex flex-col">
             <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-sm font-semibold">Mechanical response</h2>
+                    <h2 className="text-sm font-semibold">{title}</h2>
                     <p className="mt-1 text-xs text-muted-foreground">{definition.subtitle}</p>
                 </div>
                 <div
@@ -35,7 +41,7 @@ export function PreviewStage() {
                 </div>
             </div>
             <div className="p-3 min-h-0 sm:p-6 flex-1">
-                <MechanicalSpring ref={sceneRef} clamped={clamped} />
+                <TransitionScene ref={sceneRef} clamped={clamped} />
             </div>
         </div>
     );
