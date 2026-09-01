@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef } from "react";
 
 export type MechanicalSpringHandle = {
+    getValue: () => number;
     setValue: (value: number) => void;
 };
 
@@ -9,8 +10,10 @@ export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: b
         const springRef = useRef<SVGGElement>(null);
         const massRef = useRef<SVGGElement>(null);
         const valueRef = useRef<SVGTextElement>(null);
+        const currentValueRef = useRef(0);
 
         const setValue = useCallback((value: number) => {
+            currentValueRef.current = value;
             const displacement = 105 * (1 - value);
             const springScale = (175 + displacement) / 175;
 
@@ -21,8 +24,9 @@ export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: b
             massRef.current?.setAttribute("transform", `translate(0 ${displacement})`);
             if (valueRef.current) valueRef.current.textContent = value.toFixed(3);
         }, []);
+        const getValue = useCallback(() => currentValueRef.current, []);
 
-        useImperativeHandle(ref, () => ({ setValue }), [setValue]);
+        useImperativeHandle(ref, () => ({ getValue, setValue }), [getValue, setValue]);
         useLayoutEffect(() => setValue(0), [setValue]);
 
         return (

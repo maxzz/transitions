@@ -22,6 +22,7 @@ import type { MechanicalSpringHandle } from "./mechanical-spring";
 gsap.registerPlugin(useGSAP);
 
 const LIVE_PUBLISH_MS = 48;
+const REPLAY_FROM_INITIAL_DELAY_MS = 500;
 const RETURN_TO_INITIAL_DELAY_MS = 1_000;
 
 export function useEngineRun(
@@ -41,9 +42,13 @@ export function useEngineRun(
     const startRun = (): (() => void) | undefined => {
         if (status !== "running") return undefined;
 
+        const shouldDelayReplay = !appSettings.returnToInitialPosition
+            && (sceneRef.current?.getValue() ?? 0) !== 0;
         let cancelled = false;
         let lastPublishAt = 0;
+        let replayTimer: ReturnType<typeof setTimeout> | null = null;
         let returnTimer: ReturnType<typeof setTimeout> | null = null;
+        let run: EngineRun | null = null;
         const samples: SamplePoint[] = [];
         sceneRef.current?.setValue(0);
 
@@ -67,40 +72,52 @@ export function useEngineRun(
             });
         };
 
-        const run: EngineRun = runEngine(engineId, activeParams, {
-            onFrame(sample) {
-                if (cancelled) return;
-                sceneRef.current?.setValue(sample.value);
-                samples.push(sample);
-                publishLive();
-            },
-            onRest() {
-                if (cancelled) return;
-                finish();
-                if (appSettings.returnToInitialPosition) {
-                    returnTimer = setTimeout(() => {
-                        returnTimer = null;
-                        if (!cancelled && appSettings.returnToInitialPosition) {
-                            sceneRef.current?.setValue(0);
-                        }
-                    }, RETURN_TO_INITIAL_DELAY_MS);
-                }
-            },
-        });
+        const launchRun = () => {
+            replayTimer = null;
+            if (cancelled) return;
+
+            run = runEngine(engineId, activeParams, {
+                onFrame(sample) {
+                    if (cancelled) return;
+                    sceneRef.current?.setValue(sample.value);
+                    samples.push(sample);
+                    publishLive();
+                },
+                onRest() {
+                    if (cancelled) return;
+                    finish();
+                    if (appSettings.returnToInitialPosition) {
+                        returnTimer = setTimeout(() => {
+                            returnTimer = null;
+                            if (!cancelled && appSettings.returnToInitialPosition) {
+                                sceneRef.current?.setValue(0);
+                            }
+                        }, RETURN_TO_INITIAL_DELAY_MS);
+                    }
+                },
+            });
+        };
 
         const stop = () => {
             if (cancelled) return;
             cancelled = true;
-            run.cancel();
+            if (replayTimer !== null) clearTimeout(replayTimer);
+            run?.cancel();
             finish(true);
         };
 
         registerStopActiveRun(stop);
+        if (shouldDelayReplay) {
+            replayTimer = setTimeout(launchRun, REPLAY_FROM_INITIAL_DELAY_MS);
+        } else {
+            launchRun();
+        }
 
         return () => {
             cancelled = true;
+            if (replayTimer !== null) clearTimeout(replayTimer);
             if (returnTimer !== null) clearTimeout(returnTimer);
-            run.cancel();
+            run?.cancel();
             registerStopActiveRun(null);
         };
     };

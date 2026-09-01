@@ -17,8 +17,10 @@ export const TransformPreview = forwardRef<
 >(function TransformPreview({ mode }, ref) {
     const targetRef = useRef<SVGGElement>(null);
     const valueRef = useRef<SVGTextElement>(null);
+    const currentValueRef = useRef(0);
 
     const setValue = useCallback((value: number) => {
+        currentValueRef.current = value;
         const target = targetRef.current;
         if (!target) return;
 
@@ -35,8 +37,9 @@ export const TransformPreview = forwardRef<
 
         if (valueRef.current) valueRef.current.textContent = value.toFixed(3);
     }, [mode]);
+    const getValue = useCallback(() => currentValueRef.current, []);
 
-    useImperativeHandle(ref, () => ({ setValue }), [setValue]);
+    useImperativeHandle(ref, () => ({ getValue, setValue }), [getValue, setValue]);
     useLayoutEffect(() => setValue(0), [setValue]);
 
     return (
