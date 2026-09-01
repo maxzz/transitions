@@ -36,7 +36,7 @@ export function ControlPanel() {
     };
 
     return (
-        <div className="min-h-0 flex flex-col">
+        <div className="min-h-0 flex flex-1 flex-col">
             <div className="p-2 border-b border-border flex items-center gap-2">
                 <Label className="shrink-0 w-14 text-muted-foreground" htmlFor="transition-preset">
                     Preset

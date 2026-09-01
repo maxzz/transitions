@@ -1,4 +1,5 @@
 import { atom, type Setter } from "jotai";
+import { appSettings } from "@/store/1-ui-settings";
 import { engineDefinitions, gsapDefaults, motionDefaults, reactSpringDefaults } from "../model/definitions";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, VisualizationMode } from "../model/types";
 
@@ -28,9 +29,19 @@ function resetRun(set: Setter) {
     set(runResultAtom, null);
 }
 
+function resetOrAutoRun(set: Setter) {
+    if (appSettings.autoRecordResponse) {
+        set(runTokenAtom, (token) => token + 1);
+        set(runResultAtom, null);
+        set(runStatusAtom, "running");
+        return;
+    }
+    resetRun(set);
+}
+
 export const selectEngineAtom = atom(null, (_get, set, engineId: EngineId) => {
     set(activeEngineAtom, engineId);
-    resetRun(set);
+    resetOrAutoRun(set);
 });
 
 export const updateParamAtom = atom(
@@ -44,7 +55,7 @@ export const updateParamAtom = atom(
                 [update.key]: update.value,
             },
         } as EngineParamsMap);
-        resetRun(set);
+        resetOrAutoRun(set);
     },
 );
 
@@ -60,7 +71,7 @@ export const applyPresetAtom = atom(
             ...current,
             [update.engineId]: { ...preset.params },
         } as EngineParamsMap);
-        resetRun(set);
+        resetOrAutoRun(set);
     },
 );
 

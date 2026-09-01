@@ -7,7 +7,6 @@ import { cn } from "@/utils/classnames";
 import { ControlPanel } from "./controls/control-panel";
 import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
-import { VisualizationModeControl } from "./controls/visualization-mode-control";
 import { ResponseGraph } from "./graph/response-graph";
 import { PreviewStage } from "./preview/preview-stage";
 import {
@@ -26,7 +25,7 @@ export function TransitionVisualizer() {
 
     return (
         <section className="mx-auto min-h-0 w-full max-w-[1440px] flex flex-1 flex-col gap-4">
-            <div className="sm:flex-row sm:items-end flex flex-col justify-between gap-3">
+            <div className="shrink-0 sm:flex-row sm:items-end flex flex-col justify-between gap-3">
                 <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
                         Transition laboratory
@@ -41,13 +40,13 @@ export function TransitionVisualizer() {
                 <DisplayModeControl />
             </div>
 
-            <div className="min-h-0 bg-background lg:grid-cols-[15rem_minmax(0,1fr)] border border-border rounded-xl shadow-sm overflow-hidden grid flex-1">
-                <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border flex flex-col">
+            <div className="min-h-0 bg-background lg:grid-cols-[15rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] border border-border rounded-xl shadow-sm overflow-hidden grid grid-rows-[auto_minmax(0,1fr)] flex-1">
+                <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border overflow-hidden flex flex-col">
                     <div className="p-2 border-b border-border">
                         <EngineTabs />
                     </div>
                     <ControlPanel />
-                    <div className="mt-auto p-2 bg-muted/20 border-t border-border">
+                    <div className="p-2 bg-muted/20 border-t border-border">
                         {status === "settled" ? (
                             <div className="grid grid-cols-2 gap-2">
                                 <Button size="sm" variant="outline" onClick={backToPreview}>
@@ -73,33 +72,31 @@ export function TransitionVisualizer() {
                     </div>
                 </aside>
 
-                <div className="min-h-0 flex flex-col">
+                <div
+                    className={cn(
+                        "h-full min-h-0 overflow-auto",
+                        visualizerDisplay === "split" && "lg:grid-cols-2 lg:grid-rows-1 grid grid-rows-2",
+                    )}
+                >
                     <div
                         className={cn(
-                            "min-h-0 flex-1",
-                            visualizerDisplay === "split" && "lg:grid-cols-2 grid",
+                            "h-full min-h-48",
+                            visualizerDisplay === "graph" && "hidden",
                         )}
+                        aria-hidden={visualizerDisplay === "graph"}
                     >
+                        <PreviewStage />
+                    </div>
+                    {visualizerDisplay !== "mechanical" && (
                         <div
-                            className={cn("min-h-0", visualizerDisplay === "graph" && "hidden")}
-                            aria-hidden={visualizerDisplay === "graph"}
+                            className={cn(
+                                "h-full min-h-48",
+                                visualizerDisplay === "split" && "lg:border-l lg:border-border",
+                            )}
                         >
-                            <PreviewStage />
+                            <ResponseGraph />
                         </div>
-                        {visualizerDisplay !== "mechanical" && (
-                            <div
-                                className={cn(
-                                    "min-h-0",
-                                    visualizerDisplay === "split" && "lg:border-l lg:border-border",
-                                )}
-                            >
-                                <ResponseGraph />
-                            </div>
-                        )}
-                    </div>
-                    <div className="p-2 bg-muted/20 border-t border-border flex items-center justify-center">
-                        <VisualizationModeControl />
-                    </div>
+                    )}
                 </div>
             </div>
         </section>

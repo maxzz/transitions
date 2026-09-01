@@ -1,7 +1,9 @@
 import { useEffect, type RefObject } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useSnapshot } from "valtio";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
+import { appSettings } from "@/store/1-ui-settings";
 import { runEngine } from "../engines";
 import { decimateSamples, sanitizeSamples } from "../model/samples";
 import type { EngineRun, SamplePoint } from "../model/types";
@@ -9,6 +11,7 @@ import {
     activeEngineAtom,
     completeRunAtom,
     paramsByEngineAtom,
+    requestRunAtom,
     runStatusAtom,
     runTokenAtom,
 } from "../state/atoms";
@@ -25,6 +28,8 @@ export function useEngineRun(
     const status = useAtomValue(runStatusAtom);
     const token = useAtomValue(runTokenAtom);
     const completeRun = useSetAtom(completeRunAtom);
+    const requestRun = useSetAtom(requestRunAtom);
+    const { autoRecordResponse } = useSnapshot(appSettings);
     const activeParams = paramsByEngine[engineId];
 
     const startRun = (): (() => void) | undefined => {
@@ -59,6 +64,11 @@ export function useEngineRun(
             run.cancel();
         };
     };
+
+    useEffect(() => {
+        if (!autoRecordResponse) return;
+        requestRun();
+    }, [autoRecordResponse, requestRun]);
 
     useEffect(() => {
         if (engineId === "gsap") return undefined;

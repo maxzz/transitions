@@ -14,6 +14,7 @@ export interface AppSettings {
     panelSizes: PanelSizes;
     expandedSections: string[];
     visualizerDisplay: VisualizerDisplay;
+    autoRecordResponse: boolean;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -22,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     panelSizes: getValidPanelSizes(),
     expandedSections: ["resizable-panels", "pierre-trees"],
     visualizerDisplay: "split",
+    autoRecordResponse: true,
 };
 
 function loadSettings(): AppSettings {
@@ -35,6 +37,7 @@ function loadSettings(): AppSettings {
                 panelSizes: getValidPanelSizes(parsed.panelSizes),
                 expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
                 visualizerDisplay: getValidVisualizerDisplay(parsed.visualizerDisplay),
+                autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
             };
         }
     } catch (error) {
@@ -47,6 +50,10 @@ function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
     return value === "mechanical" || value === "graph" || value === "split"
         ? value
         : DEFAULT_SETTINGS.visualizerDisplay;
+}
+
+function getValidBoolean(value: unknown, fallback: boolean): boolean {
+    return typeof value === "boolean" ? value : fallback;
 }
 
 export const appSettings = proxy<AppSettings>(loadSettings());

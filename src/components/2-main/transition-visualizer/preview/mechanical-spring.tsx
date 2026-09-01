@@ -27,7 +27,7 @@ export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: b
 
         return (
             <svg
-                className="h-full min-h-80 w-full text-foreground"
+                className="h-full w-full text-foreground"
                 viewBox="0 0 700 550"
                 role="img"
                 aria-labelledby="mechanical-spring-title mechanical-spring-description"

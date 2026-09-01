@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useAtomValue } from "jotai";
+import { VisualizationModeControl } from "../controls/visualization-mode-control";
 import {
     activeDefinitionAtom,
     activeEngineAtom,
@@ -27,7 +28,7 @@ export function PreviewStage() {
     useEngineRun(scopeRef, sceneRef);
 
     return (
-        <div ref={scopeRef} className="h-full min-h-[28rem] bg-muted/20 flex flex-col">
+        <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
             <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-4">
                 <div>
                     <h2 className="text-sm font-semibold">{title}</h2>
@@ -42,6 +43,9 @@ export function PreviewStage() {
             </div>
             <div className="p-3 min-h-0 sm:p-6 flex-1">
                 <TransitionScene ref={sceneRef} clamped={clamped} />
+            </div>
+            <div className="p-2 bg-muted/20 border-t border-border flex items-center justify-center">
+                <VisualizationModeControl />
             </div>
         </div>
     );

@@ -9,7 +9,7 @@ export function App() {
         <Toaster />
         <AllDialogs />
         
-        <main className="min-h-screen text-xs bg-background grid grid-rows-[auto_1fr_auto]">
+        <main className="h-dvh text-xs bg-background overflow-hidden grid grid-rows-[auto_1fr_auto]">
             <Header />
             <MainBody />
             <Section3_Footer />
