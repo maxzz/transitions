@@ -17,6 +17,9 @@ const MIN_SPRING_WRAPS = 2;
 const MAX_SPRING_WRAPS = 18;
 const DEFAULT_SPRING_TENSION = 170;
 const SAMPLES_PER_WRAP = 12;
+const SPRING_TRAVEL = 105;
+const MIN_SPRING_DISPLACEMENT = -150;
+const MAX_SPRING_DISPLACEMENT = 145;
 const MIN_LOAD_HEIGHT = 50;
 const MAX_LOAD_HEIGHT = 210;
 const DEFAULT_LOAD_HEIGHT = 150;
@@ -62,6 +65,16 @@ export function getMechanicalSpringPath(tension?: number): string {
     return commands.join(" ");
 }
 
+export function getMechanicalSpringDisplacement(value: number): number {
+    const resolvedValue = Number.isFinite(value) ? value : 0;
+    const displacement = SPRING_TRAVEL * (1 - resolvedValue);
+
+    return Math.min(
+        MAX_SPRING_DISPLACEMENT,
+        Math.max(MIN_SPRING_DISPLACEMENT, displacement),
+    );
+}
+
 export function getMechanicalLoadHeight(mass?: number): number {
     if (mass === undefined || !Number.isFinite(mass)) return DEFAULT_LOAD_HEIGHT;
     const clampedMass = Math.min(MAX_MASS, Math.max(MIN_MASS, mass));
@@ -84,8 +97,10 @@ export const MechanicalSpring = forwardRef<
 
         const setValue = useCallback((value: number) => {
             currentValueRef.current = value;
-            const displacement = 105 * (1 - value);
-            const springScale = (175 + displacement) / 175;
+            const displacement = getMechanicalSpringDisplacement(value);
+            const springScale = (
+                SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement
+            ) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
             springRef.current?.setAttribute(
                 "transform",

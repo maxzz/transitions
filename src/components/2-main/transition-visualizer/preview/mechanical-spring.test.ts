@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
     getMechanicalLoadHeight,
+    getMechanicalSpringDisplacement,
     getMechanicalSpringPath,
     getMechanicalSpringWraps,
 } from "./mechanical-spring";
@@ -19,6 +20,17 @@ describe("mechanical spring", () => {
 
     it("changes the rendered coil path with tension", () => {
         expect(getMechanicalSpringPath(30)).not.toBe(getMechanicalSpringPath(400));
+    });
+
+    it("keeps extreme responses inside the mechanical stage", () => {
+        expect(getMechanicalSpringDisplacement(8.563)).toBe(-150);
+        expect(getMechanicalSpringDisplacement(-8.563)).toBe(145);
+    });
+
+    it("preserves displacement throughout the normal response range", () => {
+        expect(getMechanicalSpringDisplacement(0)).toBe(105);
+        expect(getMechanicalSpringDisplacement(1)).toBe(0);
+        expect(getMechanicalSpringDisplacement(2)).toBe(-105);
     });
 });
 

@@ -15,7 +15,7 @@ describe("persisted engine params", () => {
         })).toEqual({
             ...reactSpringDefaults,
             mass: 8,
-            tension: 500,
+            tension: 400,
             clamp: true,
         });
     });

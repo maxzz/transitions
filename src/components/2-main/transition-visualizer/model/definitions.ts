@@ -32,10 +32,18 @@ const reactSpringDefinition: EngineDefinition<ReactSpringParams> = {
     ],
     fields: [
         { kind: "number", key: "mass", label: "Mass", min: 0.1, max: 20, step: 0.1 },
-        { kind: "number", key: "tension", label: "Tension", min: 1, max: 500, step: 1 },
+        { kind: "number", key: "tension", label: "Tension", min: 30, max: 400, step: 1 },
         { kind: "number", key: "friction", label: "Friction", min: 1, max: 180, step: 1 },
         { kind: "number", key: "precision", label: "Precision", min: 0.001, max: 1, step: 0.001, scale: "log" },
-        { kind: "number", key: "velocity", label: "Velocity", min: -0.05, max: 0.05, step: 0.001 },
+        {
+            kind: "number",
+            key: "velocity",
+            label: "Velocity",
+            min: -0.05,
+            max: 0.05,
+            step: 0.001,
+            description: "Initial velocity in target units per millisecond.",
+        },
         { kind: "boolean", key: "clamp", label: "Clamp overshoot", description: "Stop at the target instead of crossing it." },
     ],
 };
