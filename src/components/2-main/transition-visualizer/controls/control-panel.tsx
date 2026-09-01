@@ -37,8 +37,8 @@ export function ControlPanel() {
 
     return (
         <div className="min-h-0 flex flex-col">
-            <div className="p-4 border-b border-border">
-                <Label className="mb-2 text-muted-foreground" htmlFor="transition-preset">
+            <div className="p-2 border-b border-border flex items-center gap-2">
+                <Label className="shrink-0 w-14 text-muted-foreground" htmlFor="transition-preset">
                     Preset
                 </Label>
                 <Select
@@ -47,7 +47,7 @@ export function ControlPanel() {
                         if (presetId !== "custom") applyPreset({ engineId, presetId });
                     }}
                 >
-                    <SelectTrigger id="transition-preset" className="w-full">
+                    <SelectTrigger id="transition-preset" className="h-7 min-w-0 flex-1">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -63,7 +63,7 @@ export function ControlPanel() {
                 </Select>
             </div>
 
-            <div className="p-4 min-h-0 overflow-y-auto flex-1 space-y-5">
+            <div className="p-2 min-h-0 overflow-y-auto flex-1 space-y-3">
                 {fields.map((field) => {
                     if (field.visible && !field.visible(params)) return null;
                     if (field.kind === "number") {
@@ -116,26 +116,13 @@ function NumberControl({
     const sliderStep = field.scale === "log" ? (sliderMax - sliderMin) / 200 : field.step;
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
-                <Label htmlFor={id}>{field.label}</Label>
-                <Input
-                    id={id}
-                    className="h-7 w-24 font-mono tabular-nums"
-                    type="number"
-                    min={field.min}
-                    max={field.max}
-                    step={field.step}
-                    value={value}
-                    onChange={(event) => {
-                        if (Number.isFinite(event.currentTarget.valueAsNumber)) {
-                            onChange(event.currentTarget.valueAsNumber);
-                        }
-                    }}
-                />
-            </div>
+        <div
+            className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2"
+            title={field.description}
+        >
+            <Label className="truncate" htmlFor={id}>{field.label}</Label>
             <input
-                className="h-2 w-full bg-muted accent-primary rounded-full appearance-none cursor-pointer"
+                className="h-1.5 min-w-0 w-full bg-muted accent-primary rounded-full appearance-none cursor-pointer"
                 type="range"
                 aria-label={`${field.label} slider`}
                 aria-valuetext={value.toString()}
@@ -148,9 +135,20 @@ function NumberControl({
                     onChange(field.scale === "log" ? Number((10 ** next).toPrecision(6)) : next);
                 }}
             />
-            {field.description && (
-                <p className="text-[11px] leading-relaxed text-muted-foreground">{field.description}</p>
-            )}
+            <Input
+                id={id}
+                className="px-1 h-6 w-full font-mono text-[11px] tabular-nums"
+                type="number"
+                min={field.min}
+                max={field.max}
+                step={field.step}
+                value={value}
+                onChange={(event) => {
+                    if (Number.isFinite(event.currentTarget.valueAsNumber)) {
+                        onChange(event.currentTarget.valueAsNumber);
+                    }
+                }}
+            />
         </div>
     );
 }
@@ -166,18 +164,13 @@ function BooleanControl({
 }) {
     const id = `transition-${field.key}`;
     return (
-        <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-                <Checkbox
-                    id={id}
-                    checked={value}
-                    onCheckedChange={(checked) => onChange(checked === true)}
-                />
-                <Label htmlFor={id}>{field.label}</Label>
-            </div>
-            {field.description && (
-                <p className="pl-6 text-[11px] leading-relaxed text-muted-foreground">{field.description}</p>
-            )}
+        <div className="h-6 flex items-center gap-2" title={field.description}>
+            <Checkbox
+                id={id}
+                checked={value}
+                onCheckedChange={(checked) => onChange(checked === true)}
+            />
+            <Label htmlFor={id}>{field.label}</Label>
         </div>
     );
 }
@@ -193,10 +186,10 @@ function SelectControl({
 }) {
     const id = `transition-${field.key}`;
     return (
-        <div className="space-y-2">
-            <Label htmlFor={id}>{field.label}</Label>
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2" title={field.description}>
+            <Label className="truncate" htmlFor={id}>{field.label}</Label>
             <Select value={value} onValueChange={onChange}>
-                <SelectTrigger id={id} className="w-full">
+                <SelectTrigger id={id} className="h-7 min-w-0 w-full">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

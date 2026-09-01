@@ -1,6 +1,5 @@
 export type EngineId = "react-spring" | "motion" | "gsap";
 
-export type VisualizerView = "preview" | "graph";
 export type RunStatus = "idle" | "running" | "settled";
 
 export type SamplePoint = {

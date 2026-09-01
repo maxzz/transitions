@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useAtomValue } from "jotai";
 import { getSampleBounds } from "../model/samples";
 import { engineDefinitions } from "../model/definitions";
-import { runResultAtom } from "../state/atoms";
+import { runResultAtom, runStatusAtom } from "../state/atoms";
 
 const WIDTH = 760;
 const HEIGHT = 440;
@@ -15,6 +15,7 @@ const PLOT_HEIGHT = HEIGHT - TOP - BOTTOM;
 
 export function ResponseGraph() {
     const result = useAtomValue(runResultAtom);
+    const status = useAtomValue(runStatusAtom);
 
     const graph = useMemo(() => {
         if (!result) return null;
@@ -35,13 +36,13 @@ export function ResponseGraph() {
             ? `M ${points[0].x} ${TOP + PLOT_HEIGHT} L ${points.map(({ x, y }) => `${x} ${y}`).join(" L ")} L ${points.at(-1)!.x} ${TOP + PLOT_HEIGHT} Z`
             : "";
 
-        return { bounds, minValue, maxValue, toY, line, area };
+        return { bounds, minValue, maxValue, toY, line, area, points };
     }, [result]);
 
     if (!result || !graph) {
         return (
             <div className="h-full min-h-[28rem] text-sm text-muted-foreground grid place-items-center">
-                Run an animation to record its response.
+                {status === "running" ? "Recording response…" : "Run an animation to record its response."}
             </div>
         );
     }
@@ -132,6 +133,18 @@ export function ResponseGraph() {
                         strokeLinejoin="round"
                         strokeWidth="4"
                     />
+                    <g aria-hidden="true">
+                        {graph.points.map((point, index) => (
+                            <circle
+                                key={`${point.x}-${index}`}
+                                cx={point.x}
+                                cy={point.y}
+                                r="3.25"
+                                className="fill-primary stroke-background"
+                                strokeWidth="1.5"
+                            />
+                        ))}
+                    </g>
 
                     <g className="font-mono text-[12px] fill-muted-foreground">
                         <text x={LEFT} y={HEIGHT - 19}>0 ms</text>

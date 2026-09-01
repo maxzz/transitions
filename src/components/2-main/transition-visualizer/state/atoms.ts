@@ -1,6 +1,6 @@
 import { atom, type Setter } from "jotai";
 import { engineDefinitions, gsapDefaults, motionDefaults, reactSpringDefaults } from "../model/definitions";
-import type { EngineId, EngineParamsMap, RunResult, RunStatus, VisualizerView } from "../model/types";
+import type { EngineId, EngineParamsMap, RunResult, RunStatus } from "../model/types";
 
 export const activeEngineAtom = atom<EngineId>("react-spring");
 
@@ -17,7 +17,6 @@ export const activeParamsAtom = atom((get) => {
 
 export const activeDefinitionAtom = atom((get) => engineDefinitions[get(activeEngineAtom)]);
 
-export const viewAtom = atom<VisualizerView>("preview");
 export const runStatusAtom = atom<RunStatus>("idle");
 export const runTokenAtom = atom(0);
 export const runResultAtom = atom<RunResult | null>(null);
@@ -25,7 +24,6 @@ export const runResultAtom = atom<RunResult | null>(null);
 function resetRun(set: Setter) {
     set(runTokenAtom, (token) => token + 1);
     set(runStatusAtom, "idle");
-    set(viewAtom, "preview");
     set(runResultAtom, null);
 }
 
@@ -68,7 +66,6 @@ export const applyPresetAtom = atom(
 export const requestRunAtom = atom(null, (_get, set) => {
     set(runTokenAtom, (token) => token + 1);
     set(runResultAtom, null);
-    set(viewAtom, "preview");
     set(runStatusAtom, "running");
 });
 
@@ -78,7 +75,6 @@ export const completeRunAtom = atom(
         if (get(runTokenAtom) !== update.token) return;
         set(runResultAtom, update.result);
         set(runStatusAtom, "settled");
-        set(viewAtom, "graph");
     },
 );
 

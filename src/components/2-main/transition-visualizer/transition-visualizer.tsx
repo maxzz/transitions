@@ -1,7 +1,11 @@
 import { useAtomValue, useSetAtom } from "jotai";
+import { useSnapshot } from "valtio";
 import { ArrowLeft, Play, RotateCcw } from "lucide-react";
+import { appSettings } from "@/store/1-ui-settings";
 import { Button } from "@/ui/shadcn/button";
+import { cn } from "@/utils/classnames";
 import { ControlPanel } from "./controls/control-panel";
+import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
 import { ResponseGraph } from "./graph/response-graph";
 import { PreviewStage } from "./preview/preview-stage";
@@ -10,13 +14,12 @@ import {
     backToPreviewAtom,
     requestRunAtom,
     runStatusAtom,
-    viewAtom,
 } from "./state/atoms";
 
 export function TransitionVisualizer() {
+    const { visualizerDisplay } = useSnapshot(appSettings);
     const definition = useAtomValue(activeDefinitionAtom);
     const status = useAtomValue(runStatusAtom);
-    const view = useAtomValue(viewAtom);
     const requestRun = useSetAtom(requestRunAtom);
     const backToPreview = useSetAtom(backToPreviewAtom);
 
@@ -34,22 +37,23 @@ export function TransitionVisualizer() {
                         Tune native animation parameters, run the same mechanical response, and inspect the recorded curve.
                     </p>
                 </div>
+                <DisplayModeControl />
             </div>
 
-            <div className="min-h-0 bg-background lg:grid-cols-[20rem_minmax(0,1fr)] border border-border rounded-xl shadow-sm overflow-hidden grid flex-1">
+            <div className="min-h-0 bg-background lg:grid-cols-[15rem_minmax(0,1fr)] border border-border rounded-xl shadow-sm overflow-hidden grid flex-1">
                 <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border flex flex-col">
-                    <div className="p-4 border-b border-border">
+                    <div className="p-2 border-b border-border">
                         <EngineTabs />
                     </div>
                     <ControlPanel />
-                    <div className="mt-auto p-4 bg-muted/20 border-t border-border">
-                        {view === "graph" ? (
+                    <div className="mt-auto p-2 bg-muted/20 border-t border-border">
+                        {status === "settled" ? (
                             <div className="grid grid-cols-2 gap-2">
-                                <Button variant="outline" onClick={backToPreview}>
+                                <Button size="sm" variant="outline" onClick={backToPreview}>
                                     <ArrowLeft data-icon="inline-start" />
                                     Back
                                 </Button>
-                                <Button onClick={requestRun}>
+                                <Button size="sm" onClick={requestRun}>
                                     <RotateCcw data-icon="inline-start" />
                                     Replay
                                 </Button>
@@ -57,6 +61,7 @@ export function TransitionVisualizer() {
                         ) : (
                             <Button
                                 className="w-full"
+                                size="sm"
                                 disabled={status === "running"}
                                 onClick={requestRun}
                             >
@@ -67,8 +72,28 @@ export function TransitionVisualizer() {
                     </div>
                 </aside>
 
-                <div className="min-h-0">
-                    {view === "preview" ? <PreviewStage /> : <ResponseGraph />}
+                <div
+                    className={cn(
+                        "min-h-0",
+                        visualizerDisplay === "split" && "lg:grid-cols-2 grid",
+                    )}
+                >
+                    <div
+                        className={cn("min-h-0", visualizerDisplay === "graph" && "hidden")}
+                        aria-hidden={visualizerDisplay === "graph"}
+                    >
+                        <PreviewStage />
+                    </div>
+                    {visualizerDisplay !== "mechanical" && (
+                        <div
+                            className={cn(
+                                "min-h-0",
+                                visualizerDisplay === "split" && "lg:border-l lg:border-border",
+                            )}
+                        >
+                            <ResponseGraph />
+                        </div>
+                    )}
                 </div>
             </div>
         </section>
