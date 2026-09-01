@@ -1,6 +1,18 @@
 import { proxy, subscribe } from "valtio";
 import { type ThemeMode, themeApplyMode } from "../utils/theme-apply";
 import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
+import {
+    engineDefinitions,
+    gsapDefaults,
+    getValidEngineParams,
+    motionDefaults,
+    reactSpringDefaults,
+} from "@/components/2-main/transition-visualizer/model/definitions";
+import type {
+    GsapParams,
+    MotionParams,
+    ReactSpringParams,
+} from "@/components/2-main/transition-visualizer/model/types";
 
 const STORE_KEY = "tm-template-shadcn-26";
 const STORE_VER = "v1.0";
@@ -15,6 +27,9 @@ export interface AppSettings {
     expandedSections: string[];
     visualizerDisplay: VisualizerDisplay;
     autoRecordResponse: boolean;
+    reactSpringParams: ReactSpringParams;
+    motionParams: MotionParams;
+    gsapParams: GsapParams;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -24,6 +39,9 @@ const DEFAULT_SETTINGS: AppSettings = {
     expandedSections: ["resizable-panels", "pierre-trees"],
     visualizerDisplay: "split",
     autoRecordResponse: true,
+    reactSpringParams: { ...reactSpringDefaults },
+    motionParams: { ...motionDefaults },
+    gsapParams: { ...gsapDefaults },
 };
 
 function loadSettings(): AppSettings {
@@ -38,12 +56,20 @@ function loadSettings(): AppSettings {
                 expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
                 visualizerDisplay: getValidVisualizerDisplay(parsed.visualizerDisplay),
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
+                reactSpringParams: getValidEngineParams(engineDefinitions["react-spring"], parsed.reactSpringParams),
+                motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
+                gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
             };
         }
     } catch (error) {
         console.error("Failed to load settings", error);
     }
-    return { ...DEFAULT_SETTINGS };
+    return {
+        ...DEFAULT_SETTINGS,
+        reactSpringParams: { ...reactSpringDefaults },
+        motionParams: { ...motionDefaults },
+        gsapParams: { ...gsapDefaults },
+    };
 }
 
 function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
