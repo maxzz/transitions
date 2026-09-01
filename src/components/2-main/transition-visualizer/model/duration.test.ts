@@ -1,0 +1,48 @@
+import { describe, expect, it } from "vitest";
+import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./definitions";
+import { estimateDurationMs, formatDuration, resolveExpectedDurationMs } from "./duration";
+
+describe("estimateDurationMs", () => {
+    it("uses the GSAP duration parameter", () => {
+        expect(estimateDurationMs("gsap", { ...gsapDefaults, duration: 1.2 })).toBe(1200);
+    });
+
+    it("returns a finite spring duration for default React Spring params", () => {
+        const durationMs = estimateDurationMs("react-spring", reactSpringDefaults);
+        expect(durationMs).toBeGreaterThan(100);
+        expect(durationMs).toBeLessThan(4000);
+    });
+
+    it("returns a longer duration for a weakly damped heavy spring", () => {
+        const snappy = estimateDurationMs("react-spring", reactSpringDefaults);
+        const wobbly = estimateDurationMs("react-spring", {
+            ...reactSpringDefaults,
+            mass: 15.8,
+            tension: 333,
+            friction: 9,
+            precision: 0.0032,
+        });
+        expect(wobbly).toBeGreaterThan(snappy);
+        expect(wobbly).toBeGreaterThan(2000);
+    });
+
+    it("returns a finite duration for Motion springs", () => {
+        const durationMs = estimateDurationMs("motion", motionDefaults);
+        expect(durationMs).toBeGreaterThan(100);
+        expect(durationMs).toBeLessThan(8000);
+    });
+
+    it("reuses a recorded duration when it is close to the simulation", () => {
+        const params = { ...reactSpringDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
+        const simulated = estimateDurationMs("react-spring", params);
+        expect(resolveExpectedDurationMs("react-spring", params, 9750)).toBe(9750);
+        expect(simulated).toBeGreaterThan(9750);
+    });
+});
+
+describe("formatDuration", () => {
+    it("formats milliseconds and seconds", () => {
+        expect(formatDuration(320)).toBe("320 ms");
+        expect(formatDuration(9750)).toBe("9.75 s");
+    });
+});

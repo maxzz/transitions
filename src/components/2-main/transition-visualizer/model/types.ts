@@ -12,6 +12,7 @@ export type RunResult = {
     engineId: EngineId;
     durationMs: number;
     samples: SamplePoint[];
+    stopped?: boolean;
 };
 
 export type ReactSpringParams = {

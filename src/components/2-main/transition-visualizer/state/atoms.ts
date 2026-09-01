@@ -4,7 +4,8 @@ import {
     engineDefinitions,
     getValidParamsByEngine,
 } from "../model/definitions";
-import type { EngineId, EngineParamsMap, RunResult, RunStatus, VisualizationMode } from "../model/types";
+import { resolveExpectedDurationMs } from "../model/duration";
+import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/types";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
 
@@ -23,8 +24,20 @@ export const activeDefinitionAtom = atom((get) => engineDefinitions[get(activeEn
 export const runStatusAtom = atom<RunStatus>("idle");
 export const runTokenAtom = atom(0);
 export const runResultAtom = atom<RunResult | null>(null);
+export const liveSamplesAtom = atom<SamplePoint[]>([]);
+export const expectedDurationMsAtom = atom(0);
 
 let autoRecordTimer: ReturnType<typeof setTimeout> | null = null;
+let stopActiveRun: (() => void) | null = null;
+const lastDurationByEngine: Record<EngineId, number> = {
+    "react-spring": 0,
+    motion: 0,
+    gsap: 0,
+};
+
+export function registerStopActiveRun(stop: (() => void) | null) {
+    stopActiveRun = stop;
+}
 
 function readPersistedParams(): EngineParamsMap {
     return getValidParamsByEngine({
@@ -57,11 +70,17 @@ function resetRun(set: Setter) {
     set(runTokenAtom, (token) => token + 1);
     set(runStatusAtom, "idle");
     set(runResultAtom, null);
+    set(liveSamplesAtom, []);
 }
 
-function startRun(set: Setter) {
+function startRun(get: Getter, set: Setter) {
     clearAutoRecordTimer();
+    const engineId = get(activeEngineAtom);
+    const params = get(paramsByEngineAtom)[engineId];
     set(runTokenAtom, (token) => token + 1);
+    set(runResultAtom, null);
+    set(liveSamplesAtom, []);
+    set(expectedDurationMsAtom, resolveExpectedDurationMs(engineId, params, lastDurationByEngine[engineId]));
     set(runStatusAtom, "running");
 }
 
@@ -72,7 +91,7 @@ function resetOrAutoRun(get: Getter, set: Setter, debounce: boolean) {
     }
 
     if (!debounce) {
-        startRun(set);
+        startRun(get, set);
         return;
     }
 
@@ -81,7 +100,7 @@ function resetOrAutoRun(get: Getter, set: Setter, debounce: boolean) {
     clearAutoRecordTimer();
     autoRecordTimer = setTimeout(() => {
         autoRecordTimer = null;
-        startRun(set);
+        startRun(get, set);
     }, AUTO_RECORD_DEBOUNCE_MS);
 }
 
@@ -125,16 +144,30 @@ export const applyPresetAtom = atom(
     },
 );
 
-export const requestRunAtom = atom(null, (_get, set) => {
-    startRun(set);
+export const requestRunAtom = atom(null, (get, set) => {
+    startRun(get, set);
 });
+
+export const publishLiveSamplesAtom = atom(
+    null,
+    (get, set, update: { token: number; samples: SamplePoint[] }) => {
+        if (get(runTokenAtom) !== update.token) return;
+        set(liveSamplesAtom, update.samples);
+    },
+);
 
 export const completeRunAtom = atom(
     null,
     (get, set, update: { token: number; result: RunResult }) => {
         if (get(runTokenAtom) !== update.token) return;
+        lastDurationByEngine[update.result.engineId] = update.result.durationMs;
         set(runResultAtom, update.result);
+        set(liveSamplesAtom, update.result.samples);
         set(runStatusAtom, "settled");
     },
 );
 
+export const stopRunAtom = atom(null, (get) => {
+    if (get(runStatusAtom) !== "running") return;
+    stopActiveRun?.();
+});

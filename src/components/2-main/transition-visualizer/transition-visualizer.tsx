@@ -7,6 +7,7 @@ import { cn } from "@/utils/classnames";
 import { ControlPanel } from "./controls/control-panel";
 import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
+import { StopMotionButton } from "./controls/stop-motion-button";
 import { ResponseGraph } from "./graph/response-graph";
 import { PreviewStage } from "./preview/preview-stage";
 import {
@@ -45,15 +46,14 @@ export function TransitionVisualizer() {
                     </div>
                     <ControlPanel />
                     <div className="p-2 bg-muted/20 border-t border-border">
-                        <Button
-                            className="w-full"
-                            size="sm"
-                            disabled={status === "running"}
-                            onClick={requestRun}
-                        >
-                            <Play data-icon="inline-start" />
-                            Play
-                        </Button>
+                        {status === "running" ? (
+                            <StopMotionButton className="w-full" />
+                        ) : (
+                            <Button className="w-full" size="sm" onClick={requestRun}>
+                                <Play data-icon="inline-start" />
+                                Play
+                            </Button>
+                        )}
                     </div>
                 </aside>
 

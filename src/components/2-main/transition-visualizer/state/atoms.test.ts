@@ -25,11 +25,16 @@ import {
     applyPresetAtom,
     clearAutoRecordTimer,
     completeRunAtom,
+    expectedDurationMsAtom,
+    liveSamplesAtom,
     paramsByEngineAtom,
+    publishLiveSamplesAtom,
+    registerStopActiveRun,
     requestRunAtom,
     runResultAtom,
     runTokenAtom,
     runStatusAtom,
+    stopRunAtom,
     updateParamAtom,
 } from "./atoms";
 
@@ -70,7 +75,7 @@ describe("visualizer run state", () => {
         expect(store.get(runStatusAtom)).toBe("settled");
     });
 
-    it("keeps the previous curve while a new run is recording", () => {
+    it("clears the previous curve when a new run starts", () => {
         const store = createStore();
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
@@ -86,8 +91,46 @@ describe("visualizer run state", () => {
 
         store.set(requestRunAtom);
 
-        expect(store.get(runResultAtom)).toEqual(result);
+        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(liveSamplesAtom)).toEqual([]);
         expect(store.get(runStatusAtom)).toBe("running");
+        expect(store.get(expectedDurationMsAtom)).toBeGreaterThan(0);
+    });
+
+    it("publishes live samples for the current run token", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        const token = store.get(runTokenAtom);
+        const samples = [
+            { elapsedMs: 0, value: 0 },
+            { elapsedMs: 80, value: 0.4 },
+        ];
+
+        store.set(publishLiveSamplesAtom, { token, samples });
+
+        expect(store.get(liveSamplesAtom)).toEqual(samples);
+        expect(store.get(runStatusAtom)).toBe("running");
+    });
+
+    it("stops the active run through the registered handler", () => {
+        const store = createStore();
+        const stop = vi.fn();
+        registerStopActiveRun(stop);
+        store.set(requestRunAtom);
+        store.set(stopRunAtom);
+
+        expect(stop).toHaveBeenCalledTimes(1);
+        registerStopActiveRun(null);
+    });
+
+    it("does not stop when nothing is recording", () => {
+        const stop = vi.fn();
+        registerStopActiveRun(stop);
+        const store = createStore();
+        store.set(stopRunAtom);
+
+        expect(stop).not.toHaveBeenCalled();
+        registerStopActiveRun(null);
     });
 });
 
@@ -125,6 +168,7 @@ describe("auto-record on parameter change", () => {
 
         expect(store.get(runStatusAtom)).toBe("idle");
         expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(liveSamplesAtom)).toEqual([]);
     });
 });
 

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useAtomValue } from "jotai";
+import { StopMotionButton } from "../controls/stop-motion-button";
 import { VisualizationModeControl } from "../controls/visualization-mode-control";
 import {
     activeDefinitionAtom,
@@ -44,8 +45,9 @@ export function PreviewStage() {
             <div className="p-3 min-h-0 sm:p-6 flex-1">
                 <TransitionScene ref={sceneRef} clamped={clamped} />
             </div>
-            <div className="p-2 bg-muted/20 border-t border-border flex items-center justify-center">
+            <div className="p-2 bg-muted/20 border-t border-border flex flex-wrap items-center justify-center gap-2">
                 <VisualizationModeControl />
+                <StopMotionButton />
             </div>
         </div>
     );

@@ -5,10 +5,14 @@ import { appSettings } from "@/store/1-ui-settings";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { cn } from "@/utils/classnames";
+import { estimateDurationMs, formatDuration } from "../model/duration";
 import { getSampleBounds } from "../model/samples";
 import {
     activeDefinitionAtom,
     activeEngineAtom,
+    activeParamsAtom,
+    expectedDurationMsAtom,
+    liveSamplesAtom,
     runResultAtom,
     runStatusAtom,
 } from "../state/atoms";
@@ -27,37 +31,57 @@ const EMPTY_BOUNDS = { durationMs: 0, minValue: 0, maxValue: 1 };
 
 export function ResponseGraph() {
     const result = useAtomValue(runResultAtom);
+    const liveSamples = useAtomValue(liveSamplesAtom);
+    const expectedDurationMs = useAtomValue(expectedDurationMsAtom);
     const status = useAtomValue(runStatusAtom);
     const definition = useAtomValue(activeDefinitionAtom);
     const engineId = useAtomValue(activeEngineAtom);
+    const params = useAtomValue(activeParamsAtom);
+    const recording = status === "running";
+    const samples = recording ? liveSamples : result?.samples ?? [];
 
     const graph = useMemo(() => {
-        const bounds = result ? getSampleBounds(result.samples) : EMPTY_BOUNDS;
+        const bounds = samples.length > 0 ? getSampleBounds(samples) : EMPTY_BOUNDS;
+        const elapsedMs = samples.at(-1)?.elapsedMs ?? 0;
+        const predictedMs = recording ? expectedDurationMs : estimateDurationMs(engineId, params);
+        const duration = recording
+            ? Math.max(predictedMs, elapsedMs, 1)
+            : samples.length > 0
+                ? Math.max(bounds.durationMs, 1)
+                : Math.max(predictedMs, 1);
         const valueRange = bounds.maxValue - bounds.minValue;
         const pad = Math.max(valueRange * 0.12, 0.08);
         const minValue = bounds.minValue - pad;
         const maxValue = bounds.maxValue + pad;
-        const duration = Math.max(bounds.durationMs, 1);
-        const toX = (elapsedMs: number) => LEFT + (elapsedMs / duration) * PLOT_WIDTH;
+        const toX = (elapsed: number) => LEFT + (elapsed / duration) * PLOT_WIDTH;
         const toY = (value: number) => TOP + ((maxValue - value) / (maxValue - minValue)) * PLOT_HEIGHT;
-        const points = result?.samples.map((sample) => ({
+        const points = samples.map((sample) => ({
             x: toX(sample.elapsedMs),
             y: toY(sample.value),
-        })) ?? [];
+        }));
         const line = points.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
         const area = points.length > 0
             ? `M ${points[0].x} ${TOP + PLOT_HEIGHT} L ${points.map(({ x, y }) => `${x} ${y}`).join(" L ")} L ${points.at(-1)!.x} ${TOP + PLOT_HEIGHT} Z`
             : "";
 
-        return { bounds, toY, line, area, points, hasCurve: points.length > 0 };
-    }, [result]);
+        return { bounds, toY, line, area, points, hasCurve: points.length > 0, duration, elapsedMs };
+    }, [engineId, expectedDurationMs, params, recording, samples]);
 
     const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
-    const durationLabel = engineId === "gsap" ? "fixed duration" : "settled after";
+    const durationLabel = result?.stopped
+        ? "stopped after"
+        : engineId === "gsap"
+            ? "fixed duration"
+            : "settled after";
+    const durationValue = recording
+        ? formatDuration(graph.elapsedMs)
+        : graph.hasCurve && result
+            ? formatDuration(result.durationMs)
+            : "—";
 
     return (
         <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
-            <RecordingIndicator recording={status === "running"} />
+            <RecordingIndicator recording={recording} />
             <div className="py-4 pl-5 pr-28 border-b border-border flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h2 className="text-sm font-semibold">Recorded response</h2>
@@ -68,7 +92,7 @@ export function ResponseGraph() {
                 <div className="flex flex-wrap items-center justify-end gap-3">
                     <AutoRecordControl />
                     <span className="px-2.5 py-1 font-mono text-[10px] text-muted-foreground bg-background border border-border rounded-full">
-                        {result?.samples.length ?? 0} points
+                        {samples.length} points
                     </span>
                 </div>
             </div>
@@ -161,7 +185,7 @@ export function ResponseGraph() {
                     <g className="font-mono text-[12px] fill-muted-foreground">
                         <text x={LEFT} y={HEIGHT - 19}>0 ms</text>
                         <text x={LEFT + PLOT_WIDTH} y={HEIGHT - 19} textAnchor="end">
-                            {graph.hasCurve ? formatDuration(graph.bounds.durationMs) : "—"}
+                            {formatDuration(graph.duration)}
                         </text>
                         <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">1</text>
                         <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">0</text>
@@ -170,7 +194,7 @@ export function ResponseGraph() {
             </div>
 
             <div className="px-5 py-3 font-mono text-[11px] text-muted-foreground bg-background sm:grid-cols-4 border-t border-border grid grid-cols-2 gap-3">
-                <span>{durationLabel}: {graph.hasCurve && result ? formatDuration(result.durationMs) : "—"}</span>
+                <span>{recording ? "elapsed" : durationLabel}: {durationValue}</span>
                 <span>min: {graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"}</span>
                 <span>max: {graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"}</span>
                 <span>overshoot: {graph.hasCurve ? overshoot.toFixed(3) : "—"}</span>
@@ -218,10 +242,4 @@ function AutoRecordControl() {
             <Label htmlFor="auto-record-response">Auto-update</Label>
         </div>
     );
-}
-
-function formatDuration(durationMs: number): string {
-    return durationMs < 1000
-        ? `${Math.round(durationMs)} ms`
-        : `${(durationMs / 1000).toFixed(2)} s`;
 }
