@@ -17,6 +17,7 @@ import {
     applyPresetAtom,
     updateParamAtom,
 } from "../state/atoms";
+import { CodeSnippetButton } from "./code-snippet-button";
 
 type ControlValues = Record<string, number | string | boolean>;
 
@@ -95,6 +96,7 @@ export function ControlPanel() {
                         />
                     );
                 })}
+                <CodeSnippetButton />
             </div>
         </div>
     );
