@@ -1,5 +1,9 @@
 import { useRef } from "react";
 import { useAtomValue } from "jotai";
+import { useSnapshot } from "valtio";
+import { appSettings } from "@/store/1-ui-settings";
+import { Checkbox } from "@/ui/shadcn/checkbox";
+import { Label } from "@/ui/shadcn/label";
 import { StopMotionButton } from "../controls/stop-motion-button";
 import { VisualizationModeControl } from "../controls/visualization-mode-control";
 import {
@@ -16,6 +20,7 @@ import { useEngineRun } from "./use-engine-run";
 export function PreviewStage() {
     const scopeRef = useRef<HTMLDivElement>(null);
     const sceneRef = useRef<MechanicalSpringHandle>(null);
+    const { returnToInitialPosition } = useSnapshot(appSettings);
     const definition = useAtomValue(activeDefinitionAtom);
     const engineId = useAtomValue(activeEngineAtom);
     const params = useAtomValue(paramsByEngineAtom);
@@ -47,6 +52,19 @@ export function PreviewStage() {
             </div>
             <div className="p-2 bg-muted/20 border-t border-border flex flex-wrap items-center justify-center gap-2">
                 <VisualizationModeControl />
+                <div
+                    className="px-2 h-7 flex items-center gap-2"
+                    title="Return the preview to its starting position one second after the animation finishes"
+                >
+                    <Checkbox
+                        id="return-to-initial-position"
+                        checked={returnToInitialPosition}
+                        onCheckedChange={(checked) => {
+                            appSettings.returnToInitialPosition = checked === true;
+                        }}
+                    />
+                    <Label htmlFor="return-to-initial-position">Return to initial position</Label>
+                </div>
                 <StopMotionButton />
             </div>
         </div>

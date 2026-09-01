@@ -33,6 +33,7 @@ export interface AppSettings {
     expandedSections: string[];
     visualizerDisplay: VisualizerDisplay;
     autoRecordResponse: boolean;
+    returnToInitialPosition: boolean;
     reactSpringParams: ReactSpringParams;
     motionParams: MotionParams;
     gsapParams: GsapParams;
@@ -46,6 +47,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     expandedSections: ["resizable-panels", "pierre-trees"],
     visualizerDisplay: "split",
     autoRecordResponse: true,
+    returnToInitialPosition: false,
     reactSpringParams: { ...reactSpringDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
@@ -64,6 +66,10 @@ function loadSettings(): AppSettings {
                 expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
                 visualizerDisplay: getValidVisualizerDisplay(parsed.visualizerDisplay),
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
+                returnToInitialPosition: getValidBoolean(
+                    parsed.returnToInitialPosition,
+                    DEFAULT_SETTINGS.returnToInitialPosition,
+                ),
                 reactSpringParams: getValidEngineParams(engineDefinitions["react-spring"], parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),

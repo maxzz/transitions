@@ -22,6 +22,7 @@ import type { MechanicalSpringHandle } from "./mechanical-spring";
 gsap.registerPlugin(useGSAP);
 
 const LIVE_PUBLISH_MS = 48;
+const RETURN_TO_INITIAL_DELAY_MS = 1_000;
 
 export function useEngineRun(
     scopeRef: RefObject<HTMLDivElement | null>,
@@ -42,6 +43,7 @@ export function useEngineRun(
 
         let cancelled = false;
         let lastPublishAt = 0;
+        let returnTimer: ReturnType<typeof setTimeout> | null = null;
         const samples: SamplePoint[] = [];
         sceneRef.current?.setValue(0);
 
@@ -75,6 +77,14 @@ export function useEngineRun(
             onRest() {
                 if (cancelled) return;
                 finish();
+                if (appSettings.returnToInitialPosition) {
+                    returnTimer = setTimeout(() => {
+                        returnTimer = null;
+                        if (!cancelled && appSettings.returnToInitialPosition) {
+                            sceneRef.current?.setValue(0);
+                        }
+                    }, RETURN_TO_INITIAL_DELAY_MS);
+                }
             },
         });
 
@@ -89,6 +99,7 @@ export function useEngineRun(
 
         return () => {
             cancelled = true;
+            if (returnTimer !== null) clearTimeout(returnTimer);
             run.cancel();
             registerStopActiveRun(null);
         };
@@ -102,7 +113,7 @@ export function useEngineRun(
     useEffect(() => {
         if (engineId === "gsap") return undefined;
         return startRun();
-    }, [engineId, activeParams, status, token]);
+    }, [engineId, activeParams, token]);
 
     useGSAP(
         () => {
@@ -111,7 +122,7 @@ export function useEngineRun(
         },
         {
             scope: scopeRef,
-            dependencies: [engineId, activeParams, status, token],
+            dependencies: [engineId, activeParams, token],
             revertOnUpdate: true,
         },
     );
