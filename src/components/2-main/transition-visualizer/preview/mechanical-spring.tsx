@@ -5,12 +5,31 @@ export type MechanicalSpringHandle = {
     setValue: (value: number) => void;
 };
 
-export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: boolean }>(
-    function MechanicalSpring({ clamped = false }, ref) {
+const LOAD_TOP_Y = 278;
+const MIN_LOAD_HEIGHT = 50;
+const MAX_LOAD_HEIGHT = 210;
+const DEFAULT_LOAD_HEIGHT = 150;
+const MIN_MASS = 0.1;
+const MAX_MASS = 20;
+
+export function getMechanicalLoadHeight(mass?: number): number {
+    if (mass === undefined || !Number.isFinite(mass)) return DEFAULT_LOAD_HEIGHT;
+    const clampedMass = Math.min(MAX_MASS, Math.max(MIN_MASS, mass));
+    const normalizedMass = Math.log(clampedMass / MIN_MASS) / Math.log(MAX_MASS / MIN_MASS);
+    return MIN_LOAD_HEIGHT + normalizedMass * (MAX_LOAD_HEIGHT - MIN_LOAD_HEIGHT);
+}
+
+export const MechanicalSpring = forwardRef<
+    MechanicalSpringHandle,
+    { clamped?: boolean; mass?: number }
+>(
+    function MechanicalSpring({ clamped = false, mass }, ref) {
         const springRef = useRef<SVGGElement>(null);
         const massRef = useRef<SVGGElement>(null);
         const valueRef = useRef<SVGTextElement>(null);
         const currentValueRef = useRef(0);
+        const loadHeight = getMechanicalLoadHeight(mass);
+        const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
 
         const setValue = useCallback((value: number) => {
             currentValueRef.current = value;
@@ -32,7 +51,7 @@ export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: b
         return (
             <svg
                 className="h-full w-full text-foreground"
-                viewBox="0 0 700 550"
+                viewBox="0 0 700 650"
                 role="img"
                 aria-labelledby="mechanical-spring-title mechanical-spring-description"
             >
@@ -88,30 +107,36 @@ export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: b
                 )}
 
                 <g ref={massRef}>
-                    <path
-                        d="M315 250 V278 H385 V250"
-                        fill="none"
-                        className="stroke-foreground"
-                        strokeLinejoin="round"
-                        strokeWidth="7"
-                    />
                     <rect
                         x="205"
-                        y="278"
+                        y={LOAD_TOP_Y}
                         width="290"
-                        height="150"
+                        height={loadHeight}
                         rx="10"
                         fill="url(#mass-fill)"
                         className="stroke-foreground"
                         strokeWidth="5"
                     />
-                    <circle cx="350" cy="353" r="17" className="fill-background/80 stroke-foreground" strokeWidth="4" />
-                    <path d="M350 337 V370" className="stroke-foreground" strokeLinecap="round" strokeWidth="4" />
+                    <path
+                        d="M300 285 V270 C300 243 400 243 400 270 V285"
+                        fill="none"
+                        className="stroke-foreground"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="7"
+                    />
+                    <circle cx="350" cy={loadCenterY} r="17" className="fill-background/80 stroke-foreground" strokeWidth="4" />
+                    <path
+                        d={`M350 ${loadCenterY - 16} V${loadCenterY + 17}`}
+                        className="stroke-foreground"
+                        strokeLinecap="round"
+                        strokeWidth="4"
+                    />
                 </g>
 
                 <g className="font-mono text-[15px]">
-                    <text x="100" y="520" className="fill-muted-foreground">progress</text>
-                    <text ref={valueRef} x="600" y="520" textAnchor="end" className="fill-foreground">0.000</text>
+                    <text x="100" y="620" className="fill-muted-foreground">progress</text>
+                    <text ref={valueRef} x="600" y="620" textAnchor="end" className="fill-foreground">0.000</text>
                 </g>
             </svg>
         );

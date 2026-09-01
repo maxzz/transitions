@@ -6,11 +6,11 @@ import { TransformPreview } from "./transform-preview";
 
 export const TransitionScene = forwardRef<
     MechanicalSpringHandle,
-    { clamped?: boolean }
->(function TransitionScene({ clamped = false }, ref) {
+    { clamped?: boolean; mass?: number }
+>(function TransitionScene({ clamped = false, mass }, ref) {
     const mode = useAtomValue(visualizationModeAtom);
 
     return mode === "spring"
-        ? <MechanicalSpring ref={ref} clamped={clamped} />
+        ? <MechanicalSpring ref={ref} clamped={clamped} mass={mass} />
         : <TransformPreview key={mode} ref={ref} mode={mode} />;
 });

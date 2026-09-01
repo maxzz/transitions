@@ -27,6 +27,8 @@ export function PreviewStage() {
     const status = useAtomValue(runStatusAtom);
     const visualizationMode = useAtomValue(visualizationModeAtom);
     const clamped = engineId === "react-spring" && params["react-spring"].clamp;
+    const activeParams = params[engineId];
+    const mass = "mass" in activeParams ? activeParams.mass : undefined;
     const title = visualizationMode === "spring"
         ? "Mechanical response"
         : `${visualizationMode === "translateY" ? "Translation" : visualizationMode[0].toUpperCase() + visualizationMode.slice(1)} response`;
@@ -48,7 +50,7 @@ export function PreviewStage() {
                 </div>
             </div>
             <div className="p-3 min-h-0 sm:p-6 flex-1">
-                <TransitionScene ref={sceneRef} clamped={clamped} />
+                <TransitionScene ref={sceneRef} clamped={clamped} mass={mass} />
             </div>
             <div className="p-2 bg-muted/20 border-t border-border flex flex-wrap items-center justify-center gap-2">
                 <VisualizationModeControl />
