@@ -8,11 +8,11 @@ import { StopMotionButton } from "../1-controls/stop-motion-button";
 import { VisualizationModeControl } from "../1-controls/visualization-mode-control";
 import { activeDefinitionAtom, activeEngineAtom, paramsByEngineAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
 import { PreviewCanvas } from "./1-preview-frame";
-import { MechanicalSpring } from "./2-mechanical-spring-svg";
-import { TranslatePreview } from "./3-translate-preview";
-import { ScalePreview } from "./4-scale-preview";
-import { RotatePreview } from "./5-rotate-preview";
-import { OpacityPreview } from "./6-opacity-preview";
+import { MechanicalSpring } from "./2-0-mechanical-spring-svg";
+import { TranslatePreview } from "./2-1-1-translate-preview";
+import { ScalePreview } from "./2-1-2--scale-preview";
+import { RotatePreview } from "./2-1-3-rotate-preview";
+import { OpacityPreview } from "./2-1-4-opacity-preview";
 import { useEngineRun } from "./8-use-engine-run";
 
 export function PreviewStage() {
