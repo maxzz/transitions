@@ -4,7 +4,7 @@ import { formatEngineSnippet, formatSnippetNumber } from "./4-code-snippet";
 
 describe("formatEngineSnippet", () => {
     it("formats a React Spring config object", () => {
-        expect(formatEngineSnippet("react-spring", reactSpringDefaults)).toBe(
+        expect(formatEngineSnippet("spring", reactSpringDefaults)).toBe(
             [
                 "{",
                 "  mass: 1,",

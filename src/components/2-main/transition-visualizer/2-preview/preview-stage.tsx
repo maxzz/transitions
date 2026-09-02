@@ -26,7 +26,7 @@ export function PreviewStage() {
     const params = useAtomValue(paramsByEngineAtom);
     const status = useAtomValue(runStatusAtom);
     const visualizationMode = useAtomValue(visualizationModeAtom);
-    const clamped = engineId === "react-spring" && params["react-spring"].clamp;
+    const clamped = engineId === "spring" && params.spring.clamp;
     const activeParams = params[engineId];
     const mass = "mass" in activeParams ? activeParams.mass : undefined;
     const tension = "tension" in activeParams

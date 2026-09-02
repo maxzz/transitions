@@ -2,7 +2,7 @@ import { SpringValue } from "@react-spring/web";
 import type { EngineAdapter, ReactSpringParams } from "../model/9-types";
 
 export const reactSpringAdapter: EngineAdapter<ReactSpringParams> = {
-    id: "react-spring",
+    id: "spring",
     run(params, callbacks) {
         const startedAt = performance.now();
         const progress = new SpringValue(0);

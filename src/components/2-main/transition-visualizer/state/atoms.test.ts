@@ -55,7 +55,7 @@ describe("visualizer run state", () => {
         store.set(requestRunAtom);
 
         const staleResult: RunResult = {
-            engineId: "react-spring",
+            engineId: "spring",
             durationMs: 100,
             samples: [{ elapsedMs: 0, value: 0 }],
         };
@@ -90,7 +90,7 @@ describe("visualizer run state", () => {
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
         const result: RunResult = {
-            engineId: "react-spring",
+            engineId: "spring",
             durationMs: 1234,
             samples: [
                 { elapsedMs: 0, value: 0 },
@@ -109,7 +109,7 @@ describe("visualizer run state", () => {
         const expected = store.get(expectedDurationMsAtom);
         const token = store.get(runTokenAtom);
         const result: RunResult = {
-            engineId: "react-spring",
+            engineId: "spring",
             durationMs: Math.max(1, Math.round(expected / 2)),
             samples: [
                 { elapsedMs: 0, value: 0 },
@@ -196,8 +196,8 @@ describe("auto-record on parameter change", () => {
         appSettings.autoRecordResponse = true;
         const store = createStore();
 
-        store.set(updateParamAtom, { engineId: "react-spring", key: "tension", value: 200 });
-        store.set(updateParamAtom, { engineId: "react-spring", key: "tension", value: 240 });
+        store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 200 });
+        store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 240 });
 
         expect(store.get(runStatusAtom)).toBe("idle");
         expect(store.get(runResultAtom)).toBeNull();
@@ -214,7 +214,7 @@ describe("auto-record on parameter change", () => {
         const store = createStore();
         store.set(requestRunAtom);
 
-        store.set(updateParamAtom, { engineId: "react-spring", key: "tension", value: 200 });
+        store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 200 });
 
         expect(store.get(runStatusAtom)).toBe("idle");
         expect(store.get(runResultAtom)).toBeNull();
@@ -232,10 +232,10 @@ describe("persisted library params", () => {
 
     it("writes react-spring values to a dedicated settings key", () => {
         const store = createStore();
-        store.set(updateParamAtom, { engineId: "react-spring", key: "tension", value: 220 });
+        store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 220 });
 
         expect(appSettings.reactSpringParams.tension).toBe(220);
-        expect(store.get(paramsByEngineAtom)["react-spring"].tension).toBe(220);
+        expect(store.get(paramsByEngineAtom).spring.tension).toBe(220);
     });
 
     it("writes motion values to a dedicated settings key", () => {

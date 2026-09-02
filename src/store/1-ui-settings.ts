@@ -2,25 +2,25 @@ import { proxy, subscribe } from "valtio";
 import { type ThemeMode, themeApplyMode } from "../utils/theme-apply";
 import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
 import {
+    type EngineId,
+    type GsapParams,
+    type MotionParams,
+    type ReactSpringParams,
+} from "@/components/2-main/transition-visualizer/model/9-types";
+import {
     engineDefinitions,
     gsapDefaults,
     getValidEngineParams,
     motionDefaults,
     reactSpringDefaults,
 } from "@/components/2-main/transition-visualizer/model/1-definitions";
-import type {
-    EngineId,
-    GsapParams,
-    MotionParams,
-    ReactSpringParams,
-} from "@/components/2-main/transition-visualizer/model/9-types";
 
 export type RecordedDuration = {
     key: string;
     durationMs: number;
 };
 
-const STORE_KEY = "tm-template-shadcn-26";
+const STORE_KEY = "tm-transition-visualizer";
 const STORE_VER = "v1.0";
 const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
 
@@ -66,11 +66,8 @@ function loadSettings(): AppSettings {
                 expandedSections: parsed.expandedSections ?? DEFAULT_SETTINGS.expandedSections,
                 visualizerDisplay: getValidVisualizerDisplay(parsed.visualizerDisplay),
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
-                returnToInitialPosition: getValidBoolean(
-                    parsed.returnToInitialPosition,
-                    DEFAULT_SETTINGS.returnToInitialPosition,
-                ),
-                reactSpringParams: getValidEngineParams(engineDefinitions["react-spring"], parsed.reactSpringParams),
+                returnToInitialPosition: getValidBoolean(parsed.returnToInitialPosition, DEFAULT_SETTINGS.returnToInitialPosition),
+                reactSpringParams: getValidEngineParams(engineDefinitions.spring, parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
                 recordedDurations: getValidRecordedDurations(parsed.recordedDurations),
@@ -88,9 +85,7 @@ function loadSettings(): AppSettings {
 }
 
 function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
-    return value === "mechanical" || value === "graph" || value === "split"
-        ? value
-        : DEFAULT_SETTINGS.visualizerDisplay;
+    return value === "mechanical" || value === "graph" || value === "split" ? value : DEFAULT_SETTINGS.visualizerDisplay;
 }
 
 function getValidBoolean(value: unknown, fallback: boolean): boolean {
@@ -98,12 +93,17 @@ function getValidBoolean(value: unknown, fallback: boolean): boolean {
 }
 
 function getValidRecordedDurations(value: unknown): AppSettings["recordedDurations"] {
-    if (!value || typeof value !== "object") return {};
+    if (!value || typeof value !== "object") {
+        return {};
+    }
 
     const recorded: AppSettings["recordedDurations"] = {};
-    for (const engineId of ["react-spring", "motion", "gsap"] as const) {
+    for (const engineId of ["spring", "motion", "gsap"] as const) {
         const entry = (value as Partial<Record<EngineId, unknown>>)[engineId];
-        if (!entry || typeof entry !== "object") continue;
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+
         const { key, durationMs } = entry as Partial<RecordedDuration>;
         if (typeof key === "string" && Number.isFinite(durationMs) && (durationMs ?? 0) > 0) {
             recorded[engineId] = { key, durationMs: durationMs as number };
@@ -111,6 +111,8 @@ function getValidRecordedDurations(value: unknown): AppSettings["recordedDuratio
     }
     return recorded;
 }
+
+// appSettings
 
 export const appSettings = proxy<AppSettings>(loadSettings());
 

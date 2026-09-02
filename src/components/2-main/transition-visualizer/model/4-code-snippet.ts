@@ -7,8 +7,8 @@ export function formatSnippetNumber(value: number): string {
 }
 
 export function formatEngineSnippet(engineId: EngineId, params: EngineParamsMap[EngineId]): string {
-    if (engineId === "react-spring") {
-        const spring = params as EngineParamsMap["react-spring"];
+    if (engineId === "spring") {
+        const spring = params as EngineParamsMap["spring"];
         return formatObject([
             ["mass", formatSnippetNumber(spring.mass)],
             ["tension", formatSnippetNumber(spring.tension)],

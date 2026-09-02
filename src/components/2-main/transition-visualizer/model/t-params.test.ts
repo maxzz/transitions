@@ -3,11 +3,11 @@ import { engineDefinitions, getValidEngineParams, reactSpringDefaults } from "./
 
 describe("persisted engine params", () => {
     it("falls back to defaults when stored data is missing", () => {
-        expect(getValidEngineParams(engineDefinitions["react-spring"], undefined)).toEqual(reactSpringDefaults);
+        expect(getValidEngineParams(engineDefinitions.spring, undefined)).toEqual(reactSpringDefaults);
     });
 
     it("keeps known values and clamps numbers to the field range", () => {
-        expect(getValidEngineParams(engineDefinitions["react-spring"], {
+        expect(getValidEngineParams(engineDefinitions.spring, {
             mass: 8,
             tension: 900,
             clamp: true,

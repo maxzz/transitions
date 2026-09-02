@@ -8,14 +8,14 @@ describe("estimateDurationMs", () => {
     });
 
     it("returns a finite spring duration for default React Spring params", () => {
-        const durationMs = estimateDurationMs("react-spring", reactSpringDefaults);
+        const durationMs = estimateDurationMs("spring", reactSpringDefaults);
         expect(durationMs).toBeGreaterThan(100);
         expect(durationMs).toBeLessThan(4000);
     });
 
     it("returns a longer duration for a weakly damped heavy spring", () => {
-        const snappy = estimateDurationMs("react-spring", reactSpringDefaults);
-        const wobbly = estimateDurationMs("react-spring", {
+        const snappy = estimateDurationMs("spring", reactSpringDefaults);
+        const wobbly = estimateDurationMs("spring", {
             ...reactSpringDefaults,
             mass: 15.8,
             tension: 333,
@@ -37,12 +37,12 @@ describe("resolveExpectedDurationMs", () => {
     const wobbly = { ...reactSpringDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
 
     it("reuses the measured duration for the same settings", () => {
-        expect(resolveExpectedDurationMs("react-spring", wobbly, 9750, 9750)).toBe(9750);
+        expect(resolveExpectedDurationMs("spring", wobbly, 9750, 9750)).toBe(9750);
     });
 
     it("grows from the last engine duration instead of a longer simulation", () => {
-        const simulated = estimateDurationMs("react-spring", wobbly);
-        const resolved = resolveExpectedDurationMs("react-spring", wobbly, 0, 800);
+        const simulated = estimateDurationMs("spring", wobbly);
+        const resolved = resolveExpectedDurationMs("spring", wobbly, 0, 800);
         expect(resolved).toBe(800);
         expect(simulated).toBeGreaterThan(800);
     });

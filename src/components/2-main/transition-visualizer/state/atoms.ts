@@ -9,7 +9,7 @@ import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, Visu
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
 
-export const activeEngineAtom = atom<EngineId>("react-spring");
+export const activeEngineAtom = atom<EngineId>("spring");
 export const visualizationModeAtom = atom<VisualizationMode>("spring");
 
 export const paramsByEngineAtom = atom<EngineParamsMap>(readPersistedParams());
@@ -30,7 +30,7 @@ export const expectedDurationMsAtom = atom(0);
 let autoRecordTimer: ReturnType<typeof setTimeout> | null = null;
 let stopActiveRun: (() => void) | null = null;
 const lastDurationByEngine: Record<EngineId, number> = {
-    "react-spring": 0,
+    spring: 0,
     motion: 0,
     gsap: 0,
 };
@@ -41,7 +41,7 @@ export function registerStopActiveRun(stop: (() => void) | null) {
 }
 
 export function clearDurationMemory() {
-    lastDurationByEngine["react-spring"] = 0;
+    lastDurationByEngine.spring = 0;
     lastDurationByEngine.motion = 0;
     lastDurationByEngine.gsap = 0;
     lastDurationByParams.clear();
@@ -49,15 +49,15 @@ export function clearDurationMemory() {
 
 function readPersistedParams(): EngineParamsMap {
     return getValidParamsByEngine({
-        "react-spring": appSettings.reactSpringParams,
+        spring: appSettings.reactSpringParams,
         motion: appSettings.motionParams,
         gsap: appSettings.gsapParams,
     });
 }
 
 function persistEngineParams<Id extends EngineId>(engineId: Id, params: EngineParamsMap[Id]) {
-    if (engineId === "react-spring") {
-        appSettings.reactSpringParams = params as EngineParamsMap["react-spring"];
+    if (engineId === "spring") {
+        appSettings.reactSpringParams = params as EngineParamsMap["spring"];
         return;
     }
     if (engineId === "motion") {

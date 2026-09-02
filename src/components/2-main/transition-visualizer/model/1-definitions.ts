@@ -18,7 +18,7 @@ export const reactSpringDefaults: ReactSpringParams = {
 };
 
 const reactSpringDefinition: EngineDefinition<ReactSpringParams> = {
-    id: "react-spring",
+    id: "spring",
     label: "React Spring",
     subtitle: "Tension/friction spring physics",
     defaultParams: reactSpringDefaults,
@@ -140,7 +140,7 @@ const gsapDefinition: EngineDefinition<GsapParams> = {
 };
 
 export const engineDefinitions = {
-    "react-spring": reactSpringDefinition,
+    spring: reactSpringDefinition,
     motion: motionDefinition,
     gsap: gsapDefinition,
 } as const;
@@ -182,7 +182,7 @@ export function getValidEngineParams<P>(definition: EngineDefinition<P>, stored:
 
 export function getValidParamsByEngine(stored?: Partial<Record<EngineId, unknown>>): EngineParamsMap {
     return {
-        "react-spring": getValidEngineParams(engineDefinitions["react-spring"], stored?.["react-spring"]),
+        spring: getValidEngineParams(engineDefinitions.spring, stored?.spring),
         motion: getValidEngineParams(engineDefinitions.motion, stored?.motion),
         gsap: getValidEngineParams(engineDefinitions.gsap, stored?.gsap),
     };

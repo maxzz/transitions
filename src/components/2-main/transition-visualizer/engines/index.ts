@@ -10,8 +10,8 @@ export function runEngine<K extends EngineId>(
     callbacks: EngineRunCallbacks,
 ): EngineRun {
     switch (engineId) {
-        case "react-spring":
-            return reactSpringAdapter.run(params as EngineParamsMap["react-spring"], callbacks);
+        case "spring":
+            return reactSpringAdapter.run(params as EngineParamsMap["spring"], callbacks);
         case "motion":
             return motionAdapter.run(params as EngineParamsMap["motion"], callbacks);
         case "gsap":

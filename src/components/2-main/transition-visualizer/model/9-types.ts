@@ -1,4 +1,11 @@
-export type EngineId = "react-spring" | "motion" | "gsap";
+import type { SpringParams } from "./9-1-1-types-spring";
+import type { MotionParams } from "./9-1-2-types-motion";
+import type { GsapEaseDirection, GsapEaseFamily, GsapParams } from "./9-1-3-types-gsap";
+
+export type { GsapEaseDirection, GsapEaseFamily, GsapParams, MotionParams, SpringParams as ReactSpringParams };
+
+export type EngineId = "spring" | "motion" | "gsap";
+
 export type VisualizationMode = "spring" | "translateY" | "scale" | "rotate" | "opacity";
 
 export type RunStatus = "idle" | "running" | "settled";
@@ -16,52 +23,8 @@ export type RunResult = {
     stopped?: boolean;
 };
 
-export type ReactSpringParams = {
-    mass: number;
-    tension: number;
-    friction: number;
-    precision: number;
-    velocity: number;
-    clamp: boolean;
-};
-
-export type MotionParams = {
-    stiffness: number;
-    damping: number;
-    mass: number;
-    velocity: number;
-    restSpeed: number;
-    restDelta: number;
-};
-
-export type GsapEaseFamily =
-    | "none"
-    | "power1"
-    | "power2"
-    | "power3"
-    | "power4"
-    | "back"
-    | "bounce"
-    | "circ"
-    | "elastic"
-    | "expo"
-    | "sine"
-    | "steps";
-
-export type GsapEaseDirection = "in" | "out" | "inOut";
-
-export type GsapParams = {
-    duration: number;
-    ease: GsapEaseFamily;
-    direction: GsapEaseDirection;
-    elasticAmplitude: number;
-    elasticPeriod: number;
-    backOvershoot: number;
-    steps: number;
-};
-
 export type EngineParamsMap = {
-    "react-spring": ReactSpringParams;
+    spring: SpringParams;
     motion: MotionParams;
     gsap: GsapParams;
 };

@@ -17,7 +17,7 @@ export function estimateDurationMs(engineId: EngineId, params: EngineParamsMap[E
         return clampDuration((params as EngineParamsMap["gsap"]).duration * 1000);
     }
 
-    if (engineId === "react-spring") {
+    if (engineId === "spring") {
         return clampDuration(simulateSpringDurationMs(reactSpringSim(params as ReactSpringParams)));
     }
 
