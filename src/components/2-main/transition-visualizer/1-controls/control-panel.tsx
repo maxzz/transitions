@@ -37,7 +37,7 @@ export function ControlPanel() {
     };
 
     return (
-        <div className="min-h-0 flex flex-1 flex-col">
+        <div className="flex-1 min-h-0 flex flex-col">
             <div className="p-2 border-b border-border flex items-center gap-2">
                 <Label className="shrink-0 w-14 text-muted-foreground" htmlFor="transition-preset">
                     Preset
@@ -48,7 +48,7 @@ export function ControlPanel() {
                         if (presetId !== "custom") applyPreset({ engineId, presetId });
                     }}
                 >
-                    <SelectTrigger id="transition-preset" className="h-7 min-w-0 flex-1">
+                    <SelectTrigger id="transition-preset" className="flex-1 h-7 min-w-0">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -64,7 +64,7 @@ export function ControlPanel() {
                 </Select>
             </div>
 
-            <div className="p-2 min-h-0 overflow-y-auto flex-1 space-y-3">
+            <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-3">
                 {fields.map((field) => {
                     if (field.visible && !field.visible(params)) return null;
                     if (field.kind === "number") {
@@ -97,7 +97,7 @@ export function ControlPanel() {
                     );
                 })}
             </div>
-            <div className="p-2 shrink-0">
+            <div className="shrink-0 p-2">
                 <CodeSnippetButton />
             </div>
         </div>
@@ -141,7 +141,7 @@ function NumberControl({
             />
             <Input
                 id={id}
-                className="px-1 h-6 w-full font-mono text-[11px] tabular-nums"
+                className="px-1 h-6 w-full font-mono tabular-nums text-[11px]"
                 type="number"
                 min={field.min}
                 max={field.max}

@@ -4,7 +4,7 @@ import {
     getMechanicalSpringDisplacement,
     getMechanicalSpringPath,
     getMechanicalSpringWraps,
-} from "./mechanical-spring";
+} from "./2-mechanical-spring-svg";
 
 describe("mechanical spring", () => {
     it("tightens from two broad wraps to eighteen dense wraps", () => {

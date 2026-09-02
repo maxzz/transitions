@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatGsapEase } from "../engines/gsap";
+import { formatGsapEase } from "../engines/3-gsap";
 import { gsapDefaults } from "./1-definitions";
 import { decimateSamples, getSampleBounds, sanitizeSamples } from "./3-samples";
 

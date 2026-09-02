@@ -1,10 +1,5 @@
-import { formatGsapEase } from "../engines/gsap";
+import { formatGsapEase } from "../engines/3-gsap";
 import type { EngineId, EngineParamsMap } from "./9-types";
-
-export function formatSnippetNumber(value: number): string {
-    if (Number.isInteger(value)) return String(value);
-    return String(Number.parseFloat(value.toPrecision(6)));
-}
 
 export function formatEngineSnippet(engineId: EngineId, params: EngineParamsMap[EngineId]): string {
     if (engineId === "spring") {
@@ -37,6 +32,11 @@ export function formatEngineSnippet(engineId: EngineId, params: EngineParamsMap[
         ["duration", formatSnippetNumber(gsap.duration)],
         ["ease", JSON.stringify(formatGsapEase(gsap))],
     ]);
+}
+
+export function formatSnippetNumber(value: number): string {
+    if (Number.isInteger(value)) return String(value);
+    return String(Number.parseFloat(value.toPrecision(6)));
 }
 
 function formatObject(entries: readonly [string, string][]): string {

@@ -10,7 +10,7 @@ export function RecordedSvg() {
     const graph = useAtomValue(graphAtom);
 
     return (
-        <div className="p-3 min-h-0 sm:p-6 flex-1">
+        <div className="flex-1 p-3 min-h-0 sm:p-6">
             <svg className="h-full w-full" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-labelledby="response-graph-title response-graph-description">
                 <RecordedHeader />
 

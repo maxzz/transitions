@@ -12,7 +12,7 @@ import {
     gsapDefaults,
     getValidEngineParams,
     motionDefaults,
-    reactSpringDefaults,
+    springDefaults,
 } from "@/components/2-main/transition-visualizer/model/1-definitions";
 
 export type RecordedDuration = {
@@ -48,7 +48,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     visualizerDisplay: "split",
     autoRecordResponse: true,
     returnToInitialPosition: false,
-    reactSpringParams: { ...reactSpringDefaults },
+    reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
     recordedDurations: {},
@@ -78,7 +78,7 @@ function loadSettings(): AppSettings {
     }
     return {
         ...DEFAULT_SETTINGS,
-        reactSpringParams: { ...reactSpringDefaults },
+        reactSpringParams: { ...springDefaults },
         motionParams: { ...motionDefaults },
         gsapParams: { ...gsapDefaults },
     };

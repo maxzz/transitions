@@ -1,6 +1,6 @@
-import { reactSpringAdapter } from "./react-spring";
-import { motionAdapter } from "./motion";
-import { gsapAdapter } from "./gsap";
+import { reactSpringAdapter } from "./1-spring";
+import { motionAdapter } from "./2-motion";
+import { gsapAdapter } from "./3-gsap";
 
 import { type EngineId, type EngineParamsMap, type EngineRun, type EngineRunCallbacks } from "../model/9-types";
 

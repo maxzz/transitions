@@ -72,15 +72,7 @@ function motionSim(params: MotionParams): SpringSimParams {
     };
 }
 
-function simulateSpringDurationMs({
-    mass,
-    stiffness,
-    damping,
-    restDelta,
-    restSpeed,
-    velocity,
-    clamp,
-}: SpringSimParams): number {
+function simulateSpringDurationMs({ mass, stiffness, damping, restDelta, restSpeed, velocity, clamp }: SpringSimParams): number {
     const dt = 0.001;
     const dest = 1;
     const safeMass = Math.max(mass, 0.0001);

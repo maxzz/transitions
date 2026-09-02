@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { engineDefinitions, getValidEngineParams, reactSpringDefaults } from "./1-definitions";
+import { engineDefinitions, getValidEngineParams, springDefaults } from "./1-definitions";
 
 describe("persisted engine params", () => {
     it("falls back to defaults when stored data is missing", () => {
-        expect(getValidEngineParams(engineDefinitions.spring, undefined)).toEqual(reactSpringDefaults);
+        expect(getValidEngineParams(engineDefinitions.spring, undefined)).toEqual(springDefaults);
     });
 
     it("keeps known values and clamps numbers to the field range", () => {
@@ -13,7 +13,7 @@ describe("persisted engine params", () => {
             clamp: true,
             extra: "ignore",
         })).toEqual({
-            ...reactSpringDefaults,
+            ...springDefaults,
             mass: 8,
             tension: 400,
             clamp: true,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./1-definitions";
+import { gsapDefaults, motionDefaults, springDefaults } from "./1-definitions";
 import { estimateDurationMs, formatDuration, resolveExpectedDurationMs } from "./2-duration";
 
 describe("estimateDurationMs", () => {
@@ -8,15 +8,15 @@ describe("estimateDurationMs", () => {
     });
 
     it("returns a finite spring duration for default React Spring params", () => {
-        const durationMs = estimateDurationMs("spring", reactSpringDefaults);
+        const durationMs = estimateDurationMs("spring", springDefaults);
         expect(durationMs).toBeGreaterThan(100);
         expect(durationMs).toBeLessThan(4000);
     });
 
     it("returns a longer duration for a weakly damped heavy spring", () => {
-        const snappy = estimateDurationMs("spring", reactSpringDefaults);
+        const snappy = estimateDurationMs("spring", springDefaults);
         const wobbly = estimateDurationMs("spring", {
-            ...reactSpringDefaults,
+            ...springDefaults,
             mass: 15.8,
             tension: 333,
             friction: 9,
@@ -34,7 +34,7 @@ describe("estimateDurationMs", () => {
 });
 
 describe("resolveExpectedDurationMs", () => {
-    const wobbly = { ...reactSpringDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
+    const wobbly = { ...springDefaults, mass: 15.8, tension: 333, friction: 9, precision: 0.0032 };
 
     it("reuses the measured duration for the same settings", () => {
         expect(resolveExpectedDurationMs("spring", wobbly, 9750, 9750)).toBe(9750);

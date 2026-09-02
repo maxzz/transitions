@@ -9,27 +9,30 @@ import { PreviewSelectorTab } from "../1-controls/preview-selector-tab";
 import { EngineTabs } from "../1-controls/engine-tabs";
 import { StopMotionButton } from "../1-controls/stop-motion-button";
 import { ResponseGraph } from "../3-recorded-graph/0-recorder-view";
-import { PreviewStage } from "../2-preview/preview-stage";
+import { PreviewStage } from "../2-preview/0-preview-stage";
 import { activeDefinitionAtom, requestRunAtom, runStatusAtom } from "../state/atoms";
 
 export function TransitionVisualizer() {
     const { visualizerDisplay } = useSnapshot(appSettings);
+    const isSplit = visualizerDisplay === "split";
+    const isGraph = visualizerDisplay === "graph";
+    const isMechanical = visualizerDisplay === "mechanical";
 
     return (
-        <section className="mx-auto min-h-0 w-full max-w-360 flex flex-1 flex-col gap-4">
+        <section className="flex-1 mx-auto min-h-0 w-full max-w-360 flex flex-col gap-4">
             <VisualizerHeader />
 
-            <div className="min-h-0 bg-background lg:grid-cols-[15rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] border border-border rounded-xl shadow-sm overflow-hidden grid grid-rows-[auto_minmax(0,1fr)] flex-1">
+            <div className={mainClasses}>
                 <ControlSidebar />
 
-                <div className={cn("h-full min-h-0 overflow-auto", visualizerDisplay === "split" && "lg:grid-cols-2 lg:grid-rows-1 grid grid-rows-2")}>
+                <div className={cn("h-full min-h-0 overflow-auto", isSplit && "lg:grid-cols-2 lg:grid-rows-1 grid grid-rows-2")}>
 
-                    <div className={cn("h-full min-h-48", visualizerDisplay === "graph" && "hidden")} aria-hidden={visualizerDisplay === "graph"}>
+                    <div className={cn("h-full min-h-48", isGraph && "hidden")} aria-hidden={isGraph}>
                         <PreviewStage />
                     </div>
 
-                    {visualizerDisplay !== "mechanical" && (
-                        <div className={cn("h-full min-h-48", visualizerDisplay === "split" && "lg:border-l lg:border-border")}>
+                    {!isMechanical && (
+                        <div className={cn("h-full min-h-48", isSplit && "lg:border-l lg:border-border")}>
                             <ResponseGraph />
                         </div>
                     )}
@@ -38,6 +41,21 @@ export function TransitionVisualizer() {
         </section>
     );
 }
+
+const mainClasses = "\
+flex-1 \
+min-h-0 \
+\
+bg-background border border-border shadow-sm \
+rounded-xl \
+overflow-hidden \
+\
+grid \
+grid-rows-[auto_minmax(0,1fr)] \
+\
+lg:grid-cols-[15rem_minmax(0,1fr)] \
+lg:grid-rows-[minmax(0,1fr)] \
+";
 
 function ControlSidebar() {
     const status = useAtomValue(runStatusAtom);
@@ -48,7 +66,9 @@ function ControlSidebar() {
             <div className="p-2 border-b border-border">
                 <EngineTabs />
             </div>
+
             <ControlPanel />
+
             <div className="p-2 bg-muted/20 border-t border-border">
                 {status === "running"
                     ? (
