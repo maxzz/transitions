@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from "react";
+import { useRef } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
@@ -7,29 +7,27 @@ import { Label } from "@/ui/shadcn/label";
 import { StopMotionButton } from "../1-controls/stop-motion-button";
 import { VisualizationModeControl } from "../1-controls/visualization-mode-control";
 import { activeDefinitionAtom, activeEngineAtom, paramsByEngineAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
-import { MechanicalSpring, type MechanicalSpringHandle } from "./2-mechanical-spring-svg";
-import { TransformPreview } from "./3-transform-preview-svg";
+import { PreviewCanvas } from "./1-preview-frame";
+import { MechanicalSpring } from "./2-mechanical-spring-svg";
+import { TranslatePreview } from "./3-translate-preview";
+import { ScalePreview } from "./4-scale-preview";
+import { RotatePreview } from "./5-rotate-preview";
+import { OpacityPreview } from "./6-opacity-preview";
 import { useEngineRun } from "./8-use-engine-run";
 
 export function PreviewStage() {
     const scopeRef = useRef<HTMLDivElement>(null);
-    const sceneRef = useRef<MechanicalSpringHandle>(null);
 
-    const engineId = useAtomValue(activeEngineAtom);
-    const params = useAtomValue(paramsByEngineAtom);
-    const clamped = engineId === "spring" && params.spring.clamp;
-    const activeParams = params[engineId];
-    const mass = "mass" in activeParams ? activeParams.mass : undefined;
-    const tension = "tension" in activeParams ? activeParams.tension : "stiffness" in activeParams ? activeParams.stiffness : undefined;
-
-    useEngineRun(scopeRef, sceneRef);
+    useEngineRun(scopeRef);
 
     return (
         <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
             <PreviewHeader />
 
-            <div className="flex-1 p-3 min-h-0 sm:p-6">
-                <TransitionScene ref={sceneRef} clamped={clamped} mass={mass} tension={tension} />
+            <div className="p-3 min-h-0 sm:p-6 overflow-hidden flex-1">
+                <PreviewCanvas>
+                    <TransitionScene />
+                </PreviewCanvas>
             </div>
 
             <div className="p-2 bg-muted/20 border-t border-border flex flex-wrap items-center justify-center gap-2">
@@ -89,11 +87,26 @@ function RunStatusBadge() {
     );
 }
 
-const TransitionScene = forwardRef<MechanicalSpringHandle, { clamped?: boolean; mass?: number; tension?: number; }>(function TransitionScene({ clamped = false, mass, tension }, ref) {
+function TransitionScene() {
     const mode = useAtomValue(visualizationModeAtom);
 
-    return mode === "spring"
-        ? <MechanicalSpring ref={ref} clamped={clamped} mass={mass} tension={tension} />
-        : <TransformPreview key={mode} ref={ref} mode={mode} />;
-});
+    switch (mode) {
+        case "spring": return <MechanicalSpringScene />;
+        case "translateY": return <TranslatePreview />;
+        case "scale": return <ScalePreview />;
+        case "rotate": return <RotatePreview />;
+        case "opacity": return <OpacityPreview />;
+    }
+}
+
+function MechanicalSpringScene() {
+    const engineId = useAtomValue(activeEngineAtom);
+    const params = useAtomValue(paramsByEngineAtom);
+    const clamped = engineId === "spring" && params.spring.clamp;
+    const activeParams = params[engineId];
+    const mass = "mass" in activeParams ? activeParams.mass : undefined;
+    const tension = "tension" in activeParams ? activeParams.tension : "stiffness" in activeParams ? activeParams.stiffness : undefined;
+
+    return <MechanicalSpring clamped={clamped} mass={mass} tension={tension} />;
+}
 
