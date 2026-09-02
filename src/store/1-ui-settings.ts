@@ -2,7 +2,6 @@ import { proxy, subscribe } from "valtio";
 import { type ThemeMode, themeApplyMode } from "../utils/theme-apply";
 import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
 import {
-    type EngineId,
     type GsapParams,
     type MotionParams,
     type ReactSpringParams,
@@ -14,11 +13,6 @@ import {
     motionDefaults,
     springDefaults,
 } from "@/components/2-main/transition-visualizer/model/1-definitions";
-
-export type RecordedDuration = {
-    key: string;
-    durationMs: number;
-};
 
 const STORE_KEY = "tm-transition-visualizer";
 const STORE_VER = "v1.0";
@@ -34,10 +28,10 @@ export interface AppSettings {
     visualizerDisplay: VisualizerDisplay;
     autoRecordResponse: boolean;
     returnToInitialPosition: boolean;
+    showGraphPoints: boolean;
     reactSpringParams: ReactSpringParams;
     motionParams: MotionParams;
     gsapParams: GsapParams;
-    recordedDurations: Partial<Record<EngineId, RecordedDuration>>;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -48,17 +42,18 @@ const DEFAULT_SETTINGS: AppSettings = {
     visualizerDisplay: "split",
     autoRecordResponse: true,
     returnToInitialPosition: false,
+    showGraphPoints: true,
     reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
-    recordedDurations: {},
 };
 
 function loadSettings(): AppSettings {
     try {
         const stored = localStorage.getItem(STORAGE_ID);
         if (stored) {
-            const parsed = JSON.parse(stored) as Partial<AppSettings>;
+            // `recordedDurations` was persisted by older versions; the plot range is now derived from the parameters.
+            const { recordedDurations: _legacy, ...parsed } = JSON.parse(stored) as Partial<AppSettings> & { recordedDurations?: unknown };
             return {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
@@ -67,10 +62,10 @@ function loadSettings(): AppSettings {
                 visualizerDisplay: getValidVisualizerDisplay(parsed.visualizerDisplay),
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
                 returnToInitialPosition: getValidBoolean(parsed.returnToInitialPosition, DEFAULT_SETTINGS.returnToInitialPosition),
+                showGraphPoints: getValidBoolean(parsed.showGraphPoints, DEFAULT_SETTINGS.showGraphPoints),
                 reactSpringParams: getValidEngineParams(engineDefinitions.spring, parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
-                recordedDurations: getValidRecordedDurations(parsed.recordedDurations),
             };
         }
     } catch (error) {
@@ -90,26 +85,6 @@ function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
 
 function getValidBoolean(value: unknown, fallback: boolean): boolean {
     return typeof value === "boolean" ? value : fallback;
-}
-
-function getValidRecordedDurations(value: unknown): AppSettings["recordedDurations"] {
-    if (!value || typeof value !== "object") {
-        return {};
-    }
-
-    const recorded: AppSettings["recordedDurations"] = {};
-    for (const engineId of ["spring", "motion", "gsap"] as const) {
-        const entry = (value as Partial<Record<EngineId, unknown>>)[engineId];
-        if (!entry || typeof entry !== "object") {
-            continue;
-        }
-
-        const { key, durationMs } = entry as Partial<RecordedDuration>;
-        if (typeof key === "string" && Number.isFinite(durationMs) && (durationMs ?? 0) > 0) {
-            recorded[engineId] = { key, durationMs: durationMs as number };
-        }
-    }
-    return recorded;
 }
 
 // appSettings

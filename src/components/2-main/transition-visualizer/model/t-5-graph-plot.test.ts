@@ -118,17 +118,18 @@ describe("graph plot", () => {
         expect(plot.xTicks.at(-1)!.position).toBeCloseTo(plot.right, 6);
         expect(plot.xTicks.at(-1)!.label).toMatch(/^\d+ ms$/);
         expect(plot.areaPath.endsWith("Z")).toBe(true);
-        expect(plot.showPoints).toBe(true);
+        expect(plot.pointRadius).toBe(3.5);
     });
 
-    it("hides individual points when samples are too dense to read", () => {
+    it("shrinks the point markers when samples are too dense for full-size ones", () => {
         const samples = Array.from({ length: 600 }, (_, index) => ({ elapsedMs: index * 5, value: index / 600 }));
         const plot = buildGraphPlot(
             { samples, bounds: { durationMs: 3000, minValue: 0, maxValue: 1 }, durationMs: 3000 },
             { width: 400, height: 360 },
         );
 
-        expect(plot.showPoints).toBe(false);
+        expect(plot.pointRadius).toBeLessThan(3.5);
+        expect(plot.pointRadius).toBeGreaterThanOrEqual(1.25);
         expect(plot.points).toHaveLength(600);
     });
 });

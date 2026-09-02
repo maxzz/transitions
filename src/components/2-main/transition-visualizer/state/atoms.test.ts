@@ -14,18 +14,17 @@ const appSettings = vi.hoisted(() => ({
     },
     motionParams: {} as Record<string, unknown>,
     gsapParams: {} as Record<string, unknown>,
-    recordedDurations: {} as Record<string, { key: string; durationMs: number }>,
 }));
 
 vi.mock("@/store/1-ui-settings", () => ({
     appSettings,
 }));
 
+import { getPlotDurationMs } from "../model/2-duration";
 import {
     AUTO_RECORD_DEBOUNCE_MS,
     applyPresetAtom,
     clearAutoRecordTimer,
-    clearDurationMemory,
     completeRunAtom,
     expectedDurationMsAtom,
     extendExpectedDurationAtom,
@@ -43,10 +42,8 @@ import {
 
 describe("visualizer run state", () => {
     afterEach(() => {
-        clearDurationMemory();
         registerStopActiveRun(null);
         clearAutoRecordTimer();
-        appSettings.recordedDurations = {};
     });
 
     it("ignores completion from a stale run token", () => {
@@ -86,22 +83,25 @@ describe("visualizer run state", () => {
         expect(store.get(runStatusAtom)).toBe("settled");
     });
 
-    it("reuses the measured duration on the next run with the same settings", () => {
+    it("fixes the time scale from the parameters before the run, regardless of earlier measurements", () => {
         const store = createStore();
+        const predicted = getPlotDurationMs("spring", store.get(paramsByEngineAtom).spring);
         store.set(requestRunAtom);
+        expect(store.get(expectedDurationMsAtom)).toBe(predicted);
+
         const token = store.get(runTokenAtom);
         const result: RunResult = {
             engineId: "spring",
-            durationMs: 1234,
+            durationMs: predicted * 3,
             samples: [
                 { elapsedMs: 0, value: 0 },
-                { elapsedMs: 1234, value: 1 },
+                { elapsedMs: predicted * 3, value: 1 },
             ],
         };
         store.set(completeRunAtom, { token, result });
         store.set(requestRunAtom);
 
-        expect(store.get(expectedDurationMsAtom)).toBe(1234);
+        expect(store.get(expectedDurationMsAtom)).toBe(predicted);
     });
 
     it("keeps the predicted time scale when the run settles early", () => {
@@ -208,8 +208,6 @@ describe("visualizer run state", () => {
 describe("auto-record on parameter change", () => {
     afterEach(() => {
         clearAutoRecordTimer();
-        clearDurationMemory();
-        appSettings.recordedDurations = {};
         vi.useRealTimers();
         appSettings.autoRecordResponse = true;
     });
@@ -248,8 +246,6 @@ describe("auto-record on parameter change", () => {
 describe("persisted library params", () => {
     afterEach(() => {
         clearAutoRecordTimer();
-        clearDurationMemory();
-        appSettings.recordedDurations = {};
         appSettings.autoRecordResponse = true;
     });
 

@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
+import { useSnapshot } from "valtio";
+import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
 import { buildGraphPlot, getGraphSize, type GraphPlot } from "../model/5-graph-plot";
 import { activeDefinitionAtom } from "../state/atoms";
 import { graphDataAtom } from "./a-graph-atoms";
 
 const CURVE_STROKE = 2.5;
-const POINT_RADIUS = 3.5;
 const POINT_STROKE = 1.5;
 const TICK_LENGTH = 5;
 const TICK_LABEL_GAP = 9;
@@ -18,6 +19,7 @@ const TICK_LABEL_GAP = 9;
 export function RecordedSvg() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
     const data = useAtomValue(graphDataAtom);
+    const { showGraphPoints } = useSnapshot(appSettings);
     const plot = useMemo(
         () => {
             const size = getGraphSize(width, height);
@@ -62,7 +64,7 @@ export function RecordedSvg() {
                                 strokeLinejoin="round"
                                 fill="none"
                             />
-                            {plot.showPoints && (
+                            {showGraphPoints && (
                                 <g aria-hidden="true">
                                     {plot.points.map(
                                         (point, index) => (
@@ -71,7 +73,7 @@ export function RecordedSvg() {
                                                 strokeWidth={POINT_STROKE}
                                                 cx={point.x}
                                                 cy={point.y}
-                                                r={POINT_RADIUS}
+                                                r={plot.pointRadius}
                                                 key={index}
                                             />
                                         )

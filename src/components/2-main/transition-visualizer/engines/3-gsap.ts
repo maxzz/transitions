@@ -16,28 +16,24 @@ export function formatGsapEase(params: GsapParams): string {
 export const gsapAdapter: EngineAdapter<GsapParams> = {
     id: "gsap",
     run(params, callbacks) {
-        const startedAt = performance.now();
         const target = { progress: 0 };
         let cancelled = false;
+        let tween: gsap.core.Tween | null = null;
+        // The tween's local time is exactly what the eased progress was rendered for.
+        const elapsedMs = () => (tween ? tween.time() * 1000 : 0);
 
         callbacks.onFrame({ elapsedMs: 0, value: 0 });
-        const tween = gsap.to(target, {
+        tween = gsap.to(target, {
             progress: 1,
             duration: params.duration,
             ease: formatGsapEase(params),
             onUpdate() {
                 if (cancelled) return;
-                callbacks.onFrame({
-                    elapsedMs: performance.now() - startedAt,
-                    value: target.progress,
-                });
+                callbacks.onFrame({ elapsedMs: elapsedMs(), value: target.progress });
             },
             onComplete() {
                 if (cancelled) return;
-                callbacks.onFrame({
-                    elapsedMs: performance.now() - startedAt,
-                    value: target.progress,
-                });
+                callbacks.onFrame({ elapsedMs: elapsedMs(), value: target.progress });
                 callbacks.onRest();
             },
         });
@@ -45,7 +41,7 @@ export const gsapAdapter: EngineAdapter<GsapParams> = {
         return {
             cancel() {
                 cancelled = true;
-                tween.kill();
+                tween?.kill();
             },
         };
     },

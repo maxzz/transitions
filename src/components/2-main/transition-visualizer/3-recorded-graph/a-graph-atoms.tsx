@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { estimateDurationMs } from "../model/2-duration";
+import { getPlotDurationMs } from "../model/2-duration";
 import { getSampleBounds, type SampleBounds } from "../model/3-samples";
 import type { GraphData } from "../model/5-graph-plot";
 import {
@@ -39,7 +39,7 @@ export const graphDataAtom = atom((get): RecordedGraphData => {
         ? Math.max(expectedDurationMs, elapsedMs, 1)
         : result
             ? Math.max(result.plotDurationMs ?? result.durationMs, 1)
-            : Math.max(estimateDurationMs(engineId, params), 1);
+            : Math.max(getPlotDurationMs(engineId, params), 1);
 
     return { samples, bounds, durationMs, elapsedMs, hasCurve: samples.length > 0 };
 });

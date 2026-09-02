@@ -36,7 +36,8 @@ export type GraphPlot = GraphSize & {
     linePath: string;
     areaPath: string;
     points: GraphPoint[];
-    showPoints: boolean;
+    /** Marker radius, shrunk when samples sit closer together than a full-size marker. */
+    pointRadius: number;
     hasCurve: boolean;
 };
 
@@ -47,7 +48,8 @@ export const MAX_GRAPH_HEIGHT_RATIO = 0.9;
 
 const MIN_X_TICK_GAP_PX = 72;
 const MIN_Y_TICK_GAP_PX = 44;
-const MIN_POINT_GAP_PX = 7;
+const MAX_POINT_RADIUS = 3.5;
+const MIN_POINT_RADIUS = 1.25;
 const TICK_MULTIPLIERS = [1, 2, 2.5, 5, 10];
 const EPSILON = 1e-9;
 
@@ -167,6 +169,7 @@ export function buildGraphPlot(data: GraphData, size: GraphSize): GraphPlot {
         ? `${linePath} L ${px(last.x)} ${px(zeroY)} L ${px(first.x)} ${px(zeroY)} Z`
         : "";
     const pointGap = first && last && points.length > 1 ? (last.x - first.x) / (points.length - 1) : Number.POSITIVE_INFINITY;
+    const pointRadius = Math.max(MIN_POINT_RADIUS, Math.min(MAX_POINT_RADIUS, pointGap * 0.4));
 
     return {
         width,
@@ -185,7 +188,7 @@ export function buildGraphPlot(data: GraphData, size: GraphSize): GraphPlot {
         linePath,
         areaPath,
         points,
-        showPoints: pointGap >= MIN_POINT_GAP_PX,
+        pointRadius,
         hasCurve: points.length > 0,
     };
 }

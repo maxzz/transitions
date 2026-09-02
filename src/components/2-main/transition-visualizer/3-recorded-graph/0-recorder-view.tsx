@@ -36,6 +36,7 @@ function GraphHeader() {
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
                 <AutoRecordControl />
+                <ShowPointsControl />
                 <span className="px-2.5 py-1 min-w-[5.5rem] font-mono tabular-nums text-[10px] text-muted-foreground text-center bg-background border border-border rounded-full">
                     {samples.length} points
                 </span>
@@ -70,6 +71,20 @@ function AutoRecordControl() {
                 onCheckedChange={(checked) => { appSettings.autoRecordResponse = checked === true; }}
             />
             <div>Auto-update</div>
+        </Label>
+    );
+}
+
+function ShowPointsControl() {
+    const { showGraphPoints } = useSnapshot(appSettings);
+
+    return (
+        <Label className="h-6 flex items-center gap-2" title="Mark every recorded frame on the curve">
+            <Checkbox
+                checked={showGraphPoints}
+                onCheckedChange={(checked) => { appSettings.showGraphPoints = checked === true; }}
+            />
+            <div>Points</div>
         </Label>
     );
 }
