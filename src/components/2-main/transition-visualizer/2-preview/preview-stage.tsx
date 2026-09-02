@@ -4,8 +4,8 @@ import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
-import { StopMotionButton } from "../controls/stop-motion-button";
-import { VisualizationModeControl } from "../controls/visualization-mode-control";
+import { StopMotionButton } from "../1-controls/stop-motion-button";
+import { VisualizationModeControl } from "../1-controls/visualization-mode-control";
 import {
     activeDefinitionAtom,
     activeEngineAtom,

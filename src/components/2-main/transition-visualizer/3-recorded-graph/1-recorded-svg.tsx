@@ -6,19 +6,13 @@ import { graphAtom, HEIGHT, LEFT, PLOT_HEIGHT, PLOT_WIDTH, TOP, WIDTH } from "./
 const POINT_RADIUS = 10;
 const POINT_STROKE = 2.5;
 
-export function ResponsePlot() {
-    const definition = useAtomValue(activeDefinitionAtom);
+export function RecordedSvg() {
     const graph = useAtomValue(graphAtom);
 
     return (
         <div className="p-3 min-h-0 sm:p-6 flex-1">
             <svg className="h-full w-full" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-labelledby="response-graph-title response-graph-description">
-
-                <title id="response-graph-title">{definition.label} transition response graph</title>
-
-                <desc id="response-graph-description">
-                    Displacement over actual elapsed time, including any overshoot.
-                </desc>
+                <RecordedHeader />
 
                 <defs>
                     <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
@@ -98,23 +92,44 @@ export function ResponsePlot() {
                     </g>
                 </>)}
 
-                <g className="font-mono text-[12px] fill-muted-foreground">
-                    <text x={LEFT} y={HEIGHT - 19}>
-                        0 ms
-                    </text>
-
-                    <text x={LEFT + PLOT_WIDTH} y={HEIGHT - 19} textAnchor="end">
-                        {formatDuration(graph.duration)}
-                    </text>
-
-                    <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">
-                        1
-                    </text>
-                    <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">
-                        0
-                    </text>
-                </g>
+                <RecordedFooter />
             </svg>
         </div>
+    );
+}
+
+function RecordedHeader() {
+    const definition = useAtomValue(activeDefinitionAtom);
+
+    return (
+        <>
+            <title id="response-graph-title">{definition.label} transition response graph</title>
+            <desc id="response-graph-description">
+                Displacement over actual elapsed time, including any overshoot.
+            </desc>
+        </>
+    );
+}
+
+function RecordedFooter() {
+    const graph = useAtomValue(graphAtom);
+
+    return (
+        <g className="font-mono text-[12px] fill-muted-foreground">
+            <text x={LEFT} y={HEIGHT - 19}>
+                0 ms
+            </text>
+
+            <text x={LEFT + PLOT_WIDTH} y={HEIGHT - 19} textAnchor="end">
+                {formatDuration(graph.duration)}
+            </text>
+
+            <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">
+                1
+            </text>
+            <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">
+                0
+            </text>
+        </g>
     );
 }

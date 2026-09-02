@@ -4,12 +4,12 @@ import { Play } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
 import { Button } from "@/ui/shadcn/button";
 import { cn } from "@/utils/classnames";
-import { ControlPanel } from "./controls/control-panel";
-import { DisplayModeControl } from "./controls/display-mode-control";
-import { EngineTabs } from "./controls/engine-tabs";
-import { StopMotionButton } from "./controls/stop-motion-button";
-import { ResponseGraph } from "./graph/0-response-view";
-import { PreviewStage } from "./preview/preview-stage";
+import { ControlPanel } from "./1-controls/control-panel";
+import { DisplayModeControl } from "./1-controls/display-mode-control";
+import { EngineTabs } from "./1-controls/engine-tabs";
+import { StopMotionButton } from "./1-controls/stop-motion-button";
+import { ResponseGraph } from "./3-recorded-graph/0-recorder-view";
+import { PreviewStage } from "./2-preview/preview-stage";
 import {
     activeDefinitionAtom,
     requestRunAtom,
@@ -23,7 +23,7 @@ export function TransitionVisualizer() {
     const requestRun = useSetAtom(requestRunAtom);
 
     return (
-        <section className="mx-auto min-h-0 w-full max-w-[1440px] flex flex-1 flex-col gap-4">
+        <section className="mx-auto min-h-0 w-full max-w-360 flex flex-1 flex-col gap-4">
             <div className="shrink-0 sm:flex-row sm:items-end flex flex-col justify-between gap-3">
                 <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">

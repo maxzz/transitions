@@ -7,7 +7,7 @@ import { Label } from "@/ui/shadcn/label";
 import { formatDuration } from "../model/duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
 import { graphAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
-import { ResponsePlot } from "./1-response-plot";
+import { RecordedSvg } from "./1-recorded-svg";
 
 export function ResponseGraph() {
     const recording = useAtomValue(isRecordingAtom);
@@ -16,7 +16,7 @@ export function ResponseGraph() {
         <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
             <RecordingIndicator recording={recording} />
             <GraphHeader />
-            <ResponsePlot />
+            <RecordedSvg />
             <GraphButtomStats />
         </div>
     );
