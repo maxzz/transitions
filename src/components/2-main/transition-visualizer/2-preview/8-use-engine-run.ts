@@ -7,8 +7,8 @@ import { useGSAP } from "@gsap/react";
 import { runEngine } from "../engines";
 import { decimateSamples, sanitizeSamples } from "../model/3-samples";
 import { type EngineRun, type SamplePoint } from "../model/9-types";
-import { type MechanicalSpringHandle } from "./2-mechanical-spring-svg";
 import { activeEngineAtom, completeRunAtom, paramsByEngineAtom, publishLiveSamplesAtom, registerStopActiveRun, requestRunAtom, runStatusAtom, runTokenAtom } from "../state/atoms";
+import { getPreviewValue, resetPreviewValue, setPreviewValue } from "../state/preview-motion";
 
 gsap.registerPlugin(useGSAP);
 
@@ -16,7 +16,11 @@ const LIVE_PUBLISH_MS = 48;
 const REPLAY_FROM_INITIAL_DELAY_MS = 500;
 const RETURN_TO_INITIAL_DELAY_MS = 1_000;
 
-export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>, sceneRef: RefObject<MechanicalSpringHandle | null>) {
+/**
+ * Runs the active engine whenever a run is requested and streams its output into
+ * `previewMotion` (consumed by the preview scenes) and the live sample atoms (consumed by the graph).
+ */
+export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>) {
     const engineId = useAtomValue(activeEngineAtom);
     const paramsByEngine = useAtomValue(paramsByEngineAtom);
     const status = useAtomValue(runStatusAtom);
@@ -38,14 +42,14 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>, sceneRe
     const startRun = (): (() => void) | undefined => {
         if (status !== "running") return undefined;
 
-        const shouldDelayReplay = !appSettings.returnToInitialPosition && (sceneRef.current?.getValue() ?? 0) !== 0;
+        const shouldDelayReplay = !appSettings.returnToInitialPosition && getPreviewValue() !== 0;
         let cancelled = false;
         let lastPublishAt = 0;
         let replayTimer: ReturnType<typeof setTimeout> | null = null;
         let returnTimer: ReturnType<typeof setTimeout> | null = null;
         let run: EngineRun | null = null;
         const samples: SamplePoint[] = [];
-        sceneRef.current?.setValue(0);
+        resetPreviewValue();
 
         const publishLive = (force = false) => {
             const now = performance.now();
@@ -74,7 +78,7 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>, sceneRe
             run = runEngine(engineId, activeParams, {
                 onFrame(sample) {
                     if (cancelled) return;
-                    sceneRef.current?.setValue(sample.value);
+                    setPreviewValue(sample.value);
                     samples.push(sample);
                     publishLive();
                 },
@@ -85,7 +89,7 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>, sceneRe
                         returnTimer = setTimeout(() => {
                             returnTimer = null;
                             if (!cancelled && appSettings.returnToInitialPosition) {
-                                sceneRef.current?.setValue(0);
+                                resetPreviewValue();
                             }
                         }, RETURN_TO_INITIAL_DELAY_MS);
                     }

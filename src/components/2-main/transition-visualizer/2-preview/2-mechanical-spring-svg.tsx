@@ -1,128 +1,104 @@
-import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
+import { usePreviewValue } from "./1-preview-frame";
 
-export type MechanicalSpringHandle = {
-    getValue: () => number;
-    setValue: (value: number) => void;
-};
+/**
+ * Mechanical spring: a mass hangs from a coil and settles on the target line.
+ * The coil stiffness (wraps) follows the tension and the load size follows the mass.
+ */
+export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
+    const value = usePreviewValue();
+    const springPath = useMemo(() => getMechanicalSpringPath(tension), [tension]);
+    const loadHeight = getMechanicalLoadHeight(mass);
+    const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
+    const displacement = getMechanicalSpringDisplacement(value);
+    const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
-export const MechanicalSpring = forwardRef<MechanicalSpringHandle, { clamped?: boolean; mass?: number; tension?: number; }>(
+    return (
+        <svg className="h-full w-full text-foreground" viewBox="0 0 700 650" role="img" aria-labelledby="mechanical-spring-title mechanical-spring-description">
+            <title id="mechanical-spring-title">Mechanical spring response preview</title>
+            <desc id="mechanical-spring-description">
+                A suspended mass moves toward an equilibrium line while the selected animation engine runs.
+            </desc>
 
-    function MechanicalSpring({ clamped = false, mass, tension }, ref) {
-        const springRef = useRef<SVGGElement>(null);
-        const massRef = useRef<SVGGElement>(null);
-        const valueRef = useRef<SVGTextElement>(null);
-        const currentValueRef = useRef(0);
-        const springPath = useMemo(() => getMechanicalSpringPath(tension), [tension]);
-        const loadHeight = getMechanicalLoadHeight(mass);
-        const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
+            <defs>
+                <linearGradient id="mass-fill" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="var(--chart-1)" />
+                    <stop offset="1" stopColor="var(--chart-3)" />
+                </linearGradient>
+                <pattern id="anchor-hatch" width="12" height="12" patternUnits="userSpaceOnUse">
+                    <path d="M-3 12 12-3M3 15 15 3" className="stroke-muted-foreground/40" strokeWidth="2" />
+                </pattern>
+            </defs>
 
-        const setValue = useCallback(
-            (value: number) => {
-                currentValueRef.current = value;
-                const displacement = getMechanicalSpringDisplacement(value);
-                const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
+            <rect x="100" y="44" width="500" height="30" rx="4" fill="url(#anchor-hatch)" />
+            <line x1="100" y1="75" x2="600" y2="75" className="stroke-foreground" strokeWidth="4" />
 
-                springRef.current?.setAttribute("transform", `translate(0 75) scale(1 ${springScale}) translate(0 -75)`);
-                massRef.current?.setAttribute("transform", `translate(0 ${displacement})`);
+            <line
+                className="stroke-muted-foreground"
+                strokeDasharray="7 7"
+                strokeWidth="2"
+                x1="90"
+                y1="250"
+                x2="610"
+                y2="250"
+            />
+            <text x="610" y="241" textAnchor="end" className="font-mono text-[13px] fill-muted-foreground">
+                target 1.0
+            </text>
 
-                if (valueRef.current) {
-                    valueRef.current.textContent = value.toFixed(3);
-                }
-            },
-            []);
-
-        const getValue = useCallback(() => currentValueRef.current, []);
-
-        useImperativeHandle(ref, () => ({ getValue, setValue }), [getValue, setValue]);
-        useLayoutEffect(() => setValue(0), [setValue]);
-
-        return (
-            <svg className="h-full w-full text-foreground" viewBox="0 0 700 650" role="img" aria-labelledby="mechanical-spring-title mechanical-spring-description">
-                <title id="mechanical-spring-title">Mechanical spring response preview</title>
-                <desc id="mechanical-spring-description">
-                    A suspended mass moves toward an equilibrium line while the selected animation engine runs.
-                </desc>
-
-                <defs>
-                    <linearGradient id="mass-fill" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor="var(--chart-1)" />
-                        <stop offset="1" stopColor="var(--chart-3)" />
-                    </linearGradient>
-                    <pattern id="anchor-hatch" width="12" height="12" patternUnits="userSpaceOnUse">
-                        <path d="M-3 12 12-3M3 15 15 3" className="stroke-muted-foreground/40" strokeWidth="2" />
-                    </pattern>
-                </defs>
-
-                <rect x="100" y="44" width="500" height="30" rx="4" fill="url(#anchor-hatch)" />
-                <line x1="100" y1="75" x2="600" y2="75" className="stroke-foreground" strokeWidth="4" />
-
-                <line
-                    className="stroke-muted-foreground"
-                    strokeDasharray="7 7"
-                    strokeWidth="2"
-                    x1="90"
-                    y1="250"
-                    x2="610"
-                    y2="250"
+            <g transform={`translate(0 ${SPRING_TOP_Y}) scale(1 ${springScale}) translate(0 -${SPRING_TOP_Y})`}>
+                <path
+                    className="stroke-primary"
+                    fill="none"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                    d={springPath}
                 />
-                <text x="610" y="241" textAnchor="end" className="font-mono text-[13px] fill-muted-foreground">
-                    target 1.0
-                </text>
+            </g>
 
-                <g ref={springRef}>
-                    <path
-                        className="stroke-primary"
-                        fill="none"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        vectorEffect="non-scaling-stroke"
-                        d={springPath}
-                    />
-                </g>
+            {clamped && (
+                <path className="stroke-destructive" strokeWidth="3" d="M285 250 H415 M300 250 v14 M325 250 v14 M350 250 v14 M375 250 v14 M400 250 v14" />
+            )}
 
-                {clamped && (
-                    <path className="stroke-destructive" strokeWidth="3" d="M285 250 H415 M300 250 v14 M325 250 v14 M350 250 v14 M375 250 v14 M400 250 v14" />
-                )}
+            <g transform={`translate(0 ${displacement})`}>
+                <rect
+                    className="stroke-foreground"
+                    fill="url(#mass-fill)"
+                    height={loadHeight}
+                    strokeWidth="5"
+                    x="205"
+                    y={LOAD_TOP_Y}
+                    rx="10"
+                    width="290"
+                />
+                <path
+                    className="stroke-foreground"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="5"
+                    d="M300 285 V270 C300 243 400 243 400 270 V285"
+                />
 
-                <g ref={massRef}>
-                    <rect
-                        className="stroke-foreground"
-                        fill="url(#mass-fill)"
-                        height={loadHeight}
-                        strokeWidth="5"
-                        x="205"
-                        y={LOAD_TOP_Y}
-                        rx="10"
-                        width="290"
-                    />
-                    <path
-                        className="stroke-foreground"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="5"
-                        d="M300 285 V270 C300 243 400 243 400 270 V285"
-                    />
+                <circle className="fill-background/80 stroke-foreground" strokeWidth="4" cx="350" cy={loadCenterY} r="17" />
 
-                    <circle className="fill-background/80 stroke-foreground" strokeWidth="4" cx="350" cy={loadCenterY} r="17" />
+                <path
+                    className="stroke-foreground"
+                    strokeLinecap="round"
+                    strokeWidth="4"
+                    d={`M350 ${loadCenterY - 16} V${loadCenterY + 17}`}
+                />
+            </g>
 
-                    <path
-                        className="stroke-foreground"
-                        strokeLinecap="round"
-                        strokeWidth="4"
-                        d={`M350 ${loadCenterY - 16} V${loadCenterY + 17}`}
-                    />
-                </g>
-
-                <g className="font-mono text-[15px]">
-                    <text x="100" y="620" className="fill-muted-foreground">progress</text>
-                    <text ref={valueRef} x="600" y="620" textAnchor="end" className="fill-foreground">0.000</text>
-                </g>
-            </svg>
-        );
-    },
-);
+            <g className="font-mono text-[15px]">
+                <text x="100" y="620" className="fill-muted-foreground">progress</text>
+                <text x="600" y="620" textAnchor="end" className="fill-foreground">{value.toFixed(3)}</text>
+            </g>
+        </svg>
+    );
+}
 
 const LOAD_TOP_Y = 278;
 const SPRING_TOP_Y = 75;
