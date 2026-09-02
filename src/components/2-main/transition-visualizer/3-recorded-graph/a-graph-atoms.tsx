@@ -1,6 +1,6 @@
 import { atom } from "jotai";
-import { estimateDurationMs } from "../model/duration";
-import { getSampleBounds, type SampleBounds } from "../model/samples";
+import { estimateDurationMs } from "../model/2-duration";
+import { getSampleBounds, type SampleBounds } from "../model/3-samples";
 import {
     activeEngineAtom,
     activeParamsAtom,

@@ -3,8 +3,8 @@ import { appSettings } from "@/store/1-ui-settings";
 import {
     engineDefinitions,
     getValidParamsByEngine,
-} from "../model/definitions";
-import { durationKey, resolveExpectedDurationMs } from "../model/duration";
+} from "../model/1-definitions";
+import { durationKey, resolveExpectedDurationMs } from "../model/2-duration";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/9-types";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;

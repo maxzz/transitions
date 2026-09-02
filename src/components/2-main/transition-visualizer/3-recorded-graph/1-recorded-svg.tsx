@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { formatDuration } from "../model/duration";
+import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom } from "../state/atoms";
 import { graphAtom, HEIGHT, LEFT, PLOT_HEIGHT, PLOT_WIDTH, TOP, WIDTH } from "./a-graph-atoms";
 

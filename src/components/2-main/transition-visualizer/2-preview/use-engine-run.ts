@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { appSettings } from "@/store/1-ui-settings";
 import { runEngine } from "../engines";
-import { decimateSamples, sanitizeSamples } from "../model/samples";
+import { decimateSamples, sanitizeSamples } from "../model/3-samples";
 import type { EngineRun, SamplePoint } from "../model/9-types";
 import {
     activeEngineAtom,

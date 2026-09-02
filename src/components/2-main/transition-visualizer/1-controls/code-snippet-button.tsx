@@ -10,8 +10,8 @@ import {
     PopoverTitle,
     PopoverTrigger,
 } from "@/ui/shadcn/popover";
-import { formatEngineSnippet } from "../model/code-snippet";
-import { engineDefinitions } from "../model/definitions";
+import { formatEngineSnippet } from "../model/4-code-snippet";
+import { engineDefinitions } from "../model/1-definitions";
 import { activeEngineAtom, activeParamsAtom } from "../state/atoms";
 
 const COPIED_MS = 1000;

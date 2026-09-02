@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { engineDefinitions, getValidEngineParams, reactSpringDefaults } from "./definitions";
+import { engineDefinitions, getValidEngineParams, reactSpringDefaults } from "./1-definitions";
 
 describe("persisted engine params", () => {
     it("falls back to defaults when stored data is missing", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./definitions";
-import { formatEngineSnippet, formatSnippetNumber } from "./code-snippet";
+import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./1-definitions";
+import { formatEngineSnippet, formatSnippetNumber } from "./4-code-snippet";
 
 describe("formatEngineSnippet", () => {
     it("formats a React Spring config object", () => {

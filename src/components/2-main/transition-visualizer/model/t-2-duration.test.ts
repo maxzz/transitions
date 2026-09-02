@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./definitions";
-import { estimateDurationMs, formatDuration, resolveExpectedDurationMs } from "./duration";
+import { gsapDefaults, motionDefaults, reactSpringDefaults } from "./1-definitions";
+import { estimateDurationMs, formatDuration, resolveExpectedDurationMs } from "./2-duration";
 
 describe("estimateDurationMs", () => {
     it("uses the GSAP duration parameter", () => {

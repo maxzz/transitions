@@ -7,7 +7,7 @@ import {
     getValidEngineParams,
     motionDefaults,
     reactSpringDefaults,
-} from "@/components/2-main/transition-visualizer/model/definitions";
+} from "@/components/2-main/transition-visualizer/model/1-definitions";
 import type {
     EngineId,
     GsapParams,

@@ -4,7 +4,7 @@ import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
-import { formatDuration } from "../model/duration";
+import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
 import { graphAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
 import { RecordedSvg } from "./1-recorded-svg";

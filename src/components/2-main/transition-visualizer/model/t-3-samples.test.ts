@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatGsapEase } from "../engines/gsap";
-import { gsapDefaults } from "./definitions";
-import { decimateSamples, getSampleBounds, sanitizeSamples } from "./samples";
+import { gsapDefaults } from "./1-definitions";
+import { decimateSamples, getSampleBounds, sanitizeSamples } from "./3-samples";
 
 describe("transition samples", () => {
     it("sanitizes invalid and out-of-order samples", () => {
