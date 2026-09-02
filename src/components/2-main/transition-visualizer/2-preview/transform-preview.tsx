@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef } from "react";
-import type { VisualizationMode } from "../model/types";
+import type { VisualizationMode } from "../model/9-types";
 import type { MechanicalSpringHandle } from "./mechanical-spring";
 
 type TransformMode = Exclude<VisualizationMode, "spring">;

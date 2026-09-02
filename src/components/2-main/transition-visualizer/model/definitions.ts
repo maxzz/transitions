@@ -6,7 +6,7 @@ import type {
     GsapParams,
     MotionParams,
     ReactSpringParams,
-} from "./types";
+} from "./9-types";
 
 export const reactSpringDefaults: ReactSpringParams = {
     mass: 1,

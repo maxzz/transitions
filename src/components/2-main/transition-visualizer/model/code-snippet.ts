@@ -1,5 +1,5 @@
 import { formatGsapEase } from "../engines/gsap";
-import type { EngineId, EngineParamsMap } from "./types";
+import type { EngineId, EngineParamsMap } from "./9-types";
 
 export function formatSnippetNumber(value: number): string {
     if (Number.isInteger(value)) return String(value);

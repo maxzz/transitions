@@ -9,7 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/ui/shadcn/select";
-import type { ParamField } from "../model/types";
+import type { ParamField } from "../model/9-types";
 import {
     activeDefinitionAtom,
     activeEngineAtom,

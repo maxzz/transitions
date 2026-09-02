@@ -1,6 +1,6 @@
 import { createStore } from "jotai/vanilla";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { RunResult } from "../model/types";
+import type { RunResult } from "../model/9-types";
 
 const appSettings = vi.hoisted(() => ({
     autoRecordResponse: true,

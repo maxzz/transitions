@@ -1,5 +1,5 @@
 import { gsap } from "gsap";
-import type { EngineAdapter, GsapParams } from "../model/types";
+import type { EngineAdapter, GsapParams } from "../model/9-types";
 
 export function formatGsapEase(params: GsapParams): string {
     if (params.ease === "none") return "none";

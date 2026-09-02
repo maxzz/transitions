@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { Tabs, TabsList, TabsTrigger } from "@/ui/shadcn/tabs";
 import { engineIds, engineDefinitions } from "../model/definitions";
-import type { EngineId } from "../model/types";
+import type { EngineId } from "../model/9-types";
 import { activeEngineAtom, selectEngineAtom } from "../state/atoms";
 
 export function EngineTabs() {

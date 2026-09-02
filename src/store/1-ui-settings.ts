@@ -13,7 +13,7 @@ import type {
     GsapParams,
     MotionParams,
     ReactSpringParams,
-} from "@/components/2-main/transition-visualizer/model/types";
+} from "@/components/2-main/transition-visualizer/model/9-types";
 
 export type RecordedDuration = {
     key: string;

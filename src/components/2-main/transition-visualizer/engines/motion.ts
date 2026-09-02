@@ -1,5 +1,5 @@
 import { animate } from "motion/react";
-import type { EngineAdapter, MotionParams } from "../model/types";
+import type { EngineAdapter, MotionParams } from "../model/9-types";
 
 export const motionAdapter: EngineAdapter<MotionParams> = {
     id: "motion",

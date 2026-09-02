@@ -1,4 +1,4 @@
-import type { EngineId, EngineParamsMap, MotionParams, ReactSpringParams } from "./types";
+import type { EngineId, EngineParamsMap, MotionParams, ReactSpringParams } from "./9-types";
 
 export const MAX_DURATION_MS = 30_000;
 

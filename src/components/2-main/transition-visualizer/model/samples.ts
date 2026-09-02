@@ -1,4 +1,4 @@
-import type { SamplePoint } from "./types";
+import type { SamplePoint } from "./9-types";
 
 export type SampleBounds = {
     durationMs: number;

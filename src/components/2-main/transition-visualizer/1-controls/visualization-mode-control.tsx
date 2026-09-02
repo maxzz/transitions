@@ -8,7 +8,7 @@ import {
     type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
-import type { VisualizationMode } from "../model/types";
+import type { VisualizationMode } from "../model/9-types";
 import { visualizationModeAtom } from "../state/atoms";
 
 const visualizationOptions: readonly {
