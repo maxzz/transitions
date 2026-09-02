@@ -1,82 +1,31 @@
-import { useMemo } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { cn } from "@/utils/classnames";
-import { estimateDurationMs, formatDuration } from "../model/duration";
-import { getSampleBounds } from "../model/samples";
+import { formatDuration } from "../model/duration";
+import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
 import {
-    activeDefinitionAtom,
-    activeEngineAtom,
-    activeParamsAtom,
-    expectedDurationMsAtom,
-    liveSamplesAtom,
-    runResultAtom,
-    runStatusAtom,
-} from "../state/atoms";
+    graphAtom,
+    graphSamplesAtom,
+    isRecordingAtom,
+    HEIGHT,
+    LEFT,
+    PLOT_HEIGHT,
+    PLOT_WIDTH,
+    TOP,
+    WIDTH,
+} from "./a-graph-atoms";
 
-const WIDTH = 760;
-const HEIGHT = 440;
-const LEFT = 58;
-const RIGHT = 24;
-const TOP = 32;
-const BOTTOM = 54;
-const PLOT_WIDTH = WIDTH - LEFT - RIGHT;
-const PLOT_HEIGHT = HEIGHT - TOP - BOTTOM;
 const POINT_RADIUS = 10;
 const POINT_STROKE = 2.5;
-const EMPTY_BOUNDS = { durationMs: 0, minValue: 0, maxValue: 1 };
 
 export function ResponseGraph() {
-    const result = useAtomValue(runResultAtom);
-    const liveSamples = useAtomValue(liveSamplesAtom);
-    const expectedDurationMs = useAtomValue(expectedDurationMsAtom);
-    const status = useAtomValue(runStatusAtom);
     const definition = useAtomValue(activeDefinitionAtom);
-    const engineId = useAtomValue(activeEngineAtom);
-    const params = useAtomValue(activeParamsAtom);
-    const recording = status === "running";
-    const samples = recording ? liveSamples : result?.samples ?? [];
-
-    const graph = useMemo(() => {
-        const bounds = samples.length > 0 ? getSampleBounds(samples) : EMPTY_BOUNDS;
-        const elapsedMs = samples.at(-1)?.elapsedMs ?? 0;
-        const duration = recording
-            ? Math.max(expectedDurationMs, elapsedMs, 1)
-            : result
-                ? Math.max(result.plotDurationMs ?? result.durationMs, 1)
-                : Math.max(estimateDurationMs(engineId, params), 1);
-        const valueRange = bounds.maxValue - bounds.minValue;
-        const pad = Math.max(valueRange * 0.12, 0.08);
-        const minValue = bounds.minValue - pad;
-        const maxValue = bounds.maxValue + pad;
-        const toX = (elapsed: number) => LEFT + (elapsed / duration) * PLOT_WIDTH;
-        const toY = (value: number) => TOP + ((maxValue - value) / (maxValue - minValue)) * PLOT_HEIGHT;
-        const points = samples.map((sample) => ({
-            x: toX(sample.elapsedMs),
-            y: toY(sample.value),
-        }));
-        const line = points.map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
-        const area = points.length > 0
-            ? `M ${points[0].x} ${TOP + PLOT_HEIGHT} L ${points.map(({ x, y }) => `${x} ${y}`).join(" L ")} L ${points.at(-1)!.x} ${TOP + PLOT_HEIGHT} Z`
-            : "";
-
-        return { bounds, toY, line, area, points, hasCurve: points.length > 0, duration, elapsedMs };
-    }, [engineId, expectedDurationMs, params, recording, result, samples]);
-
-    const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
-    const durationLabel = result?.stopped
-        ? "stopped after"
-        : engineId === "gsap"
-            ? "fixed duration"
-            : "settled after";
-    const durationValue = recording
-        ? formatDuration(graph.elapsedMs)
-        : graph.hasCurve && result
-            ? formatDuration(result.durationMs)
-            : "—";
+    const recording = useAtomValue(isRecordingAtom);
+    const samples = useAtomValue(graphSamplesAtom);
+    const graph = useAtomValue(graphAtom);
 
     return (
         <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
@@ -192,12 +141,35 @@ export function ResponseGraph() {
                 </svg>
             </div>
 
-            <div className="px-5 py-3 font-mono text-[11px] text-muted-foreground bg-background sm:grid-cols-4 border-t border-border grid grid-cols-2 gap-3">
-                <span>{recording ? "elapsed" : durationLabel}: {durationValue}</span>
-                <span>min: {graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"}</span>
-                <span>max: {graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"}</span>
-                <span>overshoot: {graph.hasCurve ? overshoot.toFixed(3) : "—"}</span>
-            </div>
+            <GraphStats />
+        </div>
+    );
+}
+
+function GraphStats() {
+    const result = useAtomValue(runResultAtom);
+    const engineId = useAtomValue(activeEngineAtom);
+    const recording = useAtomValue(isRecordingAtom);
+    const graph = useAtomValue(graphAtom);
+
+    const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
+    const durationLabel = result?.stopped
+        ? "stopped after"
+        : engineId === "gsap"
+            ? "fixed duration"
+            : "settled after";
+    const durationValue = recording
+        ? formatDuration(graph.elapsedMs)
+        : graph.hasCurve && result
+            ? formatDuration(result.durationMs)
+            : "—";
+
+    return (
+        <div className="px-5 py-3 font-mono text-[11px] text-muted-foreground bg-background sm:grid-cols-4 border-t border-border grid grid-cols-2 gap-3">
+            <span>{recording ? "elapsed" : durationLabel}: {durationValue}</span>
+            <span>min: {graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"}</span>
+            <span>max: {graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"}</span>
+            <span>overshoot: {graph.hasCurve ? overshoot.toFixed(3) : "—"}</span>
         </div>
     );
 }
