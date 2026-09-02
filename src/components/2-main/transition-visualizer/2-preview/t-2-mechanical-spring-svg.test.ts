@@ -35,6 +35,12 @@ describe("mechanical spring", () => {
 });
 
 describe("mechanical load height", () => {
+    it("scales linearly from the minimum size to the maximum size", () => {
+        expect(getMechanicalLoadHeight(0.1)).toBe(50);
+        expect(getMechanicalLoadHeight(10.05)).toBe(130);
+        expect(getMechanicalLoadHeight(20)).toBe(210);
+    });
+
     it("increases monotonically with spring mass", () => {
         expect(getMechanicalLoadHeight(0.1)).toBeLessThan(getMechanicalLoadHeight(1));
         expect(getMechanicalLoadHeight(1)).toBeLessThan(getMechanicalLoadHeight(5));

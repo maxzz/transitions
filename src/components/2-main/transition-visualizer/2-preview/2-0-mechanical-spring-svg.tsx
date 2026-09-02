@@ -171,7 +171,7 @@ export function getMechanicalLoadHeight(mass?: number): number {
         return DEFAULT_LOAD_HEIGHT;
     }
     const clampedMass = Math.min(MAX_MASS, Math.max(MIN_MASS, mass));
-    const normalizedMass = Math.log(clampedMass / MIN_MASS) / Math.log(MAX_MASS / MIN_MASS);
-    
+    const normalizedMass = (clampedMass - MIN_MASS) / (MAX_MASS - MIN_MASS);
+
     return MIN_LOAD_HEIGHT + normalizedMass * (MAX_LOAD_HEIGHT - MIN_LOAD_HEIGHT);
 }
