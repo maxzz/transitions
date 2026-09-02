@@ -8,7 +8,7 @@ import { ControlPanel } from "./controls/control-panel";
 import { DisplayModeControl } from "./controls/display-mode-control";
 import { EngineTabs } from "./controls/engine-tabs";
 import { StopMotionButton } from "./controls/stop-motion-button";
-import { ResponseGraph } from "./graph/response-graph";
+import { ResponseGraph } from "./graph/0-response-view";
 import { PreviewStage } from "./preview/preview-stage";
 import {
     activeDefinitionAtom,

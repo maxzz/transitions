@@ -1,5 +1,5 @@
 "use client";
-import { type ComponentProps } from "react"; // 05.09.26
+import { type ComponentProps } from "react"; // 05.09.26, 09.01.26
 import { cn } from "@/utils/classnames";
 import { CheckIcon } from "lucide-react";
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
@@ -9,7 +9,7 @@ export function Checkbox({ className, ...rest }: ComponentProps<typeof CheckboxP
         <CheckboxPrimitive.Root data-slot="checkbox" className={cn(checkboxClasses, className)} {...rest}>
 
             <CheckboxPrimitive.Indicator data-slot="checkbox-indicator" className="[&>svg]:size-3.5 text-current transition-none grid place-content-center">
-                <CheckIcon />
+                <CheckIcon className="size-3!" />
             </CheckboxPrimitive.Indicator>
 
         </CheckboxPrimitive.Root>
@@ -48,7 +48,7 @@ after:absolute \
 after:-inset-x-3 \
 after:-inset-y-2 \
 \
-rounded-lg \
+rounded-sm \
 border \
 border-input \
 outline-none \
