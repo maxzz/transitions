@@ -8,8 +8,14 @@ import { usePreviewValue } from "./1-preview-frame";
 export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
     const value = usePreviewValue();
     const springPath = useMemo(() => getMechanicalSpringPath(tension), [tension]);
+    const loadWidth = getMechanicalLoadWidth(mass);
     const loadHeight = getMechanicalLoadHeight(mass);
+    const loadX = SPRING_CENTER_X - loadWidth / 2;
     const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
+    const markerRadius = getMechanicalLoadMarkerRadius(mass);
+    const handleHalfWidth = DEFAULT_HANDLE_HALF_WIDTH * (loadWidth / DEFAULT_LOAD_WIDTH);
+    const handleLeft = SPRING_CENTER_X - handleHalfWidth;
+    const handleRight = SPRING_CENTER_X + handleHalfWidth;
     const displacement = getMechanicalSpringDisplacement(value);
     const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
@@ -69,10 +75,10 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                     fill="url(#mass-fill)"
                     height={loadHeight}
                     strokeWidth="5"
-                    x="205"
+                    x={loadX}
                     y={LOAD_TOP_Y}
                     rx="10"
-                    width="290"
+                    width={loadWidth}
                 />
 
                 {/* Spring stem as handle */}
@@ -82,18 +88,24 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="5"
-                    d="M300 285 V270 C300 243 400 243 400 270 V285"
+                    d={`M${handleLeft} 285 V270 C${handleLeft} 243 ${handleRight} 243 ${handleRight} 270 V285`}
                 />
 
                 {/* Marker inside the mass: circle */}
-                <circle className="fill-background/80 stroke-foreground" strokeWidth="4" cx="350" cy={loadCenterY} r="17" />
+                <circle
+                    className="fill-background/80 stroke-foreground"
+                    strokeWidth="4"
+                    cx={SPRING_CENTER_X}
+                    cy={loadCenterY}
+                    r={markerRadius}
+                />
 
                 {/* Marker inside the mass: line */}
                 <path
                     className="stroke-foreground"
                     strokeLinecap="round"
                     strokeWidth="4"
-                    d={`M350 ${loadCenterY - 16} V${loadCenterY + 17}`}
+                    d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
                 />
             </g>
 
@@ -123,6 +135,13 @@ const MAX_SPRING_DISPLACEMENT = 145;
 const MIN_LOAD_HEIGHT = 50;
 const MAX_LOAD_HEIGHT = 210;
 const DEFAULT_LOAD_HEIGHT = 150;
+const MIN_LOAD_WIDTH = 140;
+const MAX_LOAD_WIDTH = 420;
+const DEFAULT_LOAD_WIDTH = 290;
+const DEFAULT_HANDLE_HALF_WIDTH = 50;
+const MIN_MARKER_RADIUS = 10;
+const MAX_MARKER_RADIUS = 36;
+const DEFAULT_MARKER_RADIUS = 17;
 const MIN_MASS = 0.1;
 const MAX_MASS = 20;
 
@@ -166,12 +185,25 @@ export function getMechanicalSpringDisplacement(value: number): number {
     );
 }
 
-export function getMechanicalLoadHeight(mass?: number): number {
+function interpolateLoadSize(mass: number | undefined, min: number, max: number, fallback: number): number {
     if (mass === undefined || !Number.isFinite(mass)) {
-        return DEFAULT_LOAD_HEIGHT;
+        return fallback;
     }
+
     const clampedMass = Math.min(MAX_MASS, Math.max(MIN_MASS, mass));
     const normalizedMass = (clampedMass - MIN_MASS) / (MAX_MASS - MIN_MASS);
 
-    return MIN_LOAD_HEIGHT + normalizedMass * (MAX_LOAD_HEIGHT - MIN_LOAD_HEIGHT);
+    return min + normalizedMass * (max - min);
+}
+
+export function getMechanicalLoadHeight(mass?: number): number {
+    return interpolateLoadSize(mass, MIN_LOAD_HEIGHT, MAX_LOAD_HEIGHT, DEFAULT_LOAD_HEIGHT);
+}
+
+export function getMechanicalLoadWidth(mass?: number): number {
+    return interpolateLoadSize(mass, MIN_LOAD_WIDTH, MAX_LOAD_WIDTH, DEFAULT_LOAD_WIDTH);
+}
+
+export function getMechanicalLoadMarkerRadius(mass?: number): number {
+    return interpolateLoadSize(mass, MIN_MARKER_RADIUS, MAX_MARKER_RADIUS, DEFAULT_MARKER_RADIUS);
 }
