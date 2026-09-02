@@ -1,41 +1,33 @@
+import { calcGeneratorDuration, spring } from "motion";
 import type { EngineId, EngineParamsMap, MotionParams, ReactSpringParams } from "./9-types";
 
 export const MAX_DURATION_MS = 30_000;
 
-type SpringSimParams = {
-    mass: number;
-    stiffness: number;
-    damping: number;
-    restDelta: number;
-    restSpeed: number;
-    velocity: number;
-    clamp: boolean;
-};
+/**
+ * Physics engines detect rest inside a frame, so their last recorded frame lands up to one
+ * (rafz-capped) frame after the exact rest time. The plot is laid out with this much extra room.
+ */
+export const SETTLE_HEADROOM_MS = 64;
 
+/**
+ * Exact duration of the engine's own timeline for the given parameters, computed the way the
+ * engine itself does, so it is known before the run starts and does not depend on frame timing.
+ */
 export function estimateDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
-    if (engineId === "gsap") {
-        return clampDuration((params as EngineParamsMap["gsap"]).duration * 1000);
+    switch (engineId) {
+        case "gsap":
+            return clampDuration((params as EngineParamsMap["gsap"]).duration * 1000);
+        case "motion":
+            return clampDuration(motionSpringDurationMs(params as MotionParams));
+        case "spring":
+            return clampDuration(reactSpringDurationMs(params as ReactSpringParams));
     }
-
-    if (engineId === "spring") {
-        return clampDuration(simulateSpringDurationMs(reactSpringSim(params as ReactSpringParams)));
-    }
-
-    return clampDuration(simulateSpringDurationMs(motionSim(params as MotionParams)));
 }
 
-export function resolveExpectedDurationMs(
-    engineId: EngineId,
-    params: EngineParamsMap[EngineId],
-    lastExactMs: number,
-    lastEngineMs = 0,
-): number {
-    if (engineId === "gsap") return estimateDurationMs(engineId, params);
-    if (lastExactMs > 0) return lastExactMs;
-
-    const simulated = estimateDurationMs(engineId, params);
-    if (lastEngineMs > 0 && simulated > lastEngineMs) return lastEngineMs;
-    return simulated;
+/** Time range the recorded graph is laid out for, decided before the run starts. */
+export function getPlotDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
+    const exact = estimateDurationMs(engineId, params);
+    return engineId === "gsap" ? exact : Math.min(MAX_DURATION_MS, exact + SETTLE_HEADROOM_MS);
 }
 
 export function formatDuration(durationMs: number): string {
@@ -44,61 +36,45 @@ export function formatDuration(durationMs: number): string {
         : `${(durationMs / 1000).toFixed(2)} s`;
 }
 
-export function durationKey(engineId: EngineId, params: object): string {
-    return `${engineId}:${JSON.stringify(params)}`;
+/** Motion resolves its spring analytically and fixes the duration up front by stepping the generator. */
+export function motionSpringDurationMs(params: MotionParams): number {
+    return calcGeneratorDuration(spring({ keyframes: [0, 1], ...params }));
 }
 
-function reactSpringSim(params: ReactSpringParams): SpringSimParams {
-    return {
-        mass: params.mass,
-        stiffness: params.tension,
-        damping: params.friction,
-        restDelta: params.precision,
-        restSpeed: params.precision,
-        velocity: params.velocity,
-        clamp: params.clamp,
-    };
-}
+/**
+ * Replica of react-spring's `SpringValue.advance` physics for a 0 → 1 move: semi-implicit Euler in
+ * 1 ms steps, at rest once |velocity| <= precision / 10 and |target - position| <= precision.
+ * Returns the physics time (ms) at which react-spring reports rest.
+ */
+export function reactSpringDurationMs(params: ReactSpringParams): number {
+    const to = 1;
+    const { tension, friction, clamp } = params;
+    if (!(tension > 0)) return 0;
 
-function motionSim(params: MotionParams): SpringSimParams {
-    return {
-        mass: params.mass,
-        stiffness: params.stiffness,
-        damping: params.damping,
-        restDelta: params.restDelta,
-        restSpeed: params.restSpeed,
-        velocity: params.velocity,
-        clamp: false,
-    };
-}
+    const mass = params.mass > 0 ? params.mass : 0.0001;
+    const precision = params.precision || 0.001;
+    const restVelocity = precision / 10;
+    let velocity = Number.isFinite(params.velocity) ? params.velocity : 0;
+    let position = 0;
 
-function simulateSpringDurationMs({ mass, stiffness, damping, restDelta, restSpeed, velocity, clamp }: SpringSimParams): number {
-    const dt = 0.001;
-    const dest = 1;
-    const safeMass = Math.max(mass, 0.0001);
-    let x = 0;
-    let v = velocity;
-    let t = 0;
-
-    while (t < MAX_DURATION_MS / 1000) {
-        const acceleration = (-stiffness * (x - dest) - damping * v) / safeMass;
-        v += acceleration * dt;
-        x += v * dt;
-
-        if (clamp && x > dest) {
-            x = dest;
-            v = 0;
+    for (let stepsDone = 0; stepsDone <= MAX_DURATION_MS; stepsDone += 1) {
+        if (Math.abs(velocity) <= restVelocity && Math.abs(to - position) <= precision) {
+            return stepsDone;
         }
-
-        t += dt;
-
-        if (Math.abs(x - dest) <= restDelta && Math.abs(v) <= restSpeed) break;
+        if (clamp && position >= to) {
+            velocity = 0;
+            position = to;
+        }
+        const acceleration = (-tension * 0.000001 * (position - to) - friction * 0.001 * velocity) / mass;
+        velocity += acceleration;
+        position += velocity;
+        if (!Number.isFinite(position)) return stepsDone;
     }
 
-    return t * 1000;
+    return MAX_DURATION_MS;
 }
 
 function clampDuration(durationMs: number): number {
-    if (!Number.isFinite(durationMs)) return 1000;
+    if (!Number.isFinite(durationMs)) return MAX_DURATION_MS;
     return Math.min(MAX_DURATION_MS, Math.max(1, durationMs));
 }

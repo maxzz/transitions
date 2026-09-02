@@ -1,104 +1,161 @@
+import { useMemo } from "react";
 import { useAtomValue } from "jotai";
-import { formatDuration } from "../model/2-duration";
+import { useSnapshot } from "valtio";
+import { appSettings } from "@/store/1-ui-settings";
+import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
+import { buildGraphPlot, getGraphSize, type GraphPlot } from "../model/5-graph-plot";
 import { activeDefinitionAtom } from "../state/atoms";
-import { graphAtom, HEIGHT, LEFT, PLOT_HEIGHT, PLOT_WIDTH, TOP, WIDTH } from "./a-graph-atoms";
+import { graphDataAtom } from "./a-graph-atoms";
 
-const POINT_RADIUS = 10;
-const POINT_STROKE = 2.5;
+const CURVE_STROKE = 2.5;
+const POINT_STROKE = 1.5;
+const TICK_LENGTH = 5;
+const TICK_LABEL_GAP = 9;
 
+/**
+ * The chart is laid out in real pixels (the SVG viewBox matches the measured box), so
+ * text and strokes keep their size at any panel width instead of scaling with the drawing.
+ */
 export function RecordedSvg() {
-    const graph = useAtomValue(graphAtom);
+    const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
+    const data = useAtomValue(graphDataAtom);
+    const { showGraphPoints } = useSnapshot(appSettings);
+    const plot = useMemo(
+        () => {
+            const size = getGraphSize(width, height);
+            return size ? buildGraphPlot(data, size) : null;
+        },
+        [data, width, height],
+    );
 
     return (
-        <div className="flex-1 p-3 min-h-0 sm:p-6">
-            <svg className="h-full w-full" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-labelledby="response-graph-title response-graph-description">
-                <RecordedHeader />
+        <div ref={ref} className="mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-hidden flex flex-1 items-center justify-center">
+            {plot && (
+                <svg
+                    className="shrink-0 block"
+                    width={plot.width}
+                    height={plot.height}
+                    viewBox={`0 0 ${plot.width} ${plot.height}`}
+                    role="img"
+                    aria-labelledby="response-graph-title response-graph-description"
+                >
+                    <RecordedTitle />
 
-                <defs>
-                    <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.55" />
-                        <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.04" />
-                    </linearGradient>
-                </defs>
+                    <defs>
+                        <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.45" />
+                            <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.03" />
+                        </linearGradient>
+                        <clipPath id="response-plot-clip">
+                            <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
+                        </clipPath>
+                    </defs>
 
-                {[0, 0.25, 0.5, 0.75, 1].map(
-                    (ratio) => (
-                        <line
-                            className="stroke-border"
-                            strokeWidth="1"
-                            x1={LEFT + ratio * PLOT_WIDTH}
-                            x2={LEFT + ratio * PLOT_WIDTH}
-                            y1={TOP}
-                            y2={TOP + PLOT_HEIGHT}
-                            key={ratio}
-                        />
-                    )
-                )}
-                {[0, 0.25, 0.5, 0.75, 1].map(
-                    (ratio) => (
-                        <line
-                            className="stroke-border"
-                            strokeWidth="1"
-                            x1={LEFT}
-                            x2={LEFT + PLOT_WIDTH}
-                            y1={TOP + ratio * PLOT_HEIGHT}
-                            y2={TOP + ratio * PLOT_HEIGHT}
-                            key={ratio}
-                        />
-                    )
-                )}
+                    <GridAndAxes plot={plot} />
 
-                <line
-                    className="stroke-muted-foreground"
-                    strokeDasharray="5 5"
-                    x1={LEFT}
-                    x2={LEFT + PLOT_WIDTH}
-                    y1={graph.toY(0)}
-                    y2={graph.toY(0)}
-                />
-                <line
-                    className="stroke-primary"
-                    strokeDasharray="5 5"
-                    x1={LEFT}
-                    x2={LEFT + PLOT_WIDTH}
-                    y1={graph.toY(1)}
-                    y2={graph.toY(1)}
-                />
-
-                {graph.hasCurve && (<>
-                    <path d={graph.area} fill="url(#response-area-fill)" />
-                    <polyline
-                        className="stroke-primary"
-                        points={graph.line}
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        fill="none"
-                    />
-
-                    <g aria-hidden="true">
-                        {graph.points.map(
-                            (point, index) => (
-                                <circle
-                                    className="fill-primary stroke-background"
-                                    strokeWidth={POINT_STROKE}
-                                    cx={point.x}
-                                    cy={point.y}
-                                    r={POINT_RADIUS}
-                                    key={`${point.x}-${index}`}
-                                />
-                            )
-                        )}
-                    </g>
-                </>)}
-
-                <RecordedFooter />
-            </svg>
+                    {plot.hasCurve && (
+                        <g clipPath="url(#response-plot-clip)">
+                            <path d={plot.areaPath} fill="url(#response-area-fill)" />
+                            <path
+                                className="stroke-primary"
+                                d={plot.linePath}
+                                strokeWidth={CURVE_STROKE}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                fill="none"
+                            />
+                            {showGraphPoints && (
+                                <g aria-hidden="true">
+                                    {plot.points.map(
+                                        (point, index) => (
+                                            <circle
+                                                className="fill-primary stroke-background"
+                                                strokeWidth={POINT_STROKE}
+                                                cx={point.x}
+                                                cy={point.y}
+                                                r={plot.pointRadius}
+                                                key={index}
+                                            />
+                                        )
+                                    )}
+                                </g>
+                            )}
+                        </g>
+                    )}
+                </svg>
+            )}
         </div>
     );
 }
 
-function RecordedHeader() {
+function GridAndAxes({ plot }: { plot: GraphPlot; }) {
+    return (
+        <>
+            <g className="stroke-border" strokeWidth="1">
+                {plot.xTicks.map(
+                    (tick) => (
+                        <line x1={tick.position} x2={tick.position} y1={plot.top} y2={plot.bottom} key={`x${tick.label}`} />
+                    )
+                )}
+                {plot.yTicks.map(
+                    (tick) => (
+                        <line x1={plot.left} x2={plot.right} y1={tick.position} y2={tick.position} key={`y${tick.label}`} />
+                    )
+                )}
+                <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} fill="none" />
+            </g>
+
+            <g className="stroke-muted-foreground/70" strokeWidth="1.5" strokeDasharray="6 5">
+                <line x1={plot.left} x2={plot.right} y1={plot.zeroY} y2={plot.zeroY} />
+                <line className="stroke-primary" x1={plot.left} x2={plot.right} y1={plot.targetY} y2={plot.targetY} />
+            </g>
+
+            <g className="stroke-muted-foreground/60" strokeWidth="1">
+                {plot.xTicks.map(
+                    (tick) => (
+                        <line x1={tick.position} x2={tick.position} y1={plot.bottom} y2={plot.bottom + TICK_LENGTH} key={`x${tick.label}`} />
+                    )
+                )}
+                {plot.yTicks.map(
+                    (tick) => (
+                        <line x1={plot.left - TICK_LENGTH} x2={plot.left} y1={tick.position} y2={tick.position} key={`y${tick.label}`} />
+                    )
+                )}
+            </g>
+
+            <g className="text-xs font-mono tabular-nums fill-muted-foreground">
+                {plot.xTicks.map(
+                    (tick, index, all) => (
+                        <text
+                            x={tick.position}
+                            y={plot.bottom + TICK_LENGTH + TICK_LABEL_GAP}
+                            dominantBaseline="hanging"
+                            textAnchor={index === 0 ? "start" : index === all.length - 1 ? "end" : "middle"}
+                            key={`x${tick.label}`}
+                        >
+                            {tick.label}
+                        </text>
+                    )
+                )}
+                {plot.yTicks.map(
+                    (tick) => (
+                        <text
+                            x={plot.left - TICK_LENGTH - TICK_LABEL_GAP + 2}
+                            y={tick.position}
+                            dominantBaseline="central"
+                            textAnchor="end"
+                            key={`y${tick.label}`}
+                        >
+                            {tick.label}
+                        </text>
+                    )
+                )}
+            </g>
+        </>
+    );
+}
+
+function RecordedTitle() {
     const definition = useAtomValue(activeDefinitionAtom);
 
     return (
@@ -108,28 +165,5 @@ function RecordedHeader() {
                 Displacement over actual elapsed time, including any overshoot.
             </desc>
         </>
-    );
-}
-
-function RecordedFooter() {
-    const graph = useAtomValue(graphAtom);
-
-    return (
-        <g className="font-mono text-[12px] fill-muted-foreground">
-            <text x={LEFT} y={HEIGHT - 19}>
-                0 ms
-            </text>
-
-            <text x={LEFT + PLOT_WIDTH} y={HEIGHT - 19} textAnchor="end">
-                {formatDuration(graph.duration)}
-            </text>
-
-            <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">
-                1
-            </text>
-            <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">
-                0
-            </text>
-        </g>
     );
 }

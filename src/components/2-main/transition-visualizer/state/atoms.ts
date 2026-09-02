@@ -4,7 +4,7 @@ import {
     engineDefinitions,
     getValidParamsByEngine,
 } from "../model/1-definitions";
-import { durationKey, resolveExpectedDurationMs } from "../model/2-duration";
+import { getPlotDurationMs } from "../model/2-duration";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/9-types";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
@@ -29,22 +29,9 @@ export const expectedDurationMsAtom = atom(0);
 
 let autoRecordTimer: ReturnType<typeof setTimeout> | null = null;
 let stopActiveRun: (() => void) | null = null;
-const lastDurationByEngine: Record<EngineId, number> = {
-    spring: 0,
-    motion: 0,
-    gsap: 0,
-};
-const lastDurationByParams = new Map<string, number>();
 
 export function registerStopActiveRun(stop: (() => void) | null) {
     stopActiveRun = stop;
-}
-
-export function clearDurationMemory() {
-    lastDurationByEngine.spring = 0;
-    lastDurationByEngine.motion = 0;
-    lastDurationByEngine.gsap = 0;
-    lastDurationByParams.clear();
 }
 
 function readPersistedParams(): EngineParamsMap {
@@ -88,16 +75,8 @@ function startRun(get: Getter, set: Setter) {
     set(runTokenAtom, (token) => token + 1);
     set(runResultAtom, null);
     set(liveSamplesAtom, []);
-    const key = durationKey(engineId, params);
-    const persisted = appSettings.recordedDurations[engineId];
-    const lastExactMs = lastDurationByParams.get(key)
-        ?? (persisted?.key === key ? persisted.durationMs : 0);
-    set(expectedDurationMsAtom, resolveExpectedDurationMs(
-        engineId,
-        params,
-        lastExactMs,
-        lastDurationByEngine[engineId] || persisted?.durationMs || 0,
-    ));
+    // The time range is fixed from the parameters alone, so the plot does not rescale while recording.
+    set(expectedDurationMsAtom, getPlotDurationMs(engineId, params));
     set(runStatusAtom, "running");
 }
 
@@ -170,9 +149,20 @@ export const publishLiveSamplesAtom = atom(
     (get, set, update: { token: number; samples: SamplePoint[] }) => {
         if (get(runTokenAtom) !== update.token) return;
         set(liveSamplesAtom, update.samples);
-        const elapsedMs = update.samples.at(-1)?.elapsedMs ?? 0;
-        if (elapsedMs > get(expectedDurationMsAtom)) {
-            set(expectedDurationMsAtom, elapsedMs);
+        set(extendExpectedDurationAtom, { token: update.token, elapsedMs: update.samples.at(-1)?.elapsedMs ?? 0 });
+    },
+);
+
+/**
+ * Grows the plotted time range as soon as a frame runs past it. Called for every frame (not only on
+ * throttled publishes) so the final result never has to stretch the axis one more time after the live plot.
+ */
+export const extendExpectedDurationAtom = atom(
+    null,
+    (get, set, update: { token: number; elapsedMs: number }) => {
+        if (get(runTokenAtom) !== update.token) return;
+        if (update.elapsedMs > get(expectedDurationMsAtom)) {
+            set(expectedDurationMsAtom, update.elapsedMs);
         }
     },
 );
@@ -183,13 +173,6 @@ export const completeRunAtom = atom(
         if (get(runTokenAtom) !== update.token) return;
         const plotDurationMs = Math.max(get(expectedDurationMsAtom), update.result.durationMs, 1);
         const result = { ...update.result, plotDurationMs };
-        lastDurationByEngine[result.engineId] = result.durationMs;
-        const key = durationKey(result.engineId, get(paramsByEngineAtom)[result.engineId]);
-        lastDurationByParams.set(key, result.durationMs);
-        appSettings.recordedDurations = {
-            ...appSettings.recordedDurations,
-            [result.engineId]: { key, durationMs: result.durationMs },
-        };
         set(runResultAtom, result);
         set(liveSamplesAtom, result.samples);
         set(runStatusAtom, "settled");

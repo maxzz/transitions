@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { runEngine } from "../engines";
 import { decimateSamples, sanitizeSamples } from "../model/3-samples";
 import { type EngineRun, type SamplePoint } from "../model/9-types";
-import { activeEngineAtom, completeRunAtom, paramsByEngineAtom, publishLiveSamplesAtom, registerStopActiveRun, requestRunAtom, runStatusAtom, runTokenAtom } from "../state/atoms";
+import { activeEngineAtom, completeRunAtom, extendExpectedDurationAtom, paramsByEngineAtom, publishLiveSamplesAtom, registerStopActiveRun, requestRunAtom, runStatusAtom, runTokenAtom } from "../state/atoms";
 import { getPreviewValue, resetPreviewValue, setPreviewValue } from "../state/preview-motion";
 
 gsap.registerPlugin(useGSAP);
@@ -27,6 +27,7 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>) {
     const token = useAtomValue(runTokenAtom);
     const completeRun = useSetAtom(completeRunAtom);
     const publishLiveSamples = useSetAtom(publishLiveSamplesAtom);
+    const extendExpectedDuration = useSetAtom(extendExpectedDurationAtom);
     const requestRun = useSetAtom(requestRunAtom);
     const { autoRecordResponse } = useSnapshot(appSettings);
     const activeParams = paramsByEngine[engineId];
@@ -80,6 +81,7 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>) {
                     if (cancelled) return;
                     setPreviewValue(sample.value);
                     samples.push(sample);
+                    extendExpectedDuration({ token, elapsedMs: sample.elapsedMs });
                     publishLive();
                 },
                 onRest() {
