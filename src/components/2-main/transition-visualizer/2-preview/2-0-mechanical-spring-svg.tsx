@@ -40,7 +40,7 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                 <path
                     className="stroke-primary"
                     fill="none"
-                    strokeWidth="4"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     vectorEffect="non-scaling-stroke"
@@ -95,7 +95,7 @@ function Part_Load({ mass }: { mass?: number; }) {
             className="stroke-foreground"
             fill="url(#mass-fill)"
             height={loadHeight}
-            strokeWidth="5"
+            strokeWidth="2"
             x={loadX}
             y={SPRING_BOTTOM_Y}
             rx="10"
@@ -105,7 +105,7 @@ function Part_Load({ mass }: { mass?: number; }) {
         {/* Marker inside the mass: circle */}
         <circle
             className="fill-background/80 stroke-foreground"
-            strokeWidth="4"
+            strokeWidth="2"
             cx={SPRING_CENTER_X}
             cy={loadCenterY}
             r={markerRadius}
@@ -115,7 +115,7 @@ function Part_Load({ mass }: { mass?: number; }) {
         <path
             className="stroke-foreground"
             strokeLinecap="round"
-            strokeWidth="4"
+            strokeWidth="2"
             d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
         />
     </>);
