@@ -11,11 +11,8 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
     const loadWidth = getMechanicalLoadWidth(mass);
     const loadHeight = getMechanicalLoadHeight(mass);
     const loadX = SPRING_CENTER_X - loadWidth / 2;
-    const loadCenterY = LOAD_TOP_Y + loadHeight / 2;
+    const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
     const markerRadius = getMechanicalLoadMarkerRadius(mass);
-    const handleHalfWidth = DEFAULT_HANDLE_HALF_WIDTH * (loadWidth / DEFAULT_LOAD_WIDTH);
-    const handleLeft = SPRING_CENTER_X - handleHalfWidth;
-    const handleRight = SPRING_CENTER_X + handleHalfWidth;
     const displacement = getMechanicalSpringDisplacement(value);
     const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
@@ -76,19 +73,9 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                     height={loadHeight}
                     strokeWidth="5"
                     x={loadX}
-                    y={LOAD_TOP_Y}
+                    y={SPRING_BOTTOM_Y}
                     rx="10"
                     width={loadWidth}
-                />
-
-                {/* Spring stem as handle */}
-                <path
-                    className="stroke-foreground"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="5"
-                    d={`M${handleLeft} 285 V270 C${handleLeft} 243 ${handleRight} 243 ${handleRight} 270 V285`}
                 />
 
                 {/* Marker inside the mass: circle */}
@@ -117,7 +104,6 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
     );
 }
 
-const LOAD_TOP_Y = 278;
 const SPRING_TOP_Y = 75;
 const SPRING_BOTTOM_Y = 250;
 const SPRING_CENTER_X = 350;
@@ -132,13 +118,16 @@ const SAMPLES_PER_WRAP = 12;
 const SPRING_TRAVEL = 105;
 const MIN_SPRING_DISPLACEMENT = -150;
 const MAX_SPRING_DISPLACEMENT = 145;
-const MIN_LOAD_HEIGHT = 50;
-const MAX_LOAD_HEIGHT = 210;
-const DEFAULT_LOAD_HEIGHT = 150;
-const MIN_LOAD_WIDTH = 140;
-const MAX_LOAD_WIDTH = 420;
-const DEFAULT_LOAD_WIDTH = 290;
-const DEFAULT_HANDLE_HALF_WIDTH = 50;
+
+// Load: mass and marker
+const MIN_LOAD_HEIGHT = 120;
+const MAX_LOAD_HEIGHT = 250;
+const MIN_LOAD_WIDTH = 50;
+const MAX_LOAD_WIDTH = 140;
+const DEFAULT_LOAD_HEIGHT = 190;
+const DEFAULT_LOAD_WIDTH = 100;
+
+// Load: marker
 const MIN_MARKER_RADIUS = 10;
 const MAX_MARKER_RADIUS = 36;
 const DEFAULT_MARKER_RADIUS = 17;

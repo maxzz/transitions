@@ -38,15 +38,22 @@ describe("mechanical spring", () => {
 
 describe("mechanical load size", () => {
     it("scales height linearly from the minimum size to the maximum size", () => {
-        expect(getMechanicalLoadHeight(0.1)).toBe(50);
-        expect(getMechanicalLoadHeight(10.05)).toBeCloseTo(130);
-        expect(getMechanicalLoadHeight(20)).toBe(210);
+        expect(getMechanicalLoadHeight(0.1)).toBe(120);
+        expect(getMechanicalLoadHeight(10.05)).toBeCloseTo(185);
+        expect(getMechanicalLoadHeight(20)).toBe(250);
     });
 
     it("scales width linearly from the minimum size to the maximum size", () => {
-        expect(getMechanicalLoadWidth(0.1)).toBe(140);
-        expect(getMechanicalLoadWidth(10.05)).toBeCloseTo(280);
-        expect(getMechanicalLoadWidth(20)).toBe(420);
+        expect(getMechanicalLoadWidth(0.1)).toBe(50);
+        expect(getMechanicalLoadWidth(10.05)).toBeCloseTo(95);
+        expect(getMechanicalLoadWidth(20)).toBe(140);
+    });
+
+    it("keeps the load taller than it is wide", () => {
+        expect(getMechanicalLoadHeight(0.1)).toBeGreaterThan(getMechanicalLoadWidth(0.1));
+        expect(getMechanicalLoadHeight(10.05)).toBeGreaterThan(getMechanicalLoadWidth(10.05));
+        expect(getMechanicalLoadHeight(20)).toBeGreaterThan(getMechanicalLoadWidth(20));
+        expect(getMechanicalLoadHeight()).toBeGreaterThan(getMechanicalLoadWidth());
     });
 
     it("scales the inner marker linearly with mass", () => {
@@ -74,8 +81,8 @@ describe("mechanical load size", () => {
     });
 
     it("uses the original load size when mass is unavailable", () => {
-        expect(getMechanicalLoadHeight()).toBe(150);
-        expect(getMechanicalLoadWidth()).toBe(290);
+        expect(getMechanicalLoadHeight()).toBe(190);
+        expect(getMechanicalLoadWidth()).toBe(100);
         expect(getMechanicalLoadMarkerRadius()).toBe(17);
     });
 });
