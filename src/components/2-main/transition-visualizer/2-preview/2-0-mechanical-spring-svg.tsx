@@ -63,6 +63,7 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
             )}
 
             <g transform={`translate(0 ${displacement})`}>
+                {/* Mass */}
                 <rect
                     className="stroke-foreground"
                     fill="url(#mass-fill)"
@@ -73,6 +74,8 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                     rx="10"
                     width="290"
                 />
+
+                {/* Spring stem as handle */}
                 <path
                     className="stroke-foreground"
                     fill="none"
@@ -82,8 +85,10 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
                     d="M300 285 V270 C300 243 400 243 400 270 V285"
                 />
 
+                {/* Marker inside the mass: circle */}
                 <circle className="fill-background/80 stroke-foreground" strokeWidth="4" cx="350" cy={loadCenterY} r="17" />
 
+                {/* Marker inside the mass: line */}
                 <path
                     className="stroke-foreground"
                     strokeLinecap="round"
@@ -162,8 +167,11 @@ export function getMechanicalSpringDisplacement(value: number): number {
 }
 
 export function getMechanicalLoadHeight(mass?: number): number {
-    if (mass === undefined || !Number.isFinite(mass)) return DEFAULT_LOAD_HEIGHT;
+    if (mass === undefined || !Number.isFinite(mass)) {
+        return DEFAULT_LOAD_HEIGHT;
+    }
     const clampedMass = Math.min(MAX_MASS, Math.max(MIN_MASS, mass));
     const normalizedMass = Math.log(clampedMass / MIN_MASS) / Math.log(MAX_MASS / MIN_MASS);
+    
     return MIN_LOAD_HEIGHT + normalizedMass * (MAX_LOAD_HEIGHT - MIN_LOAD_HEIGHT);
 }
