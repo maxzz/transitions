@@ -1,15 +1,7 @@
 import { useAtomValue } from "jotai";
 import { formatDuration } from "../model/duration";
 import { activeDefinitionAtom } from "../state/atoms";
-import {
-    graphAtom,
-    HEIGHT,
-    LEFT,
-    PLOT_HEIGHT,
-    PLOT_WIDTH,
-    TOP,
-    WIDTH,
-} from "./a-graph-atoms";
+import { graphAtom, HEIGHT, LEFT, PLOT_HEIGHT, PLOT_WIDTH, TOP, WIDTH } from "./a-graph-atoms";
 
 const POINT_RADIUS = 10;
 const POINT_STROKE = 2.5;
@@ -20,13 +12,10 @@ export function ResponsePlot() {
 
     return (
         <div className="p-3 min-h-0 sm:p-6 flex-1">
-            <svg
-                className="h-full w-full"
-                viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-                role="img"
-                aria-labelledby="response-graph-title response-graph-description"
-            >
+            <svg className="h-full w-full" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-labelledby="response-graph-title response-graph-description">
+
                 <title id="response-graph-title">{definition.label} transition response graph</title>
+
                 <desc id="response-graph-description">
                     Displacement over actual elapsed time, including any overshoot.
                 </desc>
@@ -38,79 +27,92 @@ export function ResponsePlot() {
                     </linearGradient>
                 </defs>
 
-                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-                    <line
-                        key={ratio}
-                        x1={LEFT + ratio * PLOT_WIDTH}
-                        x2={LEFT + ratio * PLOT_WIDTH}
-                        y1={TOP}
-                        y2={TOP + PLOT_HEIGHT}
-                        className="stroke-border"
-                        strokeWidth="1"
-                    />
-                ))}
-                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
-                    <line
-                        key={ratio}
-                        x1={LEFT}
-                        x2={LEFT + PLOT_WIDTH}
-                        y1={TOP + ratio * PLOT_HEIGHT}
-                        y2={TOP + ratio * PLOT_HEIGHT}
-                        className="stroke-border"
-                        strokeWidth="1"
-                    />
-                ))}
+                {[0, 0.25, 0.5, 0.75, 1].map(
+                    (ratio) => (
+                        <line
+                            className="stroke-border"
+                            strokeWidth="1"
+                            x1={LEFT + ratio * PLOT_WIDTH}
+                            x2={LEFT + ratio * PLOT_WIDTH}
+                            y1={TOP}
+                            y2={TOP + PLOT_HEIGHT}
+                            key={ratio}
+                        />
+                    )
+                )}
+                {[0, 0.25, 0.5, 0.75, 1].map(
+                    (ratio) => (
+                        <line
+                            className="stroke-border"
+                            strokeWidth="1"
+                            x1={LEFT}
+                            x2={LEFT + PLOT_WIDTH}
+                            y1={TOP + ratio * PLOT_HEIGHT}
+                            y2={TOP + ratio * PLOT_HEIGHT}
+                            key={ratio}
+                        />
+                    )
+                )}
 
                 <line
+                    className="stroke-muted-foreground"
+                    strokeDasharray="5 5"
                     x1={LEFT}
                     x2={LEFT + PLOT_WIDTH}
                     y1={graph.toY(0)}
                     y2={graph.toY(0)}
-                    className="stroke-muted-foreground"
-                    strokeDasharray="5 5"
                 />
                 <line
+                    className="stroke-primary"
+                    strokeDasharray="5 5"
                     x1={LEFT}
                     x2={LEFT + PLOT_WIDTH}
                     y1={graph.toY(1)}
                     y2={graph.toY(1)}
-                    className="stroke-primary"
-                    strokeDasharray="5 5"
                 />
 
-                {graph.hasCurve && (
-                    <>
-                        <path d={graph.area} fill="url(#response-area-fill)" />
-                        <polyline
-                            points={graph.line}
-                            fill="none"
-                            className="stroke-primary"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="4"
-                        />
-                        <g aria-hidden="true">
-                            {graph.points.map((point, index) => (
+                {graph.hasCurve && (<>
+                    <path d={graph.area} fill="url(#response-area-fill)" />
+                    <polyline
+                        className="stroke-primary"
+                        points={graph.line}
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                    />
+
+                    <g aria-hidden="true">
+                        {graph.points.map(
+                            (point, index) => (
                                 <circle
-                                    key={`${point.x}-${index}`}
+                                    className="fill-primary stroke-background"
+                                    strokeWidth={POINT_STROKE}
                                     cx={point.x}
                                     cy={point.y}
                                     r={POINT_RADIUS}
-                                    className="fill-primary stroke-background"
-                                    strokeWidth={POINT_STROKE}
+                                    key={`${point.x}-${index}`}
                                 />
-                            ))}
-                        </g>
-                    </>
-                )}
+                            )
+                        )}
+                    </g>
+                </>)}
 
                 <g className="font-mono text-[12px] fill-muted-foreground">
-                    <text x={LEFT} y={HEIGHT - 19}>0 ms</text>
+                    <text x={LEFT} y={HEIGHT - 19}>
+                        0 ms
+                    </text>
+
                     <text x={LEFT + PLOT_WIDTH} y={HEIGHT - 19} textAnchor="end">
                         {formatDuration(graph.duration)}
                     </text>
-                    <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">1</text>
-                    <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">0</text>
+
+                    <text x={LEFT - 10} y={graph.toY(1) + 4} textAnchor="end">
+                        1
+                    </text>
+                    <text x={LEFT - 10} y={graph.toY(0) + 4} textAnchor="end">
+                        0
+                    </text>
                 </g>
             </svg>
         </div>
