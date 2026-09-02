@@ -28,6 +28,7 @@ import {
     clearDurationMemory,
     completeRunAtom,
     expectedDurationMsAtom,
+    extendExpectedDurationAtom,
     liveSamplesAtom,
     paramsByEngineAtom,
     publishLiveSamplesAtom,
@@ -158,6 +159,28 @@ describe("visualizer run state", () => {
 
         expect(store.get(liveSamplesAtom)).toEqual(samples);
         expect(store.get(runStatusAtom)).toBe("running");
+    });
+
+    it("extends the plotted time range per frame so completion reuses the live axis", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        const token = store.get(runTokenAtom);
+        const expected = store.get(expectedDurationMsAtom);
+
+        store.set(extendExpectedDurationAtom, { token, elapsedMs: expected - 1 });
+        expect(store.get(expectedDurationMsAtom)).toBe(expected);
+
+        store.set(extendExpectedDurationAtom, { token, elapsedMs: expected + 37 });
+        expect(store.get(expectedDurationMsAtom)).toBe(expected + 37);
+
+        store.set(extendExpectedDurationAtom, { token: token - 1, elapsedMs: expected + 999 });
+        expect(store.get(expectedDurationMsAtom)).toBe(expected + 37);
+
+        store.set(completeRunAtom, {
+            token,
+            result: { engineId: "spring", durationMs: expected + 37, samples: [{ elapsedMs: 0, value: 0 }, { elapsedMs: expected + 37, value: 1 }] },
+        });
+        expect(store.get(runResultAtom)?.plotDurationMs).toBe(expected + 37);
     });
 
     it("stops the active run through the registered handler", () => {

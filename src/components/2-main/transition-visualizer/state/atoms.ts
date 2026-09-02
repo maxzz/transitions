@@ -170,9 +170,20 @@ export const publishLiveSamplesAtom = atom(
     (get, set, update: { token: number; samples: SamplePoint[] }) => {
         if (get(runTokenAtom) !== update.token) return;
         set(liveSamplesAtom, update.samples);
-        const elapsedMs = update.samples.at(-1)?.elapsedMs ?? 0;
-        if (elapsedMs > get(expectedDurationMsAtom)) {
-            set(expectedDurationMsAtom, elapsedMs);
+        set(extendExpectedDurationAtom, { token: update.token, elapsedMs: update.samples.at(-1)?.elapsedMs ?? 0 });
+    },
+);
+
+/**
+ * Grows the plotted time range as soon as a frame runs past it. Called for every frame (not only on
+ * throttled publishes) so the final result never has to stretch the axis one more time after the live plot.
+ */
+export const extendExpectedDurationAtom = atom(
+    null,
+    (get, set, update: { token: number; elapsedMs: number }) => {
+        if (get(runTokenAtom) !== update.token) return;
+        if (update.elapsedMs > get(expectedDurationMsAtom)) {
+            set(expectedDurationMsAtom, update.elapsedMs);
         }
     },
 );
