@@ -8,7 +8,7 @@ import { buildGraphPlot, getGraphSize, mapPlotPoint, type GraphPlot } from "../m
 import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
 import { previewMotion } from "../state/preview-motion";
-import { graphDataAtom, isRecordingAtom } from "./a-graph-atoms";
+import { graphDataAtom, showGraphPlayheadAtom } from "./a-graph-atoms";
 
 const CURVE_STROKE = 2.5;
 const POINT_STROKE = 1.5;
@@ -97,14 +97,14 @@ export function RecordedSvg() {
 }
 
 /**
- * Vertical playhead plus the intersection marker. Subscribes to the live frame clock so the
- * settled path, grid, and labels stay mounted while a replay is recording.
+ * Vertical playhead plus the intersection marker. Shown only while replaying a settled
+ * curve; a first recording (or a run after parameters changed) has no path to track.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
-    const recording = useAtomValue(isRecordingAtom);
+    const showPlayhead = useAtomValue(showGraphPlayheadAtom);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
-    if (!recording) return null;
+    if (!showPlayhead) return null;
 
     const last = samples.at(-1);
     const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;

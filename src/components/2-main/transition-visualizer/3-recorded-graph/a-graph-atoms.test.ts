@@ -21,7 +21,7 @@ vi.mock("@/store/1-ui-settings", () => ({
 
 import type { RunResult } from "../model/9-types";
 import { clearAutoRecordTimer, completeRunAtom, liveSamplesAtom, publishLiveSamplesAtom, registerStopActiveRun, requestRunAtom, runTokenAtom } from "../state/atoms";
-import { graphDataAtom, graphSamplesAtom } from "./a-graph-atoms";
+import { graphDataAtom, graphSamplesAtom, showGraphPlayheadAtom } from "./a-graph-atoms";
 
 describe("recorded graph data", () => {
     afterEach(() => {
@@ -58,5 +58,21 @@ describe("recorded graph data", () => {
         expect(store.get(graphSamplesAtom)).toEqual(result.samples);
         expect(store.get(graphDataAtom).samples).toBe(settled.samples);
         expect(store.get(graphDataAtom).durationMs).toBe(settled.durationMs);
+        expect(store.get(showGraphPlayheadAtom)).toBe(true);
+    });
+
+    it("hides the playhead while the first recording has no settled curve", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+        store.set(publishLiveSamplesAtom, {
+            token: store.get(runTokenAtom),
+            samples: [
+                { elapsedMs: 0, value: 0 },
+                { elapsedMs: 40, value: 0.2 },
+            ],
+        });
+
+        expect(store.get(showGraphPlayheadAtom)).toBe(false);
+        expect(store.get(graphSamplesAtom)).toHaveLength(2);
     });
 });

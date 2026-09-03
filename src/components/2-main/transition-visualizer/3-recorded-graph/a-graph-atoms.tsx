@@ -20,6 +20,11 @@ export type RecordedGraphData = GraphData & {
 
 export const isRecordingAtom = atom((get) => get(runStatusAtom) === "running");
 
+/** Playhead is only for a replay over a settled curve that is not being rebuilt. */
+export const showGraphPlayheadAtom = atom((get) => {
+    return get(isRecordingAtom) && (get(runResultAtom)?.samples.length ?? 0) > 0;
+});
+
 /**
  * The settled curve is the plot source whenever it exists. Live samples only populate the
  * first recording (or a run after parameters changed and the previous result was cleared),
