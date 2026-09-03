@@ -83,11 +83,11 @@ function Part_Ceiling() {
 }
 
 function Part_Load({ mass }: { mass?: number; }) {
-    const loadWidth = getMechanicalLoadWidth(mass);
-    const loadHeight = getMechanicalLoadHeight(mass);
+    const loadWidth = getLoad_Width(mass);
+    const loadHeight = getLoad_Height(mass);
     const loadX = SPRING_CENTER_X - loadWidth / 2;
     const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
-    const markerRadius = getMechanicalLoadMarkerRadius(mass);
+    const markerRadius = getLoad_MarkerRadius(mass);
 
     return (<>
         {/* Mass */}
@@ -102,22 +102,25 @@ function Part_Load({ mass }: { mass?: number; }) {
             width={loadWidth}
         />
 
+        {/* m {mass} */}
+        <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="text-[17px] font-serif italic fill-foreground">m</text>
+
         {/* Marker inside the mass: circle */}
-        <circle
+        {/* <circle
             className="fill-background/80 stroke-foreground"
             strokeWidth="2"
             cx={SPRING_CENTER_X}
             cy={loadCenterY}
             r={markerRadius}
-        />
+        /> */}
 
         {/* Marker inside the mass: line */}
-        <path
+        {/* <path
             className="stroke-foreground"
             strokeLinecap="round"
             strokeWidth="2"
             d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
-        />
+        /> */}
     </>);
 }
 
@@ -193,15 +196,15 @@ const DEFAULT_MARKER_RADIUS = 17;
 const MIN_MASS = 0.1;
 const MAX_MASS = 20;
 
-export function getMechanicalLoadHeight(mass?: number): number {
+export function getLoad_Height(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_HEIGHT, MAX_LOAD_HEIGHT, DEFAULT_LOAD_HEIGHT);
 }
 
-export function getMechanicalLoadWidth(mass?: number): number {
+export function getLoad_Width(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_WIDTH, MAX_LOAD_WIDTH, DEFAULT_LOAD_WIDTH);
 }
 
-export function getMechanicalLoadMarkerRadius(mass?: number): number {
+export function getLoad_MarkerRadius(mass?: number): number {
     return interpolateLoadSize(mass, MIN_MARKER_RADIUS, MAX_MARKER_RADIUS, DEFAULT_MARKER_RADIUS);
 }
 
