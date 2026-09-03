@@ -1,6 +1,8 @@
-import { useSnapshot } from "valtio";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { subscribeKey } from "valtio/utils";
 import { appSettings, type VisualizerDisplay } from "@/store/1-ui-settings";
-import { Button } from "@/ui/shadcn/button";
+import { Tabs } from "@/ui/shadcn/tabs";
+import { AnimatedTabsList, AnimatedTabsTrigger } from "@/ui/local-ui/5-animated-tabs";
 
 const displayOptions: readonly { value: VisualizerDisplay; label: string; }[] = [
     { value: "mechanical", label: "Mechanical" },
@@ -8,29 +10,41 @@ const displayOptions: readonly { value: VisualizerDisplay; label: string; }[] = 
     { value: "graph", label: "Graph" },
 ];
 
+const visualizerDisplayValueAtom = atom(appSettings.visualizerDisplay);
+
+visualizerDisplayValueAtom.onMount = (setAtom) =>
+    subscribeKey(appSettings, "visualizerDisplay", setAtom);
+
+const visualizerDisplayAtom = atom(
+    (get) => get(visualizerDisplayValueAtom),
+    (_get, set, value: VisualizerDisplay) => {
+        appSettings.visualizerDisplay = value;
+        set(visualizerDisplayValueAtom, value);
+    },
+);
+
 export function PreviewSelectorTab() {
-    const { visualizerDisplay } = useSnapshot(appSettings);
+    const visualizerDisplay = useAtomValue(visualizerDisplayAtom);
+    const setVisualizerDisplay = useSetAtom(visualizerDisplayAtom);
 
     return (
-        <div className="p-1 bg-muted border border-border rounded-lg inline-flex items-center gap-1" role="radiogroup" aria-label="Visualizer display">
-            {displayOptions.map(
-                (option) => {
-                    const selected = visualizerDisplay === option.value;
-                    return (
-                        <Button
-                            className="min-w-16"
-                            variant={selected ? "default" : "ghost"}
-                            size="xs"
-                            role="radio"
-                            aria-checked={selected}
-                            onClick={() => { appSettings.visualizerDisplay = option.value; }}
-                            key={option.value}
-                        >
-                            {option.label}
-                        </Button>
-                    );
-                }
-            )}
-        </div>
+        <Tabs
+            value={visualizerDisplay}
+            onValueChange={(value) => setVisualizerDisplay(value as VisualizerDisplay)}
+            aria-label="Visualizer display"
+        >
+            <AnimatedTabsList layoutId="preview-selector-tabs" className="h-9">
+                {displayOptions.map((option) => (
+                    <AnimatedTabsTrigger
+                        key={option.value}
+                        className="min-w-16 h-full"
+                        value={option.value}
+                        valueAtom={visualizerDisplayAtom}
+                    >
+                        {option.label}
+                    </AnimatedTabsTrigger>
+                ))}
+            </AnimatedTabsList>
+        </Tabs>
     );
 }
