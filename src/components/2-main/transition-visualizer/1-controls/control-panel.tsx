@@ -105,15 +105,7 @@ export function ControlPanel() {
     );
 }
 
-function NumberControl({
-    field,
-    value,
-    onChange,
-}: {
-    field: Extract<ParamField<ControlValues>, { kind: "number" }>;
-    value: number;
-    onChange: (value: number) => void;
-}) {
+function NumberControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "number"; }>; value: number; onChange: (value: number) => void; }) {
     const id = `transition-${field.key}`;
     const sliderMin = field.scale === "log" ? Math.log10(field.min) : field.min;
     const sliderMax = field.scale === "log" ? Math.log10(field.max) : field.max;
@@ -121,14 +113,12 @@ function NumberControl({
     const sliderStep = field.scale === "log" ? (sliderMax - sliderMin) / 200 : field.step;
 
     return (
-        <div
-            className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2"
-            title={field.description}
-        >
-            <Label className="truncate" htmlFor={id}>{field.label}</Label>
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2" title={field.description}>
+            <Label className="truncate" htmlFor={id}>
+                {field.label}
+            </Label>
+
             <Slider
-                aria-label={`${field.label} slider`}
-                aria-valuetext={value.toString()}
                 min={sliderMin}
                 max={sliderMax}
                 step={sliderStep}
@@ -137,7 +127,10 @@ function NumberControl({
                     if (next === undefined) return;
                     onChange(field.scale === "log" ? Number((10 ** next).toPrecision(6)) : next);
                 }}
+                aria-label={`${field.label} slider`}
+                aria-valuetext={value.toString()}
             />
+
             <Input
                 id={id}
                 className="px-1 h-6 w-full font-mono tabular-nums text-[11px]"
@@ -161,7 +154,7 @@ function BooleanControl({
     value,
     onChange,
 }: {
-    field: Extract<ParamField<ControlValues>, { kind: "boolean" }>;
+    field: Extract<ParamField<ControlValues>, { kind: "boolean"; }>;
     value: boolean;
     onChange: (value: boolean) => void;
 }) {
@@ -183,7 +176,7 @@ function SelectControl({
     value,
     onChange,
 }: {
-    field: Extract<ParamField<ControlValues>, { kind: "select" }>;
+    field: Extract<ParamField<ControlValues>, { kind: "select"; }>;
     value: string;
     onChange: (value: string) => void;
 }) {

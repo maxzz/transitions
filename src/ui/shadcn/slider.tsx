@@ -12,7 +12,7 @@ export function Slider({ className, defaultValue, value, min = 0, max = 100, ...
         [value, defaultValue, min, max]);
 
     return (
-        <SliderPrimitive.Root data-slot="slider" className={cn(rootClasses, className)} defaultValue={defaultValue} value={value} min={min} max={max} {...props}>
+        <SliderPrimitive.Root data-slot="slider" className={cn(sliderClasses, className)} defaultValue={defaultValue} value={value} min={min} max={max} {...props}>
 
             <SliderPrimitive.Track data-slot="slider-track" className={trackClasses}>
                 <SliderPrimitive.Range data-slot="slider-range" className={rangeClasses} />
@@ -26,7 +26,7 @@ export function Slider({ className, defaultValue, value, min = 0, max = 100, ...
     );
 }
 
-const rootClasses = "\
+const sliderClasses = "\
 relative w-full \
 \
 data-disabled:opacity-50 \
@@ -41,14 +41,15 @@ flex items-center touch-none select-none";
 const trackClasses = "\
 grow \
 relative \
-overflow-hidden \
-rounded-full \
 bg-muted \
 \
-data-horizontal:h-1 \
+data-horizontal:h-0.75 \
 data-horizontal:w-full \
+\
 data-vertical:h-full \
-data-vertical:w-1 \
+data-vertical:w-0.75 \
+\
+rounded-full overflow-hidden \
 ";
 
 const rangeClasses = "\
@@ -65,20 +66,21 @@ bg-white \
 border \
 border-ring \
 ring-ring/50 \
+\
 transition-[color,box-shadow] \
 \
 after:absolute \
 after:-inset-2 \
 \
-hover:ring-3 \
+hover:ring-2 \
 \
-focus-visible:ring-3 \
+focus-visible:ring-1 \
 focus-visible:outline-hidden \
 \
-active:ring-3 \
+active:ring-1 \
 \
 disabled:pointer-events-none \
 disabled:opacity-50 \
 \
-rounded-full select-none \
+rounded select-none \
 ";
