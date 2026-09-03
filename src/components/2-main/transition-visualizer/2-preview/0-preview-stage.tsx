@@ -24,7 +24,7 @@ export function PreviewStage() {
         <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
             <PreviewHeader />
 
-            <div className="p-3 min-h-0 sm:p-6 overflow-hidden flex-1">
+            <div className="flex-1 p-3 min-h-0 sm:p-6 overflow-hidden">
                 <PreviewCanvas>
                     <TransitionScene />
                 </PreviewCanvas>

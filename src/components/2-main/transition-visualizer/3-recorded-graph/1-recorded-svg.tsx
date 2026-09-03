@@ -35,7 +35,7 @@ export function RecordedSvg() {
     );
 
     return (
-        <div ref={ref} className="mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-hidden flex flex-1 items-center justify-center">
+        <div ref={ref} className="flex-1 mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-hidden flex items-center justify-center">
             {plot && (
                 <svg
                     className="shrink-0 block"

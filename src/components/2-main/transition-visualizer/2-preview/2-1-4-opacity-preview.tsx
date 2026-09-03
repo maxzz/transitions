@@ -10,7 +10,7 @@ export function OpacityPreview() {
 
     return (
         <div className="relative size-2/3 flex items-center gap-6">
-            <div className="relative self-stretch bg-chart-1 rounded-sm flex-1">
+            <div className="self-stretch flex-1 relative bg-chart-1 rounded-sm">
                 <div
                     className="size-full bg-background will-change-[opacity] rounded-sm"
                     style={{ opacity: value }}
@@ -27,7 +27,7 @@ export function OpacityPreview() {
 
 function OpacityLegend({ value }: { value: number; }) {
     return (
-        <div className="relative shrink-0 w-10 h-full" aria-hidden>
+        <div className="shrink-0 relative w-10 h-full" aria-hidden>
             <div className="size-full bg-chart-1 bg-linear-to-t from-background/0 to-background border-[3px] border-foreground rounded-sm" />
 
             {/* Zero-width track spanning the bar interior; the marker's `top` is a percentage of it. */}

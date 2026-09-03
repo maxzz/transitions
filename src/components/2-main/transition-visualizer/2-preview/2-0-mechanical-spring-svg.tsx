@@ -16,7 +16,7 @@ export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?:
 
     return (
         <svg
-            className="select-none h-full w-full text-foreground cursor-pointer"
+            className="h-full w-full text-foreground select-none cursor-pointer"
             viewBox="0 0 700 650"
             role="img"
             aria-labelledby="mechanical-spring-title mechanical-spring-description"
@@ -120,7 +120,7 @@ function Part_Load({ mass }: { mass?: number; }) {
             />
 
             {/* m {mass} */}
-            <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="text-[17px] font-serif italic fill-foreground">m</text>
+            <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="font-serif text-[17px] fill-foreground italic">m</text>
 
             {/* Marker inside the mass: circle */}
             {/* <circle

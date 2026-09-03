@@ -181,7 +181,7 @@ function PlaybackSlider({
 }) {
     return (
         <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2">
-            <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider truncate" htmlFor={id}>
+            <Label className="font-mono text-[10px] text-muted-foreground truncate uppercase tracking-wider" htmlFor={id}>
                 {label}
             </Label>
             <input
@@ -197,7 +197,7 @@ function PlaybackSlider({
                 disabled={disabled}
                 onChange={(event) => onChange(Number(event.currentTarget.value))}
             />
-            <span className="text-[11px] font-mono tabular-nums text-foreground text-right truncate">
+            <span className="font-mono tabular-nums text-[11px] text-foreground text-right truncate">
                 {valueLabel}
             </span>
         </div>
