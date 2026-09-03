@@ -120,6 +120,10 @@ React 19, TypeScript, Vite, Tailwind CSS 4, and shadcn/ui. Visualizer state uses
 
 ## Acknowledgments
 
-* The mechanical spring metaphor and the five visualization modes are inspired by [Joost Kiens’ react-spring-visualizer](https://github.com/JoostKiens/react-spring-visualizer). This project is a from-scratch rewrite with three engines, live recording, and a modern React stack.
+* The mechanical spring metaphor and the five visualization modes are inspired by Joost Kiens’ [react-spring-visualizer](https://github.com/JoostKiens/react-spring-visualizer). This project is a from-scratch rewrite with three engines, live recording, and a modern React stack.
+
+  * [How I Transitioned from Ease to Spring Animations](https://medium.com/kaliberinteractive/how-i-transitioned-from-ease-to-spring-animations-5a09eeca0325)
 
 * [Motion library transitions](https://motion.dev/docs/react-transitions#spring-visualiser)
+
+* [A Friendly Introduction to Spring Physics](https://www.joshwcomeau.com/animation/a-friendly-introduction-to-spring-physics) by Josh W. Comeau
