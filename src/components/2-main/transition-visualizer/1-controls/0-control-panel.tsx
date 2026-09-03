@@ -82,67 +82,6 @@ export function Pane_Controls() {
     );
 }
 
-function PresetControl() {
-    const engineId = useAtomValue(activeEngineAtom);
-    const definition = useAtomValue(activeDefinitionAtom);
-    const params = useAtomValue(activeParamsAtom) as unknown as ControlValues;
-    const applyPreset = useSetAtom(applyPresetAtom);
-    const selectedPreset = definition.presets.find(({ params: presetParams }) => Object.entries(presetParams).every(([key, value]) => params[key] === value))?.id ?? "custom";
-
-    return (
-        <div className="p-2 border-b border-border flex items-center gap-2">
-            <Label className="shrink-0 w-14 text-muted-foreground" htmlFor="transition-preset">
-                Preset
-            </Label>
-
-            <Select value={selectedPreset} onValueChange={(presetId) => { if (presetId !== "custom") applyPreset({ engineId, presetId }); }}>
-                <SelectTrigger className="flex-1 h-7 min-w-0" id="transition-preset">
-                    <SelectValue />
-                </SelectTrigger>
-
-                <SelectContent>
-                    {selectedPreset === "custom" && (
-                        <SelectItem value="custom">Custom</SelectItem>
-                    )}
-
-                    {definition.presets.map(
-                        (preset) => (
-                            <SelectItem key={preset.id} value={preset.id}>
-                                {preset.label}
-                            </SelectItem>
-                        )
-                    )}
-                </SelectContent>
-            </Select>
-        </div>
-    );
-}
-
-function SelectControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "select"; }>; value: string; onChange: (value: string) => void; }) {
-    const id = `transition-${field.key}`;
-    return (
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2" title={field.description}>
-            <Label className="truncate" htmlFor={id}>
-                {field.label}
-            </Label>
-            
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger id={id} className="h-7 min-w-0 w-full">
-                    <SelectValue />
-                </SelectTrigger>
-
-                <SelectContent>
-                    {field.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-    );
-}
-
 function NumberControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "number"; }>; value: number; onChange: (value: number) => void; }) {
     const id = `transition-${field.key}`;
     const sliderMin = field.scale === "log" ? Math.log10(field.min) : field.min;
@@ -186,5 +125,66 @@ function BooleanControl({ field, value, onChange }: { field: Extract<ParamField<
             <Checkbox checked={value} onCheckedChange={(checked) => onChange(checked === true)} />
             <span className="truncate">{field.label}</span>
         </Label>
+    );
+}
+
+function SelectControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "select"; }>; value: string; onChange: (value: string) => void; }) {
+    const id = `transition-${field.key}`;
+    return (
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2" title={field.description}>
+            <Label className="truncate" htmlFor={id}>
+                {field.label}
+            </Label>
+            
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger id={id} className="h-7 min-w-0 w-full">
+                    <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                    {field.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    );
+}
+
+function PresetControl() {
+    const engineId = useAtomValue(activeEngineAtom);
+    const definition = useAtomValue(activeDefinitionAtom);
+    const params = useAtomValue(activeParamsAtom) as unknown as ControlValues;
+    const applyPreset = useSetAtom(applyPresetAtom);
+    const selectedPreset = definition.presets.find(({ params: presetParams }) => Object.entries(presetParams).every(([key, value]) => params[key] === value))?.id ?? "custom";
+
+    return (
+        <div className="p-2 border-b border-border flex items-center gap-2">
+            <Label className="shrink-0 w-14 text-muted-foreground" htmlFor="transition-preset">
+                Preset
+            </Label>
+
+            <Select value={selectedPreset} onValueChange={(presetId) => { if (presetId !== "custom") applyPreset({ engineId, presetId }); }}>
+                <SelectTrigger className="flex-1 h-7 min-w-0" id="transition-preset">
+                    <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                    {selectedPreset === "custom" && (
+                        <SelectItem value="custom">Custom</SelectItem>
+                    )}
+
+                    {definition.presets.map(
+                        (preset) => (
+                            <SelectItem key={preset.id} value={preset.id}>
+                                {preset.label}
+                            </SelectItem>
+                        )
+                    )}
+                </SelectContent>
+            </Select>
+        </div>
     );
 }
