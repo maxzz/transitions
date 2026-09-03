@@ -2,6 +2,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Input } from "@/ui/shadcn/input";
 import { Label } from "@/ui/shadcn/label";
+import { Slider } from "@/ui/shadcn/slider";
 import {
     Select,
     SelectContent,
@@ -125,17 +126,15 @@ function NumberControl({
             title={field.description}
         >
             <Label className="truncate" htmlFor={id}>{field.label}</Label>
-            <input
-                className="h-1.5 min-w-0 w-full bg-muted accent-primary rounded-full appearance-none cursor-pointer"
-                type="range"
+            <Slider
                 aria-label={`${field.label} slider`}
                 aria-valuetext={value.toString()}
                 min={sliderMin}
                 max={sliderMax}
                 step={sliderStep}
-                value={sliderValue}
-                onChange={(event) => {
-                    const next = Number(event.currentTarget.value);
+                value={[sliderValue]}
+                onValueChange={([next]) => {
+                    if (next === undefined) return;
                     onChange(field.scale === "log" ? Number((10 ** next).toPrecision(6)) : next);
                 }}
             />

@@ -4,6 +4,7 @@ import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
+import { Slider } from "@/ui/shadcn/slider";
 import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
 import { previewMotion, seekPlayback, setPreviewSpeed } from "../state/preview-motion";
@@ -184,18 +185,19 @@ function PlaybackSlider({
             <Label className="font-mono text-[10px] text-muted-foreground truncate uppercase tracking-wider" htmlFor={id}>
                 {label}
             </Label>
-            <input
-                className="h-1.5 min-w-0 w-full bg-muted accent-primary disabled:opacity-50 rounded-full appearance-none cursor-pointer"
+            <Slider
                 id={id}
-                type="range"
                 aria-label={label}
                 aria-valuetext={valueLabel}
                 min={min}
                 max={max}
                 step={step}
-                value={value}
+                value={[value]}
                 disabled={disabled}
-                onChange={(event) => onChange(Number(event.currentTarget.value))}
+                onValueChange={([next]) => {
+                    if (next === undefined) return;
+                    onChange(next);
+                }}
             />
             <span className="font-mono tabular-nums text-[11px] text-foreground text-right truncate">
                 {valueLabel}
