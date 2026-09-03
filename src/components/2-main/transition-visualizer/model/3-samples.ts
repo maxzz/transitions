@@ -67,6 +67,31 @@ export function decimateSamples(samples: readonly SamplePoint[], maxPoints = 600
     return result;
 }
 
+/** Value on the recorded polyline at `elapsedMs`, or `undefined` when there are no samples. */
+export function interpolateSampleValue(samples: readonly SamplePoint[], elapsedMs: number): number | undefined {
+    const count = samples.length;
+    if (count === 0) return undefined;
+
+    if (elapsedMs <= samples[0].elapsedMs) return samples[0].value;
+
+    const last = samples[count - 1];
+    if (elapsedMs >= last.elapsedMs) return last.value;
+
+    let low = 0;
+    let high = count - 1;
+    while (low + 1 < high) {
+        const mid = (low + high) >> 1;
+        if (samples[mid].elapsedMs <= elapsedMs) low = mid;
+        else high = mid;
+    }
+
+    const from = samples[low];
+    const to = samples[high];
+    const span = to.elapsedMs - from.elapsedMs;
+    if (span <= 0) return to.value;
+    return from.value + (to.value - from.value) * ((elapsedMs - from.elapsedMs) / span);
+}
+
 export function getSampleBounds(samples: readonly SamplePoint[]): SampleBounds {
     if (samples.length === 0) {
         return { durationMs: 0, minValue: 0, maxValue: 1 };

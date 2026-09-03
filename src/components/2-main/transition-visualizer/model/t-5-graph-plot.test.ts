@@ -5,6 +5,7 @@ import {
     getGraphSize,
     getTimeAxis,
     getValueAxis,
+    mapPlotPoint,
     monotoneCurvePath,
     niceStep,
     ticksBetween,
@@ -119,6 +120,14 @@ describe("graph plot", () => {
         expect(plot.xTicks.at(-1)!.label).toMatch(/^\d+ ms$/);
         expect(plot.areaPath.endsWith("Z")).toBe(true);
         expect(plot.pointRadius).toBe(3.5);
+        expect(plot.timeMax).toBeGreaterThanOrEqual(500);
+
+        const start = mapPlotPoint(plot, 0, 0);
+        const mid = mapPlotPoint(plot, 250, 1.2);
+        expect(start.x).toBeCloseTo(plot.left, 6);
+        expect(start.y).toBeCloseTo(plot.zeroY, 6);
+        expect(mid.x).toBeCloseTo(plot.points[1].x, 6);
+        expect(mid.y).toBeCloseTo(plot.points[1].y, 6);
     });
 
     it("shrinks the point markers when samples are too dense for full-size ones", () => {

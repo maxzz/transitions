@@ -124,7 +124,7 @@ describe("visualizer run state", () => {
         expect(store.get(runResultAtom)?.durationMs).toBe(result.durationMs);
     });
 
-    it("clears the previous curve when a new run starts", () => {
+    it("keeps the previous curve when the same parameters are replayed", () => {
         const store = createStore();
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
@@ -140,7 +140,7 @@ describe("visualizer run state", () => {
 
         store.set(requestRunAtom);
 
-        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(runResultAtom)).toMatchObject(result);
         expect(store.get(liveSamplesAtom)).toEqual([]);
         expect(store.get(runStatusAtom)).toBe("running");
         expect(store.get(expectedDurationMsAtom)).toBeGreaterThan(0);
@@ -227,6 +227,31 @@ describe("auto-record on parameter change", () => {
         expect(store.get(runStatusAtom)).toBe("idle");
 
         vi.advanceTimersByTime(1);
+        expect(store.get(runStatusAtom)).toBe("running");
+    });
+
+    it("clears the previous curve when parameters change", () => {
+        vi.useFakeTimers();
+        appSettings.autoRecordResponse = true;
+        const store = createStore();
+        store.set(requestRunAtom);
+        const token = store.get(runTokenAtom);
+        store.set(completeRunAtom, {
+            token,
+            result: {
+                engineId: "spring",
+                durationMs: 200,
+                samples: [
+                    { elapsedMs: 0, value: 0 },
+                    { elapsedMs: 200, value: 1 },
+                ],
+            },
+        });
+
+        store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 240 });
+        vi.advanceTimersByTime(AUTO_RECORD_DEBOUNCE_MS);
+
+        expect(store.get(runResultAtom)).toBeNull();
         expect(store.get(runStatusAtom)).toBe("running");
     });
 

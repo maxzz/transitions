@@ -20,9 +20,15 @@ export type RecordedGraphData = GraphData & {
 
 export const isRecordingAtom = atom((get) => get(runStatusAtom) === "running");
 
+/**
+ * The settled curve is the plot source whenever it exists. Live samples only populate the
+ * first recording (or a run after parameters changed and the previous result was cleared),
+ * so a replay with the same parameters does not rebuild the path on every frame.
+ */
 export const graphSamplesAtom = atom((get) => {
-    const result = get(runResultAtom);
-    return get(isRecordingAtom) ? get(liveSamplesAtom) : result?.samples ?? [];
+    const resultSamples = get(runResultAtom)?.samples ?? [];
+    if (resultSamples.length > 0) return resultSamples;
+    return get(isRecordingAtom) ? get(liveSamplesAtom) : [];
 });
 
 export const graphDataAtom = atom((get): RecordedGraphData => {
@@ -35,10 +41,10 @@ export const graphDataAtom = atom((get): RecordedGraphData => {
 
     const bounds = samples.length > 0 ? getSampleBounds(samples) : EMPTY_BOUNDS;
     const elapsedMs = samples.at(-1)?.elapsedMs ?? 0;
-    const durationMs = recording
-        ? Math.max(expectedDurationMs, elapsedMs, 1)
-        : result
-            ? Math.max(result.plotDurationMs ?? result.durationMs, 1)
+    const durationMs = result
+        ? Math.max(result.plotDurationMs ?? result.durationMs, 1)
+        : recording
+            ? Math.max(expectedDurationMs, elapsedMs, 1)
             : Math.max(getPlotDurationMs(engineId, params), 1);
 
     return { samples, bounds, durationMs, elapsedMs, hasCurve: samples.length > 0 };

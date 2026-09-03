@@ -3,12 +3,18 @@ import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
-import { buildGraphPlot, getGraphSize, type GraphPlot } from "../model/5-graph-plot";
+import { interpolateSampleValue } from "../model/3-samples";
+import { buildGraphPlot, getGraphSize, mapPlotPoint, type GraphPlot } from "../model/5-graph-plot";
+import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
-import { graphDataAtom } from "./a-graph-atoms";
+import { previewMotion } from "../state/preview-motion";
+import { graphDataAtom, isRecordingAtom } from "./a-graph-atoms";
 
 const CURVE_STROKE = 2.5;
 const POINT_STROKE = 1.5;
+const PLAYHEAD_STROKE = 1.5;
+const PLAYHEAD_DOT_RADIUS = 5;
+const PLAYHEAD_HALO_RADIUS = 9;
 const TICK_LENGTH = 5;
 const TICK_LABEL_GAP = 9;
 
@@ -82,9 +88,48 @@ export function RecordedSvg() {
                             )}
                         </g>
                     )}
+
+                    <RecordingPlayhead plot={plot} samples={data.samples} />
                 </svg>
             )}
         </div>
+    );
+}
+
+/**
+ * Vertical playhead plus the intersection marker. Subscribes to the live frame clock so the
+ * settled path, grid, and labels stay mounted while a replay is recording.
+ */
+function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
+    const recording = useAtomValue(isRecordingAtom);
+    const { value, elapsedMs } = useSnapshot(previewMotion);
+
+    if (!recording) return null;
+
+    const last = samples.at(-1);
+    const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;
+    const playheadValue = onCurve ? interpolateSampleValue(samples, elapsedMs) ?? value : value;
+    const { x, y } = mapPlotPoint(plot, elapsedMs, playheadValue);
+
+    return (
+        <g clipPath="url(#response-plot-clip)" aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
+            <line
+                className="stroke-primary"
+                x1={x}
+                x2={x}
+                y1={plot.top}
+                y2={plot.bottom}
+                strokeWidth={PLAYHEAD_STROKE}
+            />
+            <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
+            <circle
+                className="fill-primary stroke-background"
+                cx={x}
+                cy={y}
+                r={PLAYHEAD_DOT_RADIUS}
+                strokeWidth={POINT_STROKE}
+            />
+        </g>
     );
 }
 

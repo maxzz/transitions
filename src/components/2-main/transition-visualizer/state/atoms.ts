@@ -68,12 +68,15 @@ function resetRun(set: Setter) {
     set(liveSamplesAtom, []);
 }
 
-function startRun(get: Getter, set: Setter) {
+function startRun(get: Getter, set: Setter, keepResult = false) {
     clearAutoRecordTimer();
     const engineId = get(activeEngineAtom);
     const params = get(paramsByEngineAtom)[engineId];
     set(runTokenAtom, (token) => token + 1);
-    set(runResultAtom, null);
+    // Replaying the same parameters keeps the last curve; the playhead tracks progress instead.
+    if (!keepResult) {
+        set(runResultAtom, null);
+    }
     set(liveSamplesAtom, []);
     // The time range is fixed from the parameters alone, so the plot does not rescale while recording.
     set(expectedDurationMsAtom, getPlotDurationMs(engineId, params));
@@ -141,7 +144,7 @@ export const applyPresetAtom = atom(
 );
 
 export const requestRunAtom = atom(null, (get, set) => {
-    startRun(get, set);
+    startRun(get, set, true);
 });
 
 export const publishLiveSamplesAtom = atom(
