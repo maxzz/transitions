@@ -1,8 +1,8 @@
-import { atom, type Getter, type Setter } from "jotai";
+import { type Getter, type Setter, atom } from "jotai";
 import { appSettings } from "@/store/1-ui-settings";
 import { engineDefinitions, getValidParamsByEngine } from "../model/1-definitions";
 import { buildRecordedResult } from "../model/6-sample-engine";
-import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/9-types";
+import { type EngineId, type EngineParamsMap, type RunResult, type RunStatus, type SamplePoint, type VisualizationMode } from "../model/9-types";
 import { ensurePreviewPlayingSpeed, resetPreviewValue, togglePreviewPause } from "./preview-motion";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
@@ -12,20 +12,22 @@ export const visualizationModeAtom = atom<VisualizationMode>("spring");
 
 export const paramsByEngineAtom = atom<EngineParamsMap>(readPersistedParams());
 
-export const activeParamsAtom = atom((get) => {
-    const engineId = get(activeEngineAtom);
-    return get(paramsByEngineAtom)[engineId];
-});
+export const activeParamsAtom = atom(
+    (get) => {
+        const engineId = get(activeEngineAtom);
+        return get(paramsByEngineAtom)[engineId];
+    }
+);
 
 export const activeDefinitionAtom = atom((get) => engineDefinitions[get(activeEngineAtom)]);
 
 export const runStatusAtom = atom<RunStatus>("idle");
+
 export const runTokenAtom = atom(0);
 export const runResultAtom = atom<RunResult | null>(null);
 export const liveSamplesAtom = atom<SamplePoint[]>([]);
 export const expectedDurationMsAtom = atom(0);
 
-let autoRecordTimer: ReturnType<typeof setTimeout> | null = null;
 let stopActiveRun: (() => void) | null = null;
 
 export function registerStopActiveRun(stop: (() => void) | null) {
@@ -51,6 +53,8 @@ function persistEngineParams<Id extends EngineId>(engineId: Id, params: EnginePa
     }
     appSettings.gsapParams = params as EngineParamsMap["gsap"];
 }
+
+let autoRecordTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function clearAutoRecordTimer() {
     if (autoRecordTimer === null) return;
@@ -117,14 +121,8 @@ export const updateParamAtom = atom(
     null,
     (get, set, update: { engineId: EngineId; key: string; value: number | string | boolean; }) => {
         const current = get(paramsByEngineAtom);
-        const nextParams = {
-            ...current[update.engineId],
-            [update.key]: update.value,
-        } as EngineParamsMap[typeof update.engineId];
-        set(paramsByEngineAtom, {
-            ...current,
-            [update.engineId]: nextParams,
-        } as EngineParamsMap);
+        const nextParams = { ...current[update.engineId], [update.key]: update.value } as EngineParamsMap[typeof update.engineId];
+        set(paramsByEngineAtom, { ...current, [update.engineId]: nextParams } as EngineParamsMap);
         persistEngineParams(update.engineId, nextParams);
         resetOrAutoRun(get, set, true);
     },
@@ -139,10 +137,7 @@ export const applyPresetAtom = atom(
 
         const current = get(paramsByEngineAtom);
         const nextParams = { ...preset.params } as EngineParamsMap[typeof update.engineId];
-        set(paramsByEngineAtom, {
-            ...current,
-            [update.engineId]: nextParams,
-        } as EngineParamsMap);
+        set(paramsByEngineAtom, { ...current, [update.engineId]: nextParams } as EngineParamsMap);
         persistEngineParams(update.engineId, nextParams);
         resetOrAutoRun(get, set, true);
     },
@@ -192,11 +187,7 @@ export const completeRunAtom = atom(
         if (get(runTokenAtom) !== update.token) return;
         const current = get(runResultAtom);
         if (current && update.stopped) {
-            set(runResultAtom, {
-                ...current,
-                stopped: true,
-                durationMs: Math.max(update.elapsedMs ?? current.durationMs, 1),
-            });
+            set(runResultAtom, { ...current, stopped: true, durationMs: Math.max(update.elapsedMs ?? current.durationMs, 1) });
         } else if (current) {
             set(runResultAtom, { ...current, stopped: false });
         }
