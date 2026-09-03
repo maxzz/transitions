@@ -72,8 +72,16 @@ describe("preview motion store", () => {
     });
 
     it("returns to the initial position on reset", () => {
-        setPreviewValue(1);
+        setPreviewValue(1, 240);
         resetPreviewValue();
         expect(getPreviewValue()).toBe(0);
+        expect(previewMotion.elapsedMs).toBe(0);
+    });
+
+    it("records the frame clock for the graph playhead", () => {
+        setPreviewValue(0.42, 180);
+        expect(previewMotion.elapsedMs).toBe(180);
+        setPreviewValue(0.5, Number.NaN);
+        expect(previewMotion.elapsedMs).toBe(0);
     });
 });

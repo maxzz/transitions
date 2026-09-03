@@ -38,6 +38,10 @@ export type GraphPlot = GraphSize & {
     points: GraphPoint[];
     /** Marker radius, shrunk when samples sit closer together than a full-size marker. */
     pointRadius: number;
+    /** Time-axis domain used to place samples and the playhead. */
+    timeMax: number;
+    valueMin: number;
+    valueMax: number;
     hasCurve: boolean;
 };
 
@@ -189,8 +193,33 @@ export function buildGraphPlot(data: GraphData, size: GraphSize): GraphPlot {
         areaPath,
         points,
         pointRadius,
+        timeMax: xAxis.max,
+        valueMin: yAxis.min,
+        valueMax: yAxis.max,
         hasCurve: points.length > 0,
     };
+}
+
+/** Pixel position of a sample on an already-built plot, clamped to the drawing area. */
+export function mapPlotPoint(plot: Pick<GraphPlot, "left" | "right" | "top" | "bottom" | "timeMax" | "valueMin" | "valueMax">, elapsedMs: number, value: number): GraphPoint {
+    const spanX = plot.right - plot.left;
+    const spanY = plot.valueMax - plot.valueMin;
+    const t = plot.timeMax > 0 ? elapsedMs / plot.timeMax : 0;
+    const x = plot.left + clamp01(t) * spanX;
+    const y = spanY === 0
+        ? (plot.top + plot.bottom) / 2
+        : plot.top + ((plot.valueMax - value) / spanY) * (plot.bottom - plot.top);
+
+    return {
+        x,
+        y: Math.min(plot.bottom, Math.max(plot.top, y)),
+    };
+}
+
+function clamp01(value: number): number {
+    if (value <= 0) return 0;
+    if (value >= 1) return 1;
+    return value;
 }
 
 function interiorSlope(previous: GraphPoint, current: GraphPoint, next: GraphPoint): number {

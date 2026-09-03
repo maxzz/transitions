@@ -6,6 +6,7 @@ import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
+import { previewMotion } from "../state/preview-motion";
 import { graphDataAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
 import { RecordedSvg } from "./1-recorded-svg";
 
@@ -94,6 +95,7 @@ function GraphButtomStats() {
     const engineId = useAtomValue(activeEngineAtom);
     const recording = useAtomValue(isRecordingAtom);
     const graph = useAtomValue(graphDataAtom);
+    const { elapsedMs: liveElapsedMs } = useSnapshot(previewMotion);
 
     const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
     const durationLabel = recording
@@ -104,7 +106,7 @@ function GraphButtomStats() {
                 ? "duration"
                 : "settled in";
     const durationValue = recording
-        ? formatDuration(graph.elapsedMs)
+        ? formatDuration(liveElapsedMs)
         : graph.hasCurve && result
             ? formatDuration(result.durationMs)
             : "—";

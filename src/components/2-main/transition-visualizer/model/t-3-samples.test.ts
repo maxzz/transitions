@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatGsapEase } from "../engines/3-gsap";
 import { gsapDefaults } from "./1-definitions";
-import { decimateSamples, getSampleBounds, sanitizeSamples } from "./3-samples";
+import { decimateSamples, getSampleBounds, interpolateSampleValue, sanitizeSamples } from "./3-samples";
 
 describe("transition samples", () => {
     it("sanitizes invalid and out-of-order samples", () => {
@@ -28,6 +28,20 @@ describe("transition samples", () => {
         expect(reduced[0]).toEqual(samples[0]);
         expect(reduced.at(-1)).toEqual(samples.at(-1));
         expect(Math.max(...reduced.map(({ value }) => value))).toBe(1.8);
+    });
+
+    it("interpolates the recorded value at an elapsed time", () => {
+        const samples = [
+            { elapsedMs: 0, value: 0 },
+            { elapsedMs: 100, value: 1 },
+            { elapsedMs: 200, value: 0.5 },
+        ];
+
+        expect(interpolateSampleValue([], 50)).toBeUndefined();
+        expect(interpolateSampleValue(samples, -10)).toBe(0);
+        expect(interpolateSampleValue(samples, 50)).toBeCloseTo(0.5);
+        expect(interpolateSampleValue(samples, 150)).toBeCloseTo(0.75);
+        expect(interpolateSampleValue(samples, 400)).toBe(0.5);
     });
 
     it("always includes the normalized start and target in graph bounds", () => {

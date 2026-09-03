@@ -79,7 +79,7 @@ export function useEngineRun(scopeRef: RefObject<HTMLDivElement | null>) {
             run = runEngine(engineId, activeParams, {
                 onFrame(sample) {
                     if (cancelled) return;
-                    setPreviewValue(sample.value);
+                    setPreviewValue(sample.value, sample.elapsedMs);
                     samples.push(sample);
                     extendExpectedDuration({ token, elapsedMs: sample.elapsedMs });
                     publishLive();
