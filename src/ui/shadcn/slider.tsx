@@ -1,8 +1,8 @@
-import { type ComponentProps, useMemo } from "react";
+import { type ComponentProps, useMemo } from "react"; // 09.03.2026
 import { Slider as SliderPrimitive } from "radix-ui";
 import { cn } from "@/utils/classnames";
 
-function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }: ComponentProps<typeof SliderPrimitive.Root>) {
+export function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }: ComponentProps<typeof SliderPrimitive.Root>) {
     const _values = useMemo(
         () => (
             Array.isArray(value) ? value
@@ -12,40 +12,73 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }
         [value, defaultValue, min, max]);
 
     return (
-        <SliderPrimitive.Root
-            data-slot="slider"
-            defaultValue={defaultValue}
-            value={value}
-            min={min}
-            max={max}
-            className={cn(
-                "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col",
-                className
-            )}
-            {...props}
-        >
-            <SliderPrimitive.Track
-                className="relative grow overflow-hidden rounded-full bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
-                data-slot="slider-track"
-            >
-                <SliderPrimitive.Range
-                    className="absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full"
-                    data-slot="slider-range"
-                />
+        <SliderPrimitive.Root data-slot="slider" className={cn(rootClasses, className)} defaultValue={defaultValue} value={value} min={min} max={max} {...props}>
 
+            <SliderPrimitive.Track data-slot="slider-track" className={trackClasses}>
+                <SliderPrimitive.Range data-slot="slider-range" className={rangeClasses} />
             </SliderPrimitive.Track>
 
             {Array.from({ length: _values.length },
-                (_, index) => (
-                    <SliderPrimitive.Thumb
-                        className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
-                        data-slot="slider-thumb"
-                        key={index}
-                    />
-                )
+                (_, index) => <SliderPrimitive.Thumb data-slot="slider-thumb" className={thumbClasses} key={index} />
+
             )}
         </SliderPrimitive.Root>
     );
 }
 
-export { Slider };
+const rootClasses = "\
+relative w-full \
+\
+data-disabled:opacity-50 \
+\
+data-vertical:h-full \
+data-vertical:min-h-40 \
+data-vertical:w-auto \
+data-vertical:flex-col \
+\
+flex items-center touch-none select-none";
+
+const trackClasses = "\
+grow \
+relative \
+overflow-hidden \
+rounded-full \
+bg-muted \
+\
+data-horizontal:h-1 \
+data-horizontal:w-full \
+data-vertical:h-full \
+data-vertical:w-1 \
+";
+
+const rangeClasses = "\
+absolute \
+bg-primary \
+select-none \
+data-horizontal:h-full \
+data-vertical:w-full \
+";
+
+const thumbClasses = "\
+shrink-0 block relative size-3 \
+bg-white \
+border \
+border-ring \
+ring-ring/50 \
+transition-[color,box-shadow] \
+\
+after:absolute \
+after:-inset-2 \
+\
+hover:ring-3 \
+\
+focus-visible:ring-3 \
+focus-visible:outline-hidden \
+\
+active:ring-3 \
+\
+disabled:pointer-events-none \
+disabled:opacity-50 \
+\
+rounded-full select-none \
+";
