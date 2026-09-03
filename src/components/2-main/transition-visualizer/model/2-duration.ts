@@ -47,15 +47,31 @@ export function motionSpringDurationMs(params: MotionParams): number {
  * Returns the physics time (ms) at which react-spring reports rest.
  */
 export function reactSpringDurationMs(params: ReactSpringParams): number {
+    return integrateReactSpring(params);
+}
+
+/**
+ * Same integrator as `reactSpringDurationMs`, calling `onStep` at t=0 and after every 1 ms step
+ * so the curve can be sampled offline without running SpringValue on rAF.
+ */
+export function integrateReactSpring(
+    params: ReactSpringParams,
+    onStep?: (elapsedMs: number, position: number) => void,
+): number {
     const to = 1;
     const { tension, friction, clamp } = params;
-    if (!(tension > 0)) return 0;
+    if (!(tension > 0)) {
+        onStep?.(0, 0);
+        return 0;
+    }
 
     const mass = params.mass > 0 ? params.mass : 0.0001;
     const precision = params.precision || 0.001;
     const restVelocity = precision / 10;
     let velocity = Number.isFinite(params.velocity) ? params.velocity : 0;
     let position = 0;
+
+    onStep?.(0, position);
 
     for (let stepsDone = 0; stepsDone <= MAX_DURATION_MS; stepsDone += 1) {
         if (Math.abs(velocity) <= restVelocity && Math.abs(to - position) <= precision) {
@@ -69,6 +85,7 @@ export function reactSpringDurationMs(params: ReactSpringParams): number {
         velocity += acceleration;
         position += velocity;
         if (!Number.isFinite(position)) return stepsDone;
+        onStep?.(stepsDone + 1, position);
     }
 
     return MAX_DURATION_MS;

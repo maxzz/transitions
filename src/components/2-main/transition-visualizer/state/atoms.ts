@@ -4,8 +4,9 @@ import {
     engineDefinitions,
     getValidParamsByEngine,
 } from "../model/1-definitions";
-import { getPlotDurationMs } from "../model/2-duration";
+import { buildRecordedResult } from "../model/6-sample-engine";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/9-types";
+import { resetPreviewValue } from "./preview-motion";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
 
@@ -60,46 +61,48 @@ export function clearAutoRecordTimer() {
     autoRecordTimer = null;
 }
 
-function resetRun(set: Setter) {
-    clearAutoRecordTimer();
-    set(runTokenAtom, (token) => token + 1);
-    set(runStatusAtom, "idle");
-    set(runResultAtom, null);
+function writePrecomputedCurve(get: Getter, set: Setter) {
+    const engineId = get(activeEngineAtom);
+    const params = get(paramsByEngineAtom)[engineId];
+    const result = buildRecordedResult(engineId, params);
+    set(runResultAtom, result);
+    set(expectedDurationMsAtom, result.plotDurationMs ?? result.durationMs);
     set(liveSamplesAtom, []);
+    resetPreviewValue();
+    return result;
 }
 
 function startRun(get: Getter, set: Setter, keepResult = false) {
     clearAutoRecordTimer();
-    const engineId = get(activeEngineAtom);
-    const params = get(paramsByEngineAtom)[engineId];
     set(runTokenAtom, (token) => token + 1);
-    // Replaying the same parameters keeps the last curve; the playhead tracks progress instead.
-    if (!keepResult) {
-        set(runResultAtom, null);
+    if (!keepResult || !get(runResultAtom)?.samples.length) {
+        writePrecomputedCurve(get, set);
     }
     set(liveSamplesAtom, []);
-    // The time range is fixed from the parameters alone, so the plot does not rescale while recording.
-    set(expectedDurationMsAtom, getPlotDurationMs(engineId, params));
     set(runStatusAtom, "running");
 }
 
 function resetOrAutoRun(get: Getter, set: Setter, debounce: boolean) {
+    writePrecomputedCurve(get, set);
+
     if (!appSettings.autoRecordResponse) {
-        resetRun(set);
+        set(runTokenAtom, (token) => token + 1);
+        set(runStatusAtom, "idle");
+        clearAutoRecordTimer();
         return;
     }
 
     if (!debounce) {
-        startRun(get, set);
+        startRun(get, set, true);
         return;
     }
 
     set(runTokenAtom, (token) => token + 1);
-    set(runStatusAtom, get(runResultAtom) ? "settled" : "idle");
+    set(runStatusAtom, "settled");
     clearAutoRecordTimer();
     autoRecordTimer = setTimeout(() => {
         autoRecordTimer = null;
-        startRun(get, set);
+        startRun(get, set, true);
     }, AUTO_RECORD_DEBOUNCE_MS);
 }
 
@@ -147,6 +150,11 @@ export const requestRunAtom = atom(null, (get, set) => {
     startRun(get, set, true);
 });
 
+export const hydrateCurveAtom = atom(null, (get, set) => {
+    if (get(runResultAtom)?.samples.length) return;
+    writePrecomputedCurve(get, set);
+});
+
 export const publishLiveSamplesAtom = atom(
     null,
     (get, set, update: { token: number; samples: SamplePoint[] }) => {
@@ -172,12 +180,18 @@ export const extendExpectedDurationAtom = atom(
 
 export const completeRunAtom = atom(
     null,
-    (get, set, update: { token: number; result: RunResult }) => {
+    (get, set, update: { token: number; stopped?: boolean; elapsedMs?: number }) => {
         if (get(runTokenAtom) !== update.token) return;
-        const plotDurationMs = Math.max(get(expectedDurationMsAtom), update.result.durationMs, 1);
-        const result = { ...update.result, plotDurationMs };
-        set(runResultAtom, result);
-        set(liveSamplesAtom, result.samples);
+        const current = get(runResultAtom);
+        if (current && update.stopped) {
+            set(runResultAtom, {
+                ...current,
+                stopped: true,
+                durationMs: Math.max(update.elapsedMs ?? current.durationMs, 1),
+            });
+        } else if (current) {
+            set(runResultAtom, { ...current, stopped: false });
+        }
         set(runStatusAtom, "settled");
     },
 );

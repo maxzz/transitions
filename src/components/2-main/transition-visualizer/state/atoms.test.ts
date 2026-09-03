@@ -1,7 +1,5 @@
 import { createStore } from "jotai/vanilla";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { RunResult } from "../model/9-types";
-
 const appSettings = vi.hoisted(() => ({
     autoRecordResponse: true,
     reactSpringParams: {
@@ -52,14 +50,9 @@ describe("visualizer run state", () => {
         const staleToken = store.get(runTokenAtom);
         store.set(requestRunAtom);
 
-        const staleResult: RunResult = {
-            engineId: "spring",
-            durationMs: 100,
-            samples: [{ elapsedMs: 0, value: 0 }],
-        };
-        store.set(completeRunAtom, { token: staleToken, result: staleResult });
+        store.set(completeRunAtom, { token: staleToken, stopped: true, elapsedMs: 50 });
 
-        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(runResultAtom)?.stopped).not.toBe(true);
         expect(store.get(runStatusAtom)).toBe("running");
     });
 
@@ -67,19 +60,12 @@ describe("visualizer run state", () => {
         const store = createStore();
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
-        const result: RunResult = {
-            engineId: "motion",
-            durationMs: 320,
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: 320, value: 1 },
-            ],
-        };
+        const sampled = store.get(runResultAtom);
 
-        store.set(completeRunAtom, { token, result });
+        store.set(completeRunAtom, { token });
 
-        expect(store.get(runResultAtom)).toMatchObject(result);
-        expect(store.get(runResultAtom)?.plotDurationMs).toBeGreaterThanOrEqual(result.durationMs);
+        expect(store.get(runResultAtom)?.samples).toEqual(sampled?.samples);
+        expect(store.get(runResultAtom)?.plotDurationMs).toBeGreaterThanOrEqual(sampled?.durationMs ?? 0);
         expect(store.get(runStatusAtom)).toBe("settled");
     });
 
@@ -90,60 +76,48 @@ describe("visualizer run state", () => {
         expect(store.get(expectedDurationMsAtom)).toBe(predicted);
 
         const token = store.get(runTokenAtom);
-        const result: RunResult = {
-            engineId: "spring",
-            durationMs: predicted * 3,
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: predicted * 3, value: 1 },
-            ],
-        };
-        store.set(completeRunAtom, { token, result });
+        store.set(completeRunAtom, { token });
         store.set(requestRunAtom);
 
         expect(store.get(expectedDurationMsAtom)).toBe(predicted);
     });
 
-    it("keeps the predicted time scale when the run settles early", () => {
+    it("keeps the predicted time scale on the precomputed curve", () => {
         const store = createStore();
         store.set(requestRunAtom);
         const expected = store.get(expectedDurationMsAtom);
         const token = store.get(runTokenAtom);
-        const result: RunResult = {
-            engineId: "spring",
-            durationMs: Math.max(1, Math.round(expected / 2)),
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: Math.max(1, Math.round(expected / 2)), value: 1 },
-            ],
-        };
 
-        store.set(completeRunAtom, { token, result });
+        store.set(completeRunAtom, { token });
 
         expect(store.get(runResultAtom)?.plotDurationMs).toBe(expected);
-        expect(store.get(runResultAtom)?.durationMs).toBe(result.durationMs);
+        expect(store.get(runResultAtom)?.durationMs).toBeLessThanOrEqual(expected);
     });
 
     it("keeps the previous curve when the same parameters are replayed", () => {
         const store = createStore();
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
-        const result: RunResult = {
-            engineId: "gsap",
-            durationMs: 240,
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: 240, value: 1 },
-            ],
-        };
-        store.set(completeRunAtom, { token, result });
+        store.set(completeRunAtom, { token });
+        const sampled = store.get(runResultAtom);
 
         store.set(requestRunAtom);
 
-        expect(store.get(runResultAtom)).toMatchObject(result);
+        expect(store.get(runResultAtom)).toBe(sampled);
+        expect(store.get(runResultAtom)?.samples).toBe(sampled?.samples);
         expect(store.get(liveSamplesAtom)).toEqual([]);
         expect(store.get(runStatusAtom)).toBe("running");
         expect(store.get(expectedDurationMsAtom)).toBeGreaterThan(0);
+    });
+
+    it("precomputes the curve as soon as a run starts", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
+
+        const result = store.get(runResultAtom);
+        expect(result?.samples.length).toBeGreaterThan(2);
+        expect(result?.samples[0]).toEqual({ elapsedMs: 0, value: 0 });
+        expect(store.get(runStatusAtom)).toBe("running");
     });
 
     it("publishes live samples for the current run token", () => {
@@ -176,11 +150,8 @@ describe("visualizer run state", () => {
         store.set(extendExpectedDurationAtom, { token: token - 1, elapsedMs: expected + 999 });
         expect(store.get(expectedDurationMsAtom)).toBe(expected + 37);
 
-        store.set(completeRunAtom, {
-            token,
-            result: { engineId: "spring", durationMs: expected + 37, samples: [{ elapsedMs: 0, value: 0 }, { elapsedMs: expected + 37, value: 1 }] },
-        });
-        expect(store.get(runResultAtom)?.plotDurationMs).toBe(expected + 37);
+        store.set(completeRunAtom, { token, stopped: true, elapsedMs: expected + 37 });
+        expect(store.get(runResultAtom)?.durationMs).toBe(expected + 37);
     });
 
     it("stops the active run through the registered handler", () => {
@@ -220,42 +191,34 @@ describe("auto-record on parameter change", () => {
         store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 200 });
         store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 240 });
 
-        expect(store.get(runStatusAtom)).toBe("idle");
-        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(runStatusAtom)).toBe("settled");
+        expect(store.get(runResultAtom)?.samples.length).toBeGreaterThan(0);
 
         vi.advanceTimersByTime(AUTO_RECORD_DEBOUNCE_MS - 1);
-        expect(store.get(runStatusAtom)).toBe("idle");
+        expect(store.get(runStatusAtom)).toBe("settled");
 
         vi.advanceTimersByTime(1);
         expect(store.get(runStatusAtom)).toBe("running");
     });
 
-    it("clears the previous curve when parameters change", () => {
+    it("replaces the curve when parameters change", () => {
         vi.useFakeTimers();
         appSettings.autoRecordResponse = true;
         const store = createStore();
         store.set(requestRunAtom);
         const token = store.get(runTokenAtom);
-        store.set(completeRunAtom, {
-            token,
-            result: {
-                engineId: "spring",
-                durationMs: 200,
-                samples: [
-                    { elapsedMs: 0, value: 0 },
-                    { elapsedMs: 200, value: 1 },
-                ],
-            },
-        });
+        const first = store.get(runResultAtom);
+        store.set(completeRunAtom, { token });
 
         store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 240 });
         vi.advanceTimersByTime(AUTO_RECORD_DEBOUNCE_MS);
 
-        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(runResultAtom)).not.toBe(first);
+        expect(store.get(runResultAtom)?.samples.length).toBeGreaterThan(0);
         expect(store.get(runStatusAtom)).toBe("running");
     });
 
-    it("resets to idle when auto-record is disabled", () => {
+    it("keeps a precomputed curve when auto-record is disabled", () => {
         appSettings.autoRecordResponse = false;
         const store = createStore();
         store.set(requestRunAtom);
@@ -263,7 +226,7 @@ describe("auto-record on parameter change", () => {
         store.set(updateParamAtom, { engineId: "spring", key: "tension", value: 200 });
 
         expect(store.get(runStatusAtom)).toBe("idle");
-        expect(store.get(runResultAtom)).toBeNull();
+        expect(store.get(runResultAtom)?.samples.length).toBeGreaterThan(0);
         expect(store.get(liveSamplesAtom)).toEqual([]);
     });
 });

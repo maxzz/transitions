@@ -6,7 +6,7 @@ import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
-import { previewMotion } from "../state/preview-motion";
+import { previewMotion, seekPlayback, setPreviewSpeed } from "../state/preview-motion";
 import { graphDataAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
 import { RecordedSvg } from "./1-recorded-svg";
 
@@ -32,7 +32,7 @@ function GraphHeader() {
             <div>
                 <h2 className="text-sm font-semibold">Recorded response</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
-                    {definition.label} · native frame samples
+                    {definition.label} · solver samples
                 </p>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3">
@@ -56,7 +56,7 @@ function RecordingIndicator({ recording }: { recording: boolean; }) {
         >
             <span className={cn("shrink-0 size-2 bg-red-500 rounded-full", recording && "animate-rec-blink motion-reduce:animate-none")} />
             <span className="font-medium text-[10px] text-red-500 tracking-wide">
-                recording
+                playing
             </span>
         </div>
     );
@@ -66,7 +66,7 @@ function AutoRecordControl() {
     const { autoRecordResponse } = useSnapshot(appSettings);
 
     return (
-        <Label className="h-6 flex items-center gap-2" title="Replay and record whenever transition parameters change">
+        <Label className="h-6 flex items-center gap-2" title="Replay whenever transition parameters change">
             <Checkbox
                 checked={autoRecordResponse}
                 onCheckedChange={(checked) => { appSettings.autoRecordResponse = checked === true; }}
@@ -113,11 +113,93 @@ function GraphButtomStats() {
 
     // Two fixed lines per cell (label above value) so that changing text never wraps and shifts the chart above.
     return (
-        <div className="px-5 py-2.5 bg-background border-t border-border grid grid-cols-4 gap-3">
-            <StatCell label={durationLabel} value={durationValue} />
-            <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
-            <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
-            <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
+        <div className="px-5 py-2.5 bg-background border-t border-border flex flex-col gap-2">
+            <div className="grid grid-cols-4 gap-3">
+                <StatCell label={durationLabel} value={durationValue} />
+                <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
+                <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
+                <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
+            </div>
+            <PlaybackControls />
+        </div>
+    );
+}
+
+function PlaybackControls() {
+    const samples = useAtomValue(graphSamplesAtom);
+    const { elapsedMs, speed } = useSnapshot(previewMotion);
+    const durationMs = samples.at(-1)?.elapsedMs ?? 0;
+    const hasCurve = samples.length > 0;
+
+    return (
+        <div className="pt-1 flex flex-col gap-1.5">
+            <PlaybackSlider
+                id="graph-timeline"
+                label="Timeline"
+                valueLabel={formatDuration(elapsedMs)}
+                min={0}
+                max={Math.max(durationMs, 1)}
+                step={1}
+                value={Math.min(elapsedMs, durationMs)}
+                disabled={!hasCurve}
+                onChange={(next) => seekPlayback(samples, next)}
+            />
+            <PlaybackSlider
+                id="graph-speed"
+                label="Speed"
+                valueLabel={speed.toFixed(2)}
+                min={0}
+                max={1}
+                step={0.01}
+                value={speed}
+                onChange={setPreviewSpeed}
+            />
+        </div>
+    );
+}
+
+function PlaybackSlider({
+    id,
+    label,
+    valueLabel,
+    min,
+    max,
+    step,
+    value,
+    disabled,
+    onChange,
+}: {
+    id: string;
+    label: string;
+    valueLabel: string;
+    min: number;
+    max: number;
+    step: number;
+    value: number;
+    disabled?: boolean;
+    onChange: (value: number) => void;
+}) {
+    return (
+        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2">
+            <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider truncate" htmlFor={id}>
+                {label}
+            </Label>
+            <input
+                className="h-1.5 min-w-0 w-full bg-muted accent-primary disabled:opacity-50 rounded-full appearance-none cursor-pointer"
+                id={id}
+                type="range"
+                aria-label={label}
+                aria-valuetext={valueLabel}
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                disabled={disabled}
+                onChange={(event) => onChange(Number(event.currentTarget.value))}
+            />
+            <span className="text-[11px] font-mono tabular-nums text-foreground text-right truncate">
+                {valueLabel}
+            </span>
         </div>
     );
 }

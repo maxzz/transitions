@@ -3,7 +3,7 @@ import { formatTranslateProgress, getTranslateOffsetPercent } from "./2-1-1-tran
 import { formatScaleProgress, getScaleFactor } from "./2-1-2--scale-preview";
 import { formatRotateProgress, getRotationDegrees } from "./2-1-3-rotate-preview";
 import { formatOpacityProgress, getLegendMarkerTopPercent } from "./2-1-4-opacity-preview";
-import { getPreviewValue, previewMotion, resetPreviewValue, setPreviewValue } from "../state/preview-motion";
+import { getPreviewValue, previewMotion, resetPreviewValue, seekPlayback, setPreviewSpeed, setPreviewValue } from "../state/preview-motion";
 
 describe("translate preview", () => {
     it("moves the pill by exactly one frame height between start and target", () => {
@@ -83,5 +83,26 @@ describe("preview motion store", () => {
         expect(previewMotion.elapsedMs).toBe(180);
         setPreviewValue(0.5, Number.NaN);
         expect(previewMotion.elapsedMs).toBe(0);
+    });
+
+    it("clamps playback speed between 0 and 1", () => {
+        setPreviewSpeed(0.4);
+        expect(previewMotion.speed).toBe(0.4);
+        setPreviewSpeed(2);
+        expect(previewMotion.speed).toBe(1);
+        setPreviewSpeed(-1);
+        expect(previewMotion.speed).toBe(0);
+    });
+
+    it("seeks the preview along sampled points", () => {
+        seekPlayback(
+            [
+                { elapsedMs: 0, value: 0 },
+                { elapsedMs: 100, value: 1 },
+            ],
+            50,
+        );
+        expect(previewMotion.elapsedMs).toBe(50);
+        expect(previewMotion.value).toBeCloseTo(0.5);
     });
 });

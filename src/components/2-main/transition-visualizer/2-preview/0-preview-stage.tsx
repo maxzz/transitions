@@ -18,7 +18,7 @@ import { useEngineRun } from "./8-use-engine-run";
 export function PreviewStage() {
     const scopeRef = useRef<HTMLDivElement>(null);
 
-    useEngineRun(scopeRef);
+    useEngineRun();
 
     return (
         <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
@@ -82,7 +82,7 @@ function RunStatusBadge() {
 
     return (
         <div className="px-2.5 py-1 font-mono text-[10px] text-muted-foreground bg-background border border-border rounded-full uppercase tracking-wider" role="status">
-            {status === "running" ? "Recording" : "Ready"}
+            {status === "running" ? "Playing" : "Ready"}
         </div>
     );
 }

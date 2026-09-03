@@ -19,7 +19,6 @@ vi.mock("@/store/1-ui-settings", () => ({
     appSettings,
 }));
 
-import type { RunResult } from "../model/9-types";
 import { clearAutoRecordTimer, completeRunAtom, liveSamplesAtom, publishLiveSamplesAtom, registerStopActiveRun, requestRunAtom, runTokenAtom } from "../state/atoms";
 import { graphDataAtom, graphSamplesAtom, showGraphPlayheadAtom } from "./a-graph-atoms";
 
@@ -29,23 +28,20 @@ describe("recorded graph data", () => {
         clearAutoRecordTimer();
     });
 
-    it("keeps the settled samples while a replay publishes live frames", () => {
+    it("exposes the precomputed curve as soon as a run starts", () => {
         const store = createStore();
         store.set(requestRunAtom);
-        const token = store.get(runTokenAtom);
-        const result: RunResult = {
-            engineId: "spring",
-            durationMs: 300,
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: 150, value: 1.1 },
-                { elapsedMs: 300, value: 1 },
-            ],
-        };
-        store.set(completeRunAtom, { token, result });
+
+        expect(store.get(graphSamplesAtom).length).toBeGreaterThan(2);
+        expect(store.get(graphDataAtom).hasCurve).toBe(true);
+        expect(store.get(showGraphPlayheadAtom)).toBe(true);
+    });
+
+    it("ignores live frames once the solver curve exists", () => {
+        const store = createStore();
+        store.set(requestRunAtom);
         const settled = store.get(graphDataAtom);
 
-        store.set(requestRunAtom);
         store.set(publishLiveSamplesAtom, {
             token: store.get(runTokenAtom),
             samples: [
@@ -55,24 +51,16 @@ describe("recorded graph data", () => {
         });
 
         expect(store.get(liveSamplesAtom)).toHaveLength(2);
-        expect(store.get(graphSamplesAtom)).toEqual(result.samples);
-        expect(store.get(graphDataAtom).samples).toBe(settled.samples);
+        expect(store.get(graphSamplesAtom)).toBe(settled.samples);
         expect(store.get(graphDataAtom).durationMs).toBe(settled.durationMs);
-        expect(store.get(showGraphPlayheadAtom)).toBe(true);
     });
 
-    it("hides the playhead while the first recording has no settled curve", () => {
+    it("hides the playhead after playback settles", () => {
         const store = createStore();
         store.set(requestRunAtom);
-        store.set(publishLiveSamplesAtom, {
-            token: store.get(runTokenAtom),
-            samples: [
-                { elapsedMs: 0, value: 0 },
-                { elapsedMs: 40, value: 0.2 },
-            ],
-        });
+        store.set(completeRunAtom, { token: store.get(runTokenAtom) });
 
         expect(store.get(showGraphPlayheadAtom)).toBe(false);
-        expect(store.get(graphSamplesAtom)).toHaveLength(2);
+        expect(store.get(graphSamplesAtom).length).toBeGreaterThan(0);
     });
 });
