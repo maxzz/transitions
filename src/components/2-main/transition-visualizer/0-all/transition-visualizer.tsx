@@ -57,6 +57,28 @@ lg:grid-cols-[15rem_minmax(0,1fr)] \
 lg:grid-rows-[minmax(0,1fr)] \
 ";
 
+function VisualizerHeader() {
+    const definition = useAtomValue(activeDefinitionAtom);
+
+    return (
+        <div className="shrink-0 sm:flex-row sm:items-end flex flex-col justify-between gap-3">
+            <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+                    Transition laboratory
+                </p>
+                <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
+                    {definition.label} visualizer
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                    Tune native animation parameters, run the same mechanical response, and inspect the recorded curve.
+                </p>
+            </div>
+
+            <PreviewSelectorTab />
+        </div>
+    );
+}
+
 function ControlSidebar() {
     const status = useAtomValue(runStatusAtom);
     const requestRun = useSetAtom(requestRunAtom);
@@ -82,27 +104,5 @@ function ControlSidebar() {
                 }
             </div>
         </aside>
-    );
-}
-
-function VisualizerHeader() {
-    const definition = useAtomValue(activeDefinitionAtom);
-
-    return (
-        <div className="shrink-0 sm:flex-row sm:items-end flex flex-col justify-between gap-3">
-            <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-                    Transition laboratory
-                </p>
-                <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
-                    {definition.label} visualizer
-                </h1>
-                <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                    Tune native animation parameters, run the same mechanical response, and inspect the recorded curve.
-                </p>
-            </div>
-
-            <PreviewSelectorTab />
-        </div>
     );
 }

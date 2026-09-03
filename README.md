@@ -82,19 +82,19 @@ The runner stays mounted in every mode, so graph-only still records. Light and d
 
 React Spring default preset in split view: mechanical preview on the left, recorded curve on the right.
 
-![React Spring split view with mechanical spring and recorded graph](src/assets//previews/split-react-spring.png)
+![React Spring split view with mechanical spring and recorded graph](src/assets//previews/2026,09.02.26-1,split-react-spring.png)
 
 Scale preview using the same React Spring run. The framed square and 50% / 100% outlines show how a single progress value maps onto a transform.
 
-![React Spring scale preview with recorded response graph](src/assets//previews/scale-react-spring.png)
+![React Spring scale preview with recorded response graph](src/assets//previews/2026,09.02.26-2,scale-react-spring.png)
 
 GSAP elastic ease in split view. The graph shows overshoot past the target and the settle-back that duration-based easing produces.
 
-![GSAP elastic split view with overshooting recorded curve](src/assets//previews/split-gsap-elastic.png)
+![GSAP elastic split view with overshooting recorded curve](src/assets//previews/2026,09.02.26-3,split-gsap-elastic.png)
 
 Graph-only layout for the same GSAP run — useful when you want the curve at full width.
 
-![GSAP graph-only recorded response](src/assets//previews/graph-gsap-elastic.png)
+![GSAP graph-only recorded response](src/assets//previews/2026,09.02.26-4,graph-gsap-elastic.png)
 
 ## Getting started
 
