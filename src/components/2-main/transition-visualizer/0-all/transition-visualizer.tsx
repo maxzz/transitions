@@ -4,7 +4,7 @@ import { Play } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
 import { Button } from "@/ui/shadcn/button";
 import { cn } from "@/utils/classnames";
-import { ControlPanel } from "../1-controls/control-panel";
+import { Pane_Controls } from "../1-controls/control-panel";
 import { PreviewSelectorTab } from "../1-controls/preview-selector-tab";
 import { EngineTabs } from "../1-controls/engine-tabs";
 import { StopMotionButton } from "../1-controls/stop-motion-button";
@@ -89,7 +89,7 @@ function ControlSidebar() {
                 <EngineTabs />
             </div>
 
-            <ControlPanel />
+            <Pane_Controls />
 
             <div className="p-2 bg-muted/20 border-t border-border">
                 {status === "running"
