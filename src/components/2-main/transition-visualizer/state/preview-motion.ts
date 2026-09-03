@@ -31,6 +31,16 @@ export function setPreviewSpeed(speed: number) {
     previewMotion.speed = Number.isFinite(speed) ? Math.min(1, Math.max(0, speed)) : 1;
 }
 
+/** Pause a running preview (speed 0) or restore real-time playback. */
+export function togglePreviewPause() {
+    setPreviewSpeed(previewMotion.speed === 0 ? 1 : 0);
+}
+
+/** A stopped or newly started run should not stay frozen from a previous pause. */
+export function ensurePreviewPlayingSpeed() {
+    if (previewMotion.speed === 0) setPreviewSpeed(1);
+}
+
 export function getPreviewValue(): number {
     return previewMotion.value;
 }

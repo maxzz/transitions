@@ -1,4 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/store/1-ui-settings", () => ({
+    appSettings: {
+        autoRecordResponse: true,
+        reactSpringParams: { mass: 1, tension: 170, friction: 26, precision: 0.01, velocity: 0, clamp: false },
+        motionParams: {},
+        gsapParams: {},
+    },
+}));
+
 import {
     getLoad_Height,
     getLoad_MarkerRadius,

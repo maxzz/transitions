@@ -19,6 +19,7 @@ vi.mock("@/store/1-ui-settings", () => ({
 }));
 
 import { getPlotDurationMs } from "../model/2-duration";
+import { previewMotion, setPreviewSpeed } from "./preview-motion";
 import {
     AUTO_RECORD_DEBOUNCE_MS,
     applyPresetAtom,
@@ -35,6 +36,8 @@ import {
     runTokenAtom,
     runStatusAtom,
     stopRunAtom,
+    togglePauseResumeAtom,
+    togglePlayStopAtom,
     updateParamAtom,
 } from "./atoms";
 
@@ -42,6 +45,7 @@ describe("visualizer run state", () => {
     afterEach(() => {
         registerStopActiveRun(null);
         clearAutoRecordTimer();
+        setPreviewSpeed(1);
     });
 
     it("ignores completion from a stale run token", () => {
@@ -173,6 +177,40 @@ describe("visualizer run state", () => {
 
         expect(stop).not.toHaveBeenCalled();
         registerStopActiveRun(null);
+    });
+
+    it("starts a run from the play/stop toggle and stops the next click", () => {
+        const store = createStore();
+        const stop = vi.fn();
+        registerStopActiveRun(stop);
+
+        store.set(togglePlayStopAtom);
+        expect(store.get(runStatusAtom)).toBe("running");
+
+        store.set(togglePlayStopAtom);
+        expect(stop).toHaveBeenCalledTimes(1);
+
+        registerStopActiveRun(null);
+    });
+
+    it("ignores pause/resume when nothing is playing", () => {
+        const store = createStore();
+        setPreviewSpeed(1);
+        store.set(togglePauseResumeAtom);
+        expect(previewMotion.speed).toBe(1);
+    });
+
+    it("pauses and resumes only while a run is active", () => {
+        const store = createStore();
+        setPreviewSpeed(1);
+        store.set(requestRunAtom);
+        expect(store.get(runStatusAtom)).toBe("running");
+
+        store.set(togglePauseResumeAtom);
+        expect(previewMotion.speed).toBe(0);
+
+        store.set(togglePauseResumeAtom);
+        expect(previewMotion.speed).toBe(1);
     });
 });
 

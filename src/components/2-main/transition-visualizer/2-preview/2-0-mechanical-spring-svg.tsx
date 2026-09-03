@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { type MouseEvent, useMemo } from "react";
+import { useSetAtom } from "jotai";
+import { togglePauseResumeAtom, togglePlayStopAtom } from "../state/atoms";
 import { usePreviewValue } from "./1-preview-frame";
 
 /**
@@ -7,18 +9,26 @@ import { usePreviewValue } from "./1-preview-frame";
  */
 export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
     const value = usePreviewValue();
+    const togglePauseResume = useSetAtom(togglePauseResumeAtom);
     const springPath = useMemo(() => getSpringSvgPath(tension), [tension]);
     const displacement = getSpringDisplacement(value);
     const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
     return (
-        <svg className="h-full w-full text-foreground" viewBox="0 0 700 650" role="img" aria-labelledby="mechanical-spring-title mechanical-spring-description">
+        <svg
+            className="select-none h-full w-full text-foreground cursor-pointer"
+            viewBox="0 0 700 650"
+            role="img"
+            aria-labelledby="mechanical-spring-title mechanical-spring-description"
+            onClick={togglePauseResume}
+        >
             <title id="mechanical-spring-title">
                 Mechanical spring response preview
             </title>
             <desc id="mechanical-spring-description">
                 A suspended mass moves toward an equilibrium line while the selected animation engine runs.
             </desc>
+            <rect width="700" height="650" className="fill-transparent" />
 
             <Part_Ceiling />
 
@@ -83,45 +93,53 @@ function Part_Ceiling() {
 }
 
 function Part_Load({ mass }: { mass?: number; }) {
+    const togglePlayStop = useSetAtom(togglePlayStopAtom);
     const loadWidth = getLoad_Width(mass);
     const loadHeight = getLoad_Height(mass);
     const loadX = SPRING_CENTER_X - loadWidth / 2;
     const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
     const markerRadius = getLoad_MarkerRadius(mass);
 
-    return (<>
-        {/* Mass */}
-        <rect
-            className="stroke-foreground"
-            fill="url(#mass-fill)"
-            height={loadHeight}
-            strokeWidth="2"
-            x={loadX}
-            y={SPRING_BOTTOM_Y}
-            rx="10"
-            width={loadWidth}
-        />
+    function onLoadClick(event: MouseEvent<SVGGElement>) {
+        event.stopPropagation();
+        togglePlayStop();
+    }
 
-        {/* m {mass} */}
-        <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="text-[17px] font-serif italic fill-foreground">m</text>
+    return (
+        <g className="cursor-pointer" onClick={onLoadClick}>
+            {/* Mass */}
+            <rect
+                className="stroke-foreground"
+                fill="url(#mass-fill)"
+                height={loadHeight}
+                strokeWidth="2"
+                x={loadX}
+                y={SPRING_BOTTOM_Y}
+                rx="10"
+                width={loadWidth}
+            />
 
-        {/* Marker inside the mass: circle */}
-        {/* <circle
-            className="fill-background/80 stroke-foreground"
-            strokeWidth="2"
-            cx={SPRING_CENTER_X}
-            cy={loadCenterY}
-            r={markerRadius}
-        /> */}
+            {/* m {mass} */}
+            <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="text-[17px] font-serif italic fill-foreground">m</text>
 
-        {/* Marker inside the mass: line */}
-        {/* <path
-            className="stroke-foreground"
-            strokeLinecap="round"
-            strokeWidth="2"
-            d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
-        /> */}
-    </>);
+            {/* Marker inside the mass: circle */}
+            {/* <circle
+                className="fill-background/80 stroke-foreground"
+                strokeWidth="2"
+                cx={SPRING_CENTER_X}
+                cy={loadCenterY}
+                r={markerRadius}
+            /> */}
+
+            {/* Marker inside the mass: line */}
+            {/* <path
+                className="stroke-foreground"
+                strokeLinecap="round"
+                strokeWidth="2"
+                d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
+            /> */}
+        </g>
+    );
 }
 
 const SPRING_TOP_Y = 75;

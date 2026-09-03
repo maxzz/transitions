@@ -1,12 +1,9 @@
 import { atom, type Getter, type Setter } from "jotai";
 import { appSettings } from "@/store/1-ui-settings";
-import {
-    engineDefinitions,
-    getValidParamsByEngine,
-} from "../model/1-definitions";
+import { engineDefinitions, getValidParamsByEngine } from "../model/1-definitions";
 import { buildRecordedResult } from "../model/6-sample-engine";
 import type { EngineId, EngineParamsMap, RunResult, RunStatus, SamplePoint, VisualizationMode } from "../model/9-types";
-import { resetPreviewValue } from "./preview-motion";
+import { ensurePreviewPlayingSpeed, resetPreviewValue, togglePreviewPause } from "./preview-motion";
 
 export const AUTO_RECORD_DEBOUNCE_MS = 500;
 
@@ -100,20 +97,25 @@ function resetOrAutoRun(get: Getter, set: Setter, debounce: boolean) {
     set(runTokenAtom, (token) => token + 1);
     set(runStatusAtom, "settled");
     clearAutoRecordTimer();
-    autoRecordTimer = setTimeout(() => {
-        autoRecordTimer = null;
-        startRun(get, set, true);
-    }, AUTO_RECORD_DEBOUNCE_MS);
+    autoRecordTimer = setTimeout(
+        () => {
+            autoRecordTimer = null;
+            startRun(get, set, true);
+        },
+        AUTO_RECORD_DEBOUNCE_MS);
 }
 
-export const selectEngineAtom = atom(null, (get, set, engineId: EngineId) => {
-    set(activeEngineAtom, engineId);
-    resetOrAutoRun(get, set, false);
-});
+export const selectEngineAtom = atom(
+    null,
+    (get, set, engineId: EngineId) => {
+        set(activeEngineAtom, engineId);
+        resetOrAutoRun(get, set, false);
+    }
+);
 
 export const updateParamAtom = atom(
     null,
-    (get, set, update: { engineId: EngineId; key: string; value: number | string | boolean }) => {
+    (get, set, update: { engineId: EngineId; key: string; value: number | string | boolean; }) => {
         const current = get(paramsByEngineAtom);
         const nextParams = {
             ...current[update.engineId],
@@ -130,7 +132,7 @@ export const updateParamAtom = atom(
 
 export const applyPresetAtom = atom(
     null,
-    (get, set, update: { engineId: EngineId; presetId: string }) => {
+    (get, set, update: { engineId: EngineId; presetId: string; }) => {
         const definition = engineDefinitions[update.engineId];
         const preset = definition.presets.find(({ id }) => id === update.presetId);
         if (!preset) return;
@@ -146,18 +148,24 @@ export const applyPresetAtom = atom(
     },
 );
 
-export const requestRunAtom = atom(null, (get, set) => {
-    startRun(get, set, true);
-});
+export const requestRunAtom = atom(
+    null,
+    (get, set) => {
+        startRun(get, set, true);
+    }
+);
 
-export const hydrateCurveAtom = atom(null, (get, set) => {
-    if (get(runResultAtom)?.samples.length) return;
-    writePrecomputedCurve(get, set);
-});
+export const hydrateCurveAtom = atom(
+    null,
+    (get, set) => {
+        if (get(runResultAtom)?.samples.length) return;
+        writePrecomputedCurve(get, set);
+    }
+);
 
 export const publishLiveSamplesAtom = atom(
     null,
-    (get, set, update: { token: number; samples: SamplePoint[] }) => {
+    (get, set, update: { token: number; samples: SamplePoint[]; }) => {
         if (get(runTokenAtom) !== update.token) return;
         set(liveSamplesAtom, update.samples);
         set(extendExpectedDurationAtom, { token: update.token, elapsedMs: update.samples.at(-1)?.elapsedMs ?? 0 });
@@ -170,7 +178,7 @@ export const publishLiveSamplesAtom = atom(
  */
 export const extendExpectedDurationAtom = atom(
     null,
-    (get, set, update: { token: number; elapsedMs: number }) => {
+    (get, set, update: { token: number; elapsedMs: number; }) => {
         if (get(runTokenAtom) !== update.token) return;
         if (update.elapsedMs > get(expectedDurationMsAtom)) {
             set(expectedDurationMsAtom, update.elapsedMs);
@@ -180,7 +188,7 @@ export const extendExpectedDurationAtom = atom(
 
 export const completeRunAtom = atom(
     null,
-    (get, set, update: { token: number; stopped?: boolean; elapsedMs?: number }) => {
+    (get, set, update: { token: number; stopped?: boolean; elapsedMs?: number; }) => {
         if (get(runTokenAtom) !== update.token) return;
         const current = get(runResultAtom);
         if (current && update.stopped) {
@@ -196,7 +204,32 @@ export const completeRunAtom = atom(
     },
 );
 
-export const stopRunAtom = atom(null, (get) => {
-    if (get(runStatusAtom) !== "running") return;
-    stopActiveRun?.();
-});
+export const stopRunAtom = atom(
+    null,
+    (get) => {
+        if (get(runStatusAtom) !== "running") return;
+        stopActiveRun?.();
+    }
+);
+
+export const togglePlayStopAtom = atom(
+    null,
+    (get, set) => {
+        if (get(runStatusAtom) === "running") {
+            set(stopRunAtom);
+            ensurePreviewPlayingSpeed();
+            return;
+        }
+        ensurePreviewPlayingSpeed();
+        set(requestRunAtom);
+    }
+);
+
+export const togglePauseResumeAtom = atom(
+    null,
+    (get) => {
+        if (get(runStatusAtom) === "running") {
+            togglePreviewPause();
+        }
+    }
+);
