@@ -82,5 +82,5 @@ active:ring-1 \
 disabled:pointer-events-none \
 disabled:opacity-50 \
 \
-rounded select-none \
+rounded-sm select-none \
 ";

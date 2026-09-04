@@ -1,16 +1,14 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
-import { Play } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
-import { Button } from "@/ui/shadcn/button";
 import { cn } from "@/utils/classnames";
 import { Pane_Controls } from "../1-controls/0-control-panel";
 import { PreviewSelectorTab } from "./1-tabs-preview-selector";
 import { EngineTabs } from "../1-controls/1-tabs-engine";
-import { StopMotionButton } from "../1-controls/button-stop-motion";
+import { PlayStopButton } from "../1-controls/button-stop-motion";
 import { ResponseGraph } from "../3-recorded-graph/0-recorder-view";
 import { PreviewStage } from "../2-preview/0-preview-stage";
-import { activeDefinitionAtom, requestRunAtom, runStatusAtom } from "../state/atoms";
+import { activeDefinitionAtom } from "../state/atoms";
 
 export function TransitionVisualizer() {
     const { visualizerDisplay } = useSnapshot(appSettings);
@@ -80,9 +78,6 @@ function VisualizerHeader() {
 }
 
 function ControlSidebar() {
-    const status = useAtomValue(runStatusAtom);
-    const requestRun = useSetAtom(requestRunAtom);
-
     return (
         <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border overflow-hidden flex flex-col">
             <div className="p-2 border-b border-border">
@@ -92,16 +87,7 @@ function ControlSidebar() {
             <Pane_Controls />
 
             <div className="p-2 bg-muted/20 border-t border-border">
-                {status === "running"
-                    ? (
-                        <StopMotionButton className="w-full" />
-                    ) : (
-                        <Button className="w-full" size="sm" onClick={requestRun}>
-                            <Play data-icon="inline-start" />
-                            Play
-                        </Button>
-                    )
-                }
+                <PlayStopButton className="w-full" />
             </div>
         </aside>
     );
