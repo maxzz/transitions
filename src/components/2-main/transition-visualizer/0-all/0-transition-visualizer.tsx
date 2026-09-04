@@ -2,7 +2,7 @@ import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
-import { Pane_Controls } from "../1-controls/0-control-panel";
+import { Pane_LeftControls } from "../1-controls/0-control-panel";
 import { PreviewSelectorTab } from "./1-tabs-preview-selector";
 import { EngineTabs } from "../1-controls/1-tabs-engine";
 import { PlayStopButton } from "../1-controls/button-stop-motion";
@@ -84,7 +84,7 @@ function ControlSidebar() {
                 <EngineTabs />
             </div>
 
-            <Pane_Controls />
+            <Pane_LeftControls />
 
             <div className="p-2 bg-muted/20 border-t border-border">
                 <PlayStopButton className="w-full" />

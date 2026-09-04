@@ -10,7 +10,20 @@ import { CodeSnippetButton } from "./button-code-snippet";
 
 type ControlValues = Record<string, number | string | boolean>;
 
-export function Pane_Controls() {
+export function Pane_LeftControls() {
+    return (
+        <div className="flex-1 min-h-0 flex flex-col">
+            <Control_Preset />
+            <Control_Options />
+
+            <div className="shrink-0 p-2">
+                <CodeSnippetButton />
+            </div>
+        </div>
+    );
+}
+
+function Control_Options() {
     const engineId = useAtomValue(activeEngineAtom);
     const definition = useAtomValue(activeDefinitionAtom);
     const params = useAtomValue(activeParamsAtom) as unknown as ControlValues;
@@ -22,51 +35,43 @@ export function Pane_Controls() {
     };
 
     return (
-        <div className="flex-1 min-h-0 flex flex-col">
-            <Control_Preset />
-
-            <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-2">
-                {fields.map(
-                    (field) => {
-                        if (field.visible && !field.visible(params)) {
-                            return null;
-                        }
-                        if (field.kind === "number") {
-                            return (
-                                <Control_Number
-                                    key={field.key}
-                                    field={field}
-                                    value={params[field.key] as number}
-                                    onChange={(value) => update(field.key, value)}
-                                />
-                            );
-                        }
-                        else if (field.kind === "boolean") {
-                            return (
-                                <Control_Boolean
-                                    key={field.key}
-                                    field={field}
-                                    value={params[field.key] as boolean}
-                                    onChange={(value) => update(field.key, value)}
-                                />
-                            );
-                        } else {
-                            return (
-                                <Control_Select
-                                    key={field.key}
-                                    field={field}
-                                    value={params[field.key] as string}
-                                    onChange={(value) => update(field.key, value)}
-                                />
-                            );
-                        }
+        <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-2">
+            {fields.map(
+                (field) => {
+                    if (field.visible && !field.visible(params)) {
+                        return null;
                     }
-                )}
-            </div>
-
-            <div className="shrink-0 p-2">
-                <CodeSnippetButton />
-            </div>
+                    if (field.kind === "number") {
+                        return (
+                            <Control_Number
+                                key={field.key}
+                                field={field}
+                                value={params[field.key] as number}
+                                onChange={(value) => update(field.key, value)}
+                            />
+                        );
+                    }
+                    else if (field.kind === "boolean") {
+                        return (
+                            <Control_Boolean
+                                key={field.key}
+                                field={field}
+                                value={params[field.key] as boolean}
+                                onChange={(value) => update(field.key, value)}
+                            />
+                        );
+                    } else {
+                        return (
+                            <Control_Select
+                                key={field.key}
+                                field={field}
+                                value={params[field.key] as string}
+                                onChange={(value) => update(field.key, value)}
+                            />
+                        );
+                    }
+                }
+            )}
         </div>
     );
 }
