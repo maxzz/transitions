@@ -121,7 +121,7 @@ function NumberControl({ field, value, onChange }: { field: Extract<ParamField<C
 
 function BooleanControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "boolean"; }>; value: boolean; onChange: (value: boolean) => void; }) {
     return (
-        <Label className="h-6 flex items-center gap-2 truncate" title={field.description}>
+        <Label className="h-6 truncate flex items-center gap-2" title={field.description}>
             <Checkbox checked={value} onCheckedChange={(checked) => onChange(checked === true)} />
             <span className="truncate">{field.label}</span>
         </Label>

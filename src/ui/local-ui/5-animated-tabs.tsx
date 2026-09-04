@@ -11,7 +11,7 @@ type AnimatedTabsListProps = ComponentProps<typeof TabsList> & {
 export function AnimatedTabsList({ layoutId, className, children, ...rest }: AnimatedTabsListProps) {
     return (
         <LayoutGroup id={layoutId}>
-            <TabsList className={classNames("bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded p-0.75", className)} {...rest}>
+            <TabsList className={classNames("p-0.75 w-fit text-muted-foreground bg-muted rounded inline-flex items-center justify-center", className)} {...rest}>
                 {children}
             </TabsList>
         </LayoutGroup>

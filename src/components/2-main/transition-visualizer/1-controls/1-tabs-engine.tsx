@@ -14,7 +14,7 @@ export function EngineTabs() {
             value={engineId}
             onValueChange={(value) => selectEngine(value as EngineId)}
         >
-            <AnimatedTabsList className="h-9 1w-full grid grid-cols-[auto_auto_auto]" layoutId="engine-tabs">
+            <AnimatedTabsList className="h-9 flex items-center" layoutId="engine-tabs">
                 {engineIds.map((id) => (
                     <AnimatedTabsTrigger key={id} className="h-full" value={id} valueAtom={activeEngineAtom}>
                         {engineDefinitions[id].label}
