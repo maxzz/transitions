@@ -18,7 +18,7 @@ import {
     applyPresetAtom,
     updateParamAtom,
 } from "../state/atoms";
-import { CodeSnippetButton } from "./code-snippet-button";
+import { CodeSnippetButton } from "./button-code-snippet";
 
 type ControlValues = Record<string, number | string | boolean>;
 

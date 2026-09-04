@@ -11,7 +11,7 @@ type AnimatedTabsListProps = ComponentProps<typeof TabsList> & {
 export function AnimatedTabsList({ layoutId, className, children, ...rest }: AnimatedTabsListProps) {
     return (
         <LayoutGroup id={layoutId}>
-            <TabsList className={classNames("bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded-lg p-0.75", className)} {...rest}>
+            <TabsList className={classNames("bg-muted text-muted-foreground inline-flex w-fit items-center justify-center rounded p-0.75", className)} {...rest}>
                 {children}
             </TabsList>
         </LayoutGroup>
@@ -32,7 +32,7 @@ export function AnimatedTabsTrigger({ className, children, value, valueAtom, ...
             {selected && (
                 <motion.div
                     layoutId="animated-tab-outline"
-                    className="absolute inset-0 bg-background border border-border rounded-sm shadow-sm"
+                    className="absolute inset-0 bg-background border border-border rounded shadow-xs"
                     transition={{ type: "spring", bounce: 0.15, duration: 0.45 }}
                 />
             )}
@@ -42,7 +42,9 @@ export function AnimatedTabsTrigger({ className, children, value, valueAtom, ...
 }
 
 const animatedTabsTriggerClasses = "\
-relative h-[calc(100%-1px)] font-medium \
+relative \
+h-[calc(100%-1px)] \
+font-medium \
 transition-none \
 \
 border-transparent \

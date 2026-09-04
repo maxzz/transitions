@@ -36,8 +36,8 @@ export function PreviewSelectorTab() {
             <AnimatedTabsList layoutId="preview-selector-tabs" className="h-9">
                 {displayOptions.map((option) => (
                     <AnimatedTabsTrigger
+                        className="min-w-16 h-full px-4"
                         key={option.value}
-                        className="min-w-16 h-full"
                         value={option.value}
                         valueAtom={visualizerDisplayAtom}
                     >
