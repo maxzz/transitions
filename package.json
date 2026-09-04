@@ -37,7 +37,7 @@
         "jotai": "^2.20.3",
         "jotai-valtio": "^0.6.0",
         "json5": "^2.2.3",
-        "lucide-react": "^1.35.0",
+        "lucide-react": "^1.40.0",
         "motion": "^13.1.1",
         "next-themes": "^0.4.6",
         "radix-ui": "^1.6.7",
