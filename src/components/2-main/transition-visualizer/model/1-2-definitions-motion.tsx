@@ -12,7 +12,7 @@ export const motionDefaults: MotionParams = {
 
 export const motionDefinition: EngineDefinition<MotionParams> = {
     id: "motion",
-    label: "Motion",
+    label: "motion",
     subtitle: "Stiffness/damping spring physics",
     defaultParams: motionDefaults,
     presets: [

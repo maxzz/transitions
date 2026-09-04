@@ -12,7 +12,7 @@ export const springDefaults: SpringParams = {
 
 export const springDefinition: EngineDefinition<SpringParams> = {
     id: "spring",
-    label: "React Spring",
+    label: "react-spring",
     subtitle: "Tension/friction spring physics",
     defaultParams: springDefaults,
     presets: [

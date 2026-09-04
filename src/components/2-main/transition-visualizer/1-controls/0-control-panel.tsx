@@ -3,21 +3,9 @@ import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Input } from "@/ui/shadcn/input";
 import { Label } from "@/ui/shadcn/label";
 import { Slider } from "@/ui/shadcn/slider";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/ui/shadcn/select";
-import type { ParamField } from "../model/9-types";
-import {
-    activeDefinitionAtom,
-    activeEngineAtom,
-    activeParamsAtom,
-    applyPresetAtom,
-    updateParamAtom,
-} from "../state/atoms";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/shadcn/select";
+import { type ParamField } from "../model/9-types";
+import { activeDefinitionAtom, activeEngineAtom, activeParamsAtom, applyPresetAtom, updateParamAtom } from "../state/atoms";
 import { CodeSnippetButton } from "./button-code-snippet";
 
 type ControlValues = Record<string, number | string | boolean>;
@@ -35,9 +23,9 @@ export function Pane_Controls() {
 
     return (
         <div className="flex-1 min-h-0 flex flex-col">
-            <PresetControl />
+            <Control_Preset />
 
-            <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-3">
+            <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-2">
                 {fields.map(
                     (field) => {
                         if (field.visible && !field.visible(params)) {
@@ -45,7 +33,7 @@ export function Pane_Controls() {
                         }
                         if (field.kind === "number") {
                             return (
-                                <NumberControl
+                                <Control_Number
                                     key={field.key}
                                     field={field}
                                     value={params[field.key] as number}
@@ -53,24 +41,25 @@ export function Pane_Controls() {
                                 />
                             );
                         }
-                        if (field.kind === "boolean") {
+                        else if (field.kind === "boolean") {
                             return (
-                                <BooleanControl
+                                <Control_Boolean
                                     key={field.key}
                                     field={field}
                                     value={params[field.key] as boolean}
                                     onChange={(value) => update(field.key, value)}
                                 />
                             );
+                        } else {
+                            return (
+                                <Control_Select
+                                    key={field.key}
+                                    field={field}
+                                    value={params[field.key] as string}
+                                    onChange={(value) => update(field.key, value)}
+                                />
+                            );
                         }
-                        return (
-                            <SelectControl
-                                key={field.key}
-                                field={field}
-                                value={params[field.key] as string}
-                                onChange={(value) => update(field.key, value)}
-                            />
-                        );
                     }
                 )}
             </div>
@@ -82,7 +71,7 @@ export function Pane_Controls() {
     );
 }
 
-function NumberControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "number"; }>; value: number; onChange: (value: number) => void; }) {
+function Control_Number({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "number"; }>; value: number; onChange: (value: number) => void; }) {
     const id = `transition-${field.key}`;
     const sliderMin = field.scale === "log" ? Math.log10(field.min) : field.min;
     const sliderMax = field.scale === "log" ? Math.log10(field.max) : field.max;
@@ -106,20 +95,20 @@ function NumberControl({ field, value, onChange }: { field: Extract<ParamField<C
             />
 
             <Input
-                id={id}
-                className="px-1 h-6 w-full font-mono tabular-nums text-[11px]"
+                className="p-1 h-7 w-full text-[12px] font-mono tabular-nums scale-85 origin-right"
                 type="number"
                 min={field.min}
                 max={field.max}
                 step={field.step}
                 value={value}
                 onChange={(event) => { if (Number.isFinite(event.currentTarget.valueAsNumber)) { onChange(event.currentTarget.valueAsNumber); } }}
+                id={id}
             />
         </div>
     );
 }
 
-function BooleanControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "boolean"; }>; value: boolean; onChange: (value: boolean) => void; }) {
+function Control_Boolean({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "boolean"; }>; value: boolean; onChange: (value: boolean) => void; }) {
     return (
         <Label className="h-6 truncate flex items-center gap-2" title={field.description}>
             <Checkbox checked={value} onCheckedChange={(checked) => onChange(checked === true)} />
@@ -128,14 +117,14 @@ function BooleanControl({ field, value, onChange }: { field: Extract<ParamField<
     );
 }
 
-function SelectControl({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "select"; }>; value: string; onChange: (value: string) => void; }) {
+function Control_Select({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "select"; }>; value: string; onChange: (value: string) => void; }) {
     const id = `transition-${field.key}`;
     return (
         <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2" title={field.description}>
             <Label className="truncate" htmlFor={id}>
                 {field.label}
             </Label>
-            
+
             <Select value={value} onValueChange={onChange}>
                 <SelectTrigger id={id} className="h-7 min-w-0 w-full">
                     <SelectValue />
@@ -153,11 +142,12 @@ function SelectControl({ field, value, onChange }: { field: Extract<ParamField<C
     );
 }
 
-function PresetControl() {
+function Control_Preset() {
     const engineId = useAtomValue(activeEngineAtom);
     const definition = useAtomValue(activeDefinitionAtom);
     const params = useAtomValue(activeParamsAtom) as unknown as ControlValues;
     const applyPreset = useSetAtom(applyPresetAtom);
+
     const selectedPreset = definition.presets.find(({ params: presetParams }) => Object.entries(presetParams).every(([key, value]) => params[key] === value))?.id ?? "custom";
 
     return (
