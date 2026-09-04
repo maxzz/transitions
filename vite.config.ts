@@ -40,8 +40,17 @@ function vendorChunkName(id: string): string | null {
     if (pkg === 'react' || pkg === 'react-dom' || pkg === 'scheduler') {
         return 'react';
     }
+    if (pkg === 'motion' || pkg === 'framer-motion') {
+        return 'motion';
+    }
+    if (pkg === 'gsap' || pkg === '@gsap/react') {
+        return 'gsap';
+    }
+    if (pkg === '@react-spring/web' || pkg.startsWith('@react-spring/')) {
+        return 'react-spring';
+    }
 
-    return pkg;
+    return 'vendor';
 }
 
 /** Last `node_modules/<pkg>` segment. Works with pnpm's `.pnpm/<id>/node_modules/<pkg>` layout. */
