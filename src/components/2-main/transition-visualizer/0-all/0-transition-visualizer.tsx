@@ -47,7 +47,7 @@ flex-1 \
 min-h-0 \
 \
 bg-background border border-border shadow-sm \
-rounded-xl \
+rounded-sm \
 overflow-hidden \
 \
 grid \
