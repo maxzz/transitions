@@ -20,7 +20,7 @@ export function TransitionVisualizer() {
 
     return (
         <section className="flex-1 mx-auto min-h-0 w-full max-w-360 flex flex-col gap-4">
-            <VisualizerHeader />
+            {/* <VisualizerHeader /> */}
 
             <div className={mainClasses}>
                 <ControlSidebar />
