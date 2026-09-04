@@ -35,7 +35,7 @@ function Control_Options() {
     };
 
     return (
-        <div className="flex-1 p-2 min-h-0 overflow-y-auto space-y-2">
+        <div className="flex-1 p-2 min-h-0 overflow-y-auto grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] gap-2 content-start">
             {fields.map(
                 (field) => {
                     if (field.visible && !field.visible(params)) {
@@ -76,6 +76,8 @@ function Control_Options() {
     );
 }
 
+const controlRowClasses = "col-span-3 grid grid-cols-subgrid items-center";
+
 function Control_Number({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "number"; }>; value: number; onChange: (value: number) => void; }) {
     const id = `transition-${field.key}`;
     const sliderMin = field.scale === "log" ? Math.log10(field.min) : field.min;
@@ -84,7 +86,7 @@ function Control_Number({ field, value, onChange }: { field: Extract<ParamField<
     const sliderStep = field.scale === "log" ? (sliderMax - sliderMin) / 200 : field.step;
 
     return (
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2" title={field.description}>
+        <div className={controlRowClasses} title={field.description}>
             <Label className="truncate" htmlFor={id}>
                 {field.label}
             </Label>
@@ -115,34 +117,38 @@ function Control_Number({ field, value, onChange }: { field: Extract<ParamField<
 
 function Control_Boolean({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "boolean"; }>; value: boolean; onChange: (value: boolean) => void; }) {
     return (
-        <Label className="h-6 truncate flex items-center gap-2" title={field.description}>
-            <Checkbox checked={value} onCheckedChange={(checked) => onChange(checked === true)} />
-            <span className="truncate">{field.label}</span>
-        </Label>
+        <div className={controlRowClasses} title={field.description}>
+            <Label className="h-6 truncate col-span-3 flex items-center gap-2">
+                <Checkbox checked={value} onCheckedChange={(checked) => onChange(checked === true)} />
+                <span className="truncate">{field.label}</span>
+            </Label>
+        </div>
     );
 }
 
 function Control_Select({ field, value, onChange }: { field: Extract<ParamField<ControlValues>, { kind: "select"; }>; value: string; onChange: (value: string) => void; }) {
     const id = `transition-${field.key}`;
     return (
-        <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2" title={field.description}>
+        <div className={controlRowClasses} title={field.description}>
             <Label className="truncate" htmlFor={id}>
                 {field.label}
             </Label>
 
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger id={id} className="h-7 min-w-0 w-full">
-                    <SelectValue />
-                </SelectTrigger>
+            <div className="min-w-0 col-span-2">
+                <Select value={value} onValueChange={onChange}>
+                    <SelectTrigger id={id} className="h-7 min-w-0 w-full">
+                        <SelectValue />
+                    </SelectTrigger>
 
-                <SelectContent>
-                    {field.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                    <SelectContent>
+                        {field.options.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
     );
 }
