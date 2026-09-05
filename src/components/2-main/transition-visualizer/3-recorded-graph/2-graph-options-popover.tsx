@@ -12,8 +12,6 @@ import { previewMotion } from "../state/preview-motion";
 import { graphDataAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
 
 export function GraphOptionsPopover() {
-    const samples = useAtomValue(graphSamplesAtom);
-
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -24,10 +22,6 @@ export function GraphOptionsPopover() {
 
             <PopoverContent align="end" className="w-48">
                 <ShowPointsControl />
-                <span className="px-2.5 py-1 w-full font-mono tabular-nums text-[10px] text-muted-foreground text-center bg-background border border-border rounded-full">
-                    {samples.length} points
-                </span>
-                <div className="-mx-2.5 h-px bg-border" role="separator" />
                 <GraphStats />
             </PopoverContent>
         </Popover>
@@ -35,6 +29,7 @@ export function GraphOptionsPopover() {
 }
 
 function GraphStats() {
+    const samples = useAtomValue(graphSamplesAtom);
     const result = useAtomValue(runResultAtom);
     const engineId = useAtomValue(activeEngineAtom);
     const recording = useAtomValue(isRecordingAtom);
@@ -57,6 +52,8 @@ function GraphStats() {
 
     return (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5">
+            <StatCell label="points" value={String(samples.length)} />
+            <div className="col-span-2 h-px bg-border" role="separator" />
             <StatCell label={durationLabel} value={durationValue} />
             <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
             <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
