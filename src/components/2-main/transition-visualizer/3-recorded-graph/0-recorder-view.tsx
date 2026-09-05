@@ -19,7 +19,7 @@ export function ResponseGraph() {
         <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
             <GraphHeader />
             <RecordedSvg />
-            <GraphButtomStats />
+            <PlaybackControls />
         </div>
     );
 }
@@ -50,15 +50,11 @@ function GraphOptionsPopover() {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button
-                    size="icon-sm"
-                    variant="ghost"
-                    aria-label="Graph options"
-                    title="Graph options"
-                >
+                <Button size="icon-sm" variant="ghost" aria-label="Graph options" title="Graph options">
                     <EllipsisVertical />
                 </Button>
             </PopoverTrigger>
+
             <PopoverContent align="end" className="w-48">
                 <AutoRecordControl />
                 <ShowPointsControl />
@@ -69,6 +65,50 @@ function GraphOptionsPopover() {
                 <GraphStats />
             </PopoverContent>
         </Popover>
+    );
+}
+
+function GraphStats() {
+    const result = useAtomValue(runResultAtom);
+    const engineId = useAtomValue(activeEngineAtom);
+    const recording = useAtomValue(isRecordingAtom);
+    const graph = useAtomValue(graphDataAtom);
+    const { elapsedMs: liveElapsedMs } = useSnapshot(previewMotion);
+
+    const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
+    const durationLabel = recording
+        ? "elapsed"
+        : result?.stopped
+            ? "stopped at"
+            : engineId === "gsap"
+                ? "duration"
+                : "settled in";
+    const durationValue = recording
+        ? formatDuration(liveElapsedMs)
+        : graph.hasCurve && result
+            ? formatDuration(result.durationMs)
+            : "—";
+
+    return (
+        <div className="grid grid-cols-2 gap-2">
+            <StatCell label={durationLabel} value={durationValue} />
+            <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
+            <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
+            <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
+        </div>
+    );
+}
+
+function StatCell({ label, value }: { label: string; value: string; }) {
+    return (
+        <div className="min-w-0 flex flex-col">
+            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider truncate">
+                {label}
+            </span>
+            <span className="text-xs font-mono tabular-nums text-foreground truncate">
+                {value}
+            </span>
+        </div>
     );
 }
 
@@ -116,45 +156,6 @@ function ShowPointsControl() {
     );
 }
 
-function GraphStats() {
-    const result = useAtomValue(runResultAtom);
-    const engineId = useAtomValue(activeEngineAtom);
-    const recording = useAtomValue(isRecordingAtom);
-    const graph = useAtomValue(graphDataAtom);
-    const { elapsedMs: liveElapsedMs } = useSnapshot(previewMotion);
-
-    const overshoot = graph.hasCurve ? Math.max(0, graph.bounds.maxValue - 1) : 0;
-    const durationLabel = recording
-        ? "elapsed"
-        : result?.stopped
-            ? "stopped at"
-            : engineId === "gsap"
-                ? "duration"
-                : "settled in";
-    const durationValue = recording
-        ? formatDuration(liveElapsedMs)
-        : graph.hasCurve && result
-            ? formatDuration(result.durationMs)
-            : "—";
-
-    return (
-        <div className="grid grid-cols-2 gap-2">
-            <StatCell label={durationLabel} value={durationValue} />
-            <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
-            <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
-            <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
-        </div>
-    );
-}
-
-function GraphButtomStats() {
-    return (
-        <div className="px-5 py-2.5 bg-background border-t border-border flex flex-col gap-2">
-            <PlaybackControls />
-        </div>
-    );
-}
-
 function PlaybackControls() {
     const samples = useAtomValue(graphSamplesAtom);
     const { elapsedMs, speed } = useSnapshot(previewMotion);
@@ -162,28 +163,30 @@ function PlaybackControls() {
     const hasCurve = samples.length > 0;
 
     return (
-        <div className="flex flex-col gap-1.5">
-            <PlaybackSlider
-                id="graph-timeline"
-                label="Timeline"
-                valueLabel={formatDuration(elapsedMs)}
-                min={0}
-                max={Math.max(durationMs, 1)}
-                step={1}
-                value={Math.min(elapsedMs, durationMs)}
-                disabled={!hasCurve}
-                onChange={(next) => seekPlayback(samples, next)}
-            />
-            <PlaybackSlider
-                id="graph-speed"
-                label="Speed"
-                valueLabel={speed.toFixed(2)}
-                min={0}
-                max={1}
-                step={0.01}
-                value={speed}
-                onChange={setPreviewSpeed}
-            />
+        <div className="px-5 py-2.5 bg-background border-t border-border flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
+                <PlaybackSlider
+                    id="graph-timeline"
+                    label="Timeline"
+                    valueLabel={formatDuration(elapsedMs)}
+                    min={0}
+                    max={Math.max(durationMs, 1)}
+                    step={1}
+                    value={Math.min(elapsedMs, durationMs)}
+                    disabled={!hasCurve}
+                    onChange={(next) => seekPlayback(samples, next)}
+                />
+                <PlaybackSlider
+                    id="graph-speed"
+                    label="Speed"
+                    valueLabel={speed.toFixed(2)}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={speed}
+                    onChange={setPreviewSpeed}
+                />
+            </div>
         </div>
     );
 }
@@ -230,19 +233,6 @@ function PlaybackSlider({
             />
             <span className="font-mono tabular-nums text-[11px] text-foreground text-right truncate">
                 {valueLabel}
-            </span>
-        </div>
-    );
-}
-
-function StatCell({ label, value }: { label: string; value: string; }) {
-    return (
-        <div className="min-w-0 flex flex-col">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider truncate">
-                {label}
-            </span>
-            <span className="text-xs font-mono tabular-nums text-foreground truncate">
-                {value}
             </span>
         </div>
     );
