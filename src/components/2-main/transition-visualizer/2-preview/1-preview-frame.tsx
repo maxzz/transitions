@@ -12,22 +12,20 @@ export function usePreviewValue(): number {
 }
 
 /**
- * Square stage that fits the available space. Every preview scene renders inside it,
- * so scenes can be dropped anywhere the stage is used without knowing their surroundings.
+ * Square stage sized from the nearest @container-size ancestor. Leave room below
+ * the square when a toolbar sits under the model (`--preview-toolbar`).
  */
 export function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
     return (
-        <div className="size-full @container-size grid place-items-center">
-            <div className={cn(canvasClasses, className)}>
-                {children}
-            </div>
+        <div className={cn(canvasClasses, className)}>
+            {children}
         </div>
     );
 }
 
 const canvasClasses = "\
 relative \
-w-[min(100cqw,100cqh)] aspect-square \
+w-[min(100cqw,calc(100cqh-var(--preview-toolbar,0px)))] aspect-square \
 bg-muted/60 \
 border-2 border-border \
 rounded-xl \

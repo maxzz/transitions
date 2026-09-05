@@ -24,17 +24,24 @@ export function PreviewStage() {
         <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
             <PreviewHeader />
 
-            <div className="flex-1 p-3 min-h-0 sm:p-6 overflow-hidden">
-                <PreviewCanvas>
-                    <TransitionScene />
-                </PreviewCanvas>
+            <div className="flex-1 p-3 min-h-0 sm:p-6 [--preview-toolbar:5.5rem] @container-size overflow-hidden grid place-items-center">
+                <div className="flex flex-col items-center gap-2">
+                    <PreviewCanvas>
+                        <TransitionScene />
+                    </PreviewCanvas>
+                    <PreviewToolbar />
+                </div>
             </div>
+        </div>
+    );
+}
 
-            <div className="p-2 bg-muted/20 border-t border-border flex flex-wrap items-center justify-center gap-2">
-                <VisualizationModeControl />
-                <ReturnToInitialPosition />
-                <StopMotionButton />
-            </div>
+function PreviewToolbar() {
+    return (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+            <VisualizationModeControl />
+            <ReturnToInitialPosition />
+            <StopMotionButton />
         </div>
     );
 }
