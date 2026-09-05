@@ -19,7 +19,7 @@ export function Pane_LeftControls() {
 
             <div className="flex flex-col sm:flex-1 sm:min-h-0">
                 <Control_Preset />
-                <Control_Options />
+                <Control_OptionRows />
 
                 <div className="shrink-0 p-2">
                     <CodeSnippetButton />
@@ -35,7 +35,7 @@ export function Pane_LeftControls() {
 
 type ControlValues = Record<string, number | string | boolean>;
 
-function Control_Options() {
+function Control_OptionRows() {
     const engineId = useAtomValue(activeEngineAtom);
     const definition = useAtomValue(activeDefinitionAtom);
     const params = useAtomValue(activeParamsAtom) as unknown as ControlValues;

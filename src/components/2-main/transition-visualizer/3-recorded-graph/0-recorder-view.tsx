@@ -1,9 +1,12 @@
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
+import { EllipsisVertical } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
+import { Button } from "@/ui/shadcn/button";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/ui/shadcn/popover";
 import { Slider } from "@/ui/shadcn/slider";
 import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom, activeEngineAtom, runResultAtom } from "../state/atoms";
@@ -12,11 +15,8 @@ import { graphDataAtom, graphSamplesAtom, isRecordingAtom } from "./a-graph-atom
 import { RecordedSvg } from "./1-recorded-svg";
 
 export function ResponseGraph() {
-    const recording = useAtomValue(isRecordingAtom);
-
     return (
         <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
-            <RecordingIndicator recording={recording} />
             <GraphHeader />
             <RecordedSvg />
             <GraphButtomStats />
@@ -26,31 +26,54 @@ export function ResponseGraph() {
 
 function GraphHeader() {
     const definition = useAtomValue(activeDefinitionAtom);
-    const samples = useAtomValue(graphSamplesAtom);
+    const recording = useAtomValue(isRecordingAtom);
 
     return (
-        <div className="py-4 pl-5 pr-28 border-b border-border flex flex-wrap items-start justify-between gap-3">
+        <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-3">
             <div>
                 <h2 className="text-sm font-semibold">Recorded response</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
                     {definition.label} · solver samples
                 </p>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-3">
-                <AutoRecordControl />
-                <ShowPointsControl />
-                <span className="px-2.5 py-1 min-w-22 font-mono tabular-nums text-[10px] text-muted-foreground text-center bg-background border border-border rounded-full">
-                    {samples.length} points
-                </span>
+            <div className="relative flex items-center">
+                <RecordingIndicator recording={recording} />
+                <GraphOptionsPopover />
             </div>
         </div>
+    );
+}
+
+function GraphOptionsPopover() {
+    const samples = useAtomValue(graphSamplesAtom);
+
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Graph options"
+                    title="Graph options"
+                >
+                    <EllipsisVertical />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-40">
+                <AutoRecordControl />
+                <ShowPointsControl />
+                <span className="px-2.5 py-1 w-full font-mono tabular-nums text-[10px] text-muted-foreground text-center bg-background border border-border rounded-full">
+                    {samples.length} points
+                </span>
+            </PopoverContent>
+        </Popover>
     );
 }
 
 function RecordingIndicator({ recording }: { recording: boolean; }) {
     return (
         <div
-            className={cn("absolute top-3.5 right-5 h-6 flex items-center gap-1.5 z-10 pointer-events-none", !recording && "invisible")}
+            className={cn("absolute top-1/2 right-full -translate-y-1/2 mr-2 h-6 flex items-center gap-1.5 pointer-events-none", !recording && "invisible")}
             role="status"
             aria-live="polite"
             aria-hidden={!recording}
@@ -67,7 +90,7 @@ function AutoRecordControl() {
     const { autoRecordResponse } = useSnapshot(appSettings);
 
     return (
-        <Label className="h-6 flex items-center gap-2" title="Replay whenever transition parameters change">
+        <Label className="h-6 w-full flex items-center gap-2" title="Replay whenever transition parameters change">
             <Checkbox
                 checked={autoRecordResponse}
                 onCheckedChange={(checked) => { appSettings.autoRecordResponse = checked === true; }}
@@ -81,7 +104,7 @@ function ShowPointsControl() {
     const { showGraphPoints } = useSnapshot(appSettings);
 
     return (
-        <Label className="h-6 flex items-center gap-2" title="Mark every recorded frame on the curve">
+        <Label className="h-6 w-full flex items-center gap-2" title="Mark every recorded frame on the curve">
             <Checkbox
                 checked={showGraphPoints}
                 onCheckedChange={(checked) => { appSettings.showGraphPoints = checked === true; }}
