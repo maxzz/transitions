@@ -80,7 +80,8 @@ function StatCell({ label, value }: { label: string; value: string; }) {
     );
 }
 
-export function RecordingIndicator({ recording }: { recording: boolean; }) {
+export function RecordingIndicator() {
+    const recording = useAtomValue(isRecordingAtom);
     return (
         <div
             className={cn("absolute top-1/2 right-full -translate-y-1/2 mr-2 h-6 flex items-center gap-1.5 pointer-events-none", !recording && "invisible")}

@@ -5,9 +5,9 @@ import { Slider } from "@/ui/shadcn/slider";
 import { formatDuration } from "../model/2-duration";
 import { activeDefinitionAtom } from "../state/atoms";
 import { previewMotion, seekPlayback, setPreviewSpeed } from "../state/preview-motion";
-import { graphSamplesAtom, isRecordingAtom } from "./a-graph-atoms";
+import { graphSamplesAtom } from "./a-graph-atoms";
 import { RecordedSvg } from "./1-recorded-svg";
-import { GraphOptionsPopover, RecordingIndicator } from "./2-graph-options-popover";
+import { GraphOptionsPopover } from "./2-graph-options-popover";
 
 export function ResponseGraph() {
     return (
@@ -21,20 +21,18 @@ export function ResponseGraph() {
 
 function GraphHeader() {
     const definition = useAtomValue(activeDefinitionAtom);
-    const recording = useAtomValue(isRecordingAtom);
-
     return (
         <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-3">
             <div>
-                <h2 className="text-sm font-semibold">Recorded response</h2>
+                <h2 className="text-sm font-semibold">
+                    Recorded response
+                </h2>
                 <p className="mt-1 text-xs text-muted-foreground">
                     {definition.label} · solver samples
                 </p>
             </div>
-            <div className="relative flex items-center">
-                <RecordingIndicator recording={recording} />
-                <GraphOptionsPopover />
-            </div>
+
+            <GraphOptionsPopover />
         </div>
     );
 }
@@ -74,17 +72,7 @@ function PlaybackControls() {
     );
 }
 
-function PlaybackSlider({
-    id,
-    label,
-    valueLabel,
-    min,
-    max,
-    step,
-    value,
-    disabled,
-    onChange,
-}: {
+function PlaybackSlider({ id, label, valueLabel, min, max, step, value, disabled, onChange }: {
     id: string;
     label: string;
     valueLabel: string;
@@ -100,6 +88,7 @@ function PlaybackSlider({
             <Label className="font-mono text-[10px] text-muted-foreground truncate uppercase tracking-wider" htmlFor={id}>
                 {label}
             </Label>
+
             <Slider
                 id={id}
                 aria-label={label}
@@ -109,11 +98,9 @@ function PlaybackSlider({
                 step={step}
                 value={[value]}
                 disabled={disabled}
-                onValueChange={([next]) => {
-                    if (next === undefined) return;
-                    onChange(next);
-                }}
+                onValueChange={([next]) => { if (next !== undefined) onChange(next); }}
             />
+
             <span className="font-mono tabular-nums text-[11px] text-foreground text-right truncate">
                 {valueLabel}
             </span>
