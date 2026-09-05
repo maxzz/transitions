@@ -18,39 +18,64 @@ export function TransitionVisualizer() {
         <section className="flex-1 mx-auto min-h-0 w-full max-w-360 flex flex-col gap-4">
             {/* <VisualizerHeader /> */}
 
-            <div className={mainClasses}>
+            <div className={cn(shellClasses, isSplit ? splitGridClasses : pairGridClasses, !isSplit && (isGraph ? graphAreas : mechanicalAreas))}>
                 <Pane_LeftControls />
 
-                <div className={cn("h-full min-h-0 overflow-auto", isSplit && "lg:grid-cols-2 lg:grid-rows-1 grid grid-rows-2")}>
-
-                    <div className={cn("h-full min-h-48", isGraph && "hidden")} aria-hidden={isGraph}>
-                        <PreviewStage />
-                    </div>
-
-                    {!isMechanical && (
-                        <div className={cn("h-full min-h-48", isSplit && "lg:border-l lg:border-border")}>
-                            <ResponseGraph />
-                        </div>
-                    )}
+                <div className={cn("[grid-area:b] min-w-0 min-h-48 overflow-auto", isGraph && "hidden")} aria-hidden={isGraph}>
+                    <PreviewStage />
                 </div>
+
+                {!isMechanical && (
+                    <div className={cn("[grid-area:c] min-w-0 min-h-48 overflow-auto", isSplit && "border-t border-border xl:border-t-0 xl:border-l")}>
+                        <ResponseGraph />
+                    </div>
+                )}
             </div>
         </section>
     );
 }
 
-const mainClasses = "\
+const shellClasses = "\
 flex-1 \
 min-h-0 \
 \
 bg-background border border-border shadow-sm \
 rounded-sm \
-overflow-hidden \
+overflow-auto lg:overflow-hidden \
 \
 grid \
+";
+
+const splitGridClasses = "\
+grid-cols-1 \
+grid-rows-[auto_minmax(12rem,1fr)_minmax(12rem,1fr)] \
+[grid-template-areas:'a'_'b'_'c'] \
+\
+lg:grid-cols-[max-content_minmax(0,1fr)] \
+lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] \
+lg:[grid-template-areas:'a_b'_'a_c'] \
+\
+xl:grid-cols-[max-content_minmax(0,1fr)_minmax(0,1fr)] \
+xl:grid-rows-[minmax(0,1fr)] \
+xl:[grid-template-areas:'a_b_c'] \
+";
+
+const pairGridClasses = "\
+grid-cols-1 \
 grid-rows-[auto_minmax(0,1fr)] \
 \
-lg:grid-cols-[15rem_minmax(0,1fr)] \
+lg:grid-cols-[max-content_minmax(0,1fr)] \
 lg:grid-rows-[minmax(0,1fr)] \
+";
+
+const graphAreas = "\
+[grid-template-areas:'a'_'c'] \
+lg:[grid-template-areas:'a_c'] \
+";
+
+const mechanicalAreas = "\
+[grid-template-areas:'a'_'b'] \
+lg:[grid-template-areas:'a_b'] \
 ";
 
 function VisualizerHeader() {
