@@ -4,6 +4,7 @@ import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
 import { Pane_LeftControls } from "../1-controls/0-control-panel";
 import { PreviewSelectorTab } from "./1-tabs-preview-selector";
+import { VisualizerPlaybackBar } from "./2-playback-bar";
 import { ResponseGraph } from "../3-recorded-graph/0-recorder-view";
 import { PreviewStage } from "../2-preview/0-preview-stage";
 import { activeDefinitionAtom } from "../state/atoms";
@@ -30,6 +31,8 @@ export function TransitionVisualizer() {
                         <ResponseGraph />
                     </div>
                 )}
+
+                <VisualizerPlaybackBar />
             </div>
         </section>
     );
@@ -48,30 +51,30 @@ grid \
 
 const splitGridClasses = "\
 grid-cols-2 \
-grid-rows-[auto_minmax(12rem,1fr)] \
-[grid-template-areas:'a_a'_'b_c'] \
+grid-rows-[auto_minmax(12rem,1fr)_auto] \
+[grid-template-areas:'a_a'_'b_c'_'d_d'] \
 \
 sm:grid-cols-[max-content_minmax(0,1fr)_minmax(0,1fr)] \
-sm:grid-rows-[minmax(0,1fr)] \
-sm:[grid-template-areas:'a_b_c'] \
+sm:grid-rows-[minmax(0,1fr)_auto] \
+sm:[grid-template-areas:'a_b_c'_'a_d_d'] \
 ";
 
 const pairGridClasses = "\
 grid-cols-1 \
-grid-rows-[auto_minmax(0,1fr)] \
+grid-rows-[auto_minmax(0,1fr)_auto] \
 \
 sm:grid-cols-[max-content_minmax(0,1fr)] \
-sm:grid-rows-[minmax(0,1fr)] \
+sm:grid-rows-[minmax(0,1fr)_auto] \
 ";
 
 const graphAreas = "\
-[grid-template-areas:'a'_'c'] \
-sm:[grid-template-areas:'a_c'] \
+[grid-template-areas:'a'_'c'_'d'] \
+sm:[grid-template-areas:'a_c'_'a_d'] \
 ";
 
 const mechanicalAreas = "\
-[grid-template-areas:'a'_'b'] \
-sm:[grid-template-areas:'a_b'] \
+[grid-template-areas:'a'_'b'_'d'] \
+sm:[grid-template-areas:'a_b'_'a_d'] \
 ";
 
 function VisualizerHeader() {
