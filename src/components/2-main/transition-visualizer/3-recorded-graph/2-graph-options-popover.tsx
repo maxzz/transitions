@@ -56,7 +56,7 @@ function GraphStats() {
             : "—";
 
     return (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5">
             <StatCell label={durationLabel} value={durationValue} />
             <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
             <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
@@ -67,11 +67,11 @@ function GraphStats() {
 
 function StatCell({ label, value }: { label: string; value: string; }) {
     return (
-        <div className="min-w-0 flex flex-col">
+        <div className="col-span-2 min-w-0 grid grid-cols-subgrid items-baseline">
             <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider truncate">
                 {label}
             </span>
-            <span className="text-xs font-mono tabular-nums text-foreground truncate">
+            <span className="text-xs font-mono tabular-nums text-foreground text-right truncate">
                 {value}
             </span>
         </div>
