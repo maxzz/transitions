@@ -1,13 +1,14 @@
 import { type ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
-import { EllipsisVertical } from "lucide-react";
+import { classNames } from "@/utils/classnames";
 import { appSettings } from "@/store/1-ui-settings";
-import { cn } from "@/utils/classnames";
+import { EllipsisVertical } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/shadcn/popover";
+
 import { formatDuration } from "../model/2-duration";
 import { activeEngineAtom, runResultAtom } from "../state/atoms";
 import { previewMotion } from "../state/preview-motion";
@@ -76,7 +77,7 @@ function SectionHeader({ children }: { children: ReactNode; }) {
 }
 
 function Separator({ className }: { className?: string; }) {
-    return <div className={cn("col-span-2 h-px bg-border", className)} role="separator" />;
+    return <div className={classNames("col-span-2 h-px bg-border", className)} role="separator" />;
 }
 
 function StatCell({ label, value }: { label: string; value: string; }) {
