@@ -7,21 +7,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { type ParamField } from "../model/9-types";
 import { activeDefinitionAtom, activeEngineAtom, activeParamsAtom, applyPresetAtom, updateParamAtom } from "../state/atoms";
 import { CodeSnippetButton } from "./button-code-snippet";
-
-type ControlValues = Record<string, number | string | boolean>;
+import { EngineTabs } from "./1-tabs-engine";
+import { PlayStopButton } from "./button-stop-motion";
 
 export function Pane_LeftControls() {
     return (
-        <div className="flex-1 min-h-0 flex flex-col">
-            <Control_Preset />
-            <Control_Options />
-
-            <div className="shrink-0 p-2">
-                <CodeSnippetButton />
+        <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border overflow-hidden flex flex-col">
+            <div className="p-2 border-b border-border">
+                <EngineTabs />
             </div>
-        </div>
+
+            <div className="flex-1 min-h-0 flex flex-col">
+                <Control_Preset />
+                <Control_Options />
+
+                <div className="shrink-0 p-2">
+                    <CodeSnippetButton />
+                </div>
+            </div>
+
+            <div className="p-2 bg-muted/20 border-t border-border">
+                <PlayStopButton className="w-full" />
+            </div>
+        </aside>
     );
 }
+
+type ControlValues = Record<string, number | string | boolean>;
 
 function Control_Options() {
     const engineId = useAtomValue(activeEngineAtom);
@@ -35,7 +47,7 @@ function Control_Options() {
     };
 
     return (
-        <div className="flex-1 p-2 min-h-0 overflow-y-auto grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] gap-2 content-start">
+        <div className="flex-1 p-2 min-h-0 overflow-y-auto grid grid-cols-[auto_minmax(0,1fr)_3.75rem] gap-2 content-start">
             {fields.map(
                 (field) => {
                     if (field.visible && !field.visible(params)) {

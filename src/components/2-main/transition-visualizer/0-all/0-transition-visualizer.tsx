@@ -4,8 +4,6 @@ import { appSettings } from "@/store/1-ui-settings";
 import { cn } from "@/utils/classnames";
 import { Pane_LeftControls } from "../1-controls/0-control-panel";
 import { PreviewSelectorTab } from "./1-tabs-preview-selector";
-import { EngineTabs } from "../1-controls/1-tabs-engine";
-import { PlayStopButton } from "../1-controls/button-stop-motion";
 import { ResponseGraph } from "../3-recorded-graph/0-recorder-view";
 import { PreviewStage } from "../2-preview/0-preview-stage";
 import { activeDefinitionAtom } from "../state/atoms";
@@ -21,7 +19,7 @@ export function TransitionVisualizer() {
             {/* <VisualizerHeader /> */}
 
             <div className={mainClasses}>
-                <ControlSidebar />
+                <Pane_LeftControls />
 
                 <div className={cn("h-full min-h-0 overflow-auto", isSplit && "lg:grid-cols-2 lg:grid-rows-1 grid grid-rows-2")}>
 
@@ -74,21 +72,5 @@ function VisualizerHeader() {
 
             <PreviewSelectorTab />
         </div>
-    );
-}
-
-function ControlSidebar() {
-    return (
-        <aside className="min-h-0 lg:border-r lg:border-b-0 border-b border-border overflow-hidden flex flex-col">
-            <div className="p-2 border-b border-border">
-                <EngineTabs />
-            </div>
-
-            <Pane_LeftControls />
-
-            <div className="p-2 bg-muted/20 border-t border-border">
-                <PlayStopButton className="w-full" />
-            </div>
-        </aside>
     );
 }
