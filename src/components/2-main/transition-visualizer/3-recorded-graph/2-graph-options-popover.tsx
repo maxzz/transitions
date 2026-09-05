@@ -1,7 +1,9 @@
+import { type ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { EllipsisVertical } from "lucide-react";
 import { appSettings } from "@/store/1-ui-settings";
+import { cn } from "@/utils/classnames";
 import { Button } from "@/ui/shadcn/button";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
@@ -21,8 +23,11 @@ export function GraphOptionsPopover() {
             </PopoverTrigger>
 
             <PopoverContent align="end" className="w-48">
-                <ShowPointsControl />
-                <GraphStats />
+                <section className="flex flex-col gap-2.5">
+                    <SectionHeader>Graph settings</SectionHeader>
+                    <ShowPointsControl />
+                    <GraphStats />
+                </section>
             </PopoverContent>
         </Popover>
     );
@@ -53,13 +58,25 @@ function GraphStats() {
     return (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5">
             <StatCell label="points" value={String(samples.length)} />
-            <div className="col-span-2 h-px bg-border" role="separator" />
+            <Separator />
             <StatCell label={durationLabel} value={durationValue} />
             <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
             <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
             <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
         </div>
     );
+}
+
+function SectionHeader({ children }: { children: ReactNode; }) {
+    return (
+        <h3 className="text-xs font-medium">
+            {children}
+        </h3>
+    );
+}
+
+function Separator({ className }: { className?: string; }) {
+    return <div className={cn("col-span-2 h-px bg-border", className)} role="separator" />;
 }
 
 function StatCell({ label, value }: { label: string; value: string; }) {
