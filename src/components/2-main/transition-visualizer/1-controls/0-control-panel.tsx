@@ -12,12 +12,12 @@ import { PlayStopButton } from "./button-stop-motion";
 
 export function Pane_LeftControls() {
     return (
-        <aside className="w-full h-max lg:h-auto lg:min-h-0 lg:min-w-60 border-b border-border lg:border-r lg:border-b-0 overflow-hidden flex flex-col [grid-area:a]">
+        <aside className="justify-self-start w-max min-w-60 h-max sm:h-auto sm:min-h-0 border-b border-r border-border sm:border-b-0 overflow-hidden flex flex-col [grid-area:a]">
             <div className="p-2 border-b border-border">
                 <EngineTabs />
             </div>
 
-            <div className="flex flex-col lg:flex-1 lg:min-h-0">
+            <div className="flex flex-col sm:flex-1 sm:min-h-0">
                 <Control_Preset />
                 <Control_Options />
 
