@@ -59,12 +59,14 @@ function GraphOptionsPopover() {
                     <EllipsisVertical />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-40">
+            <PopoverContent align="end" className="w-48">
                 <AutoRecordControl />
                 <ShowPointsControl />
                 <span className="px-2.5 py-1 w-full font-mono tabular-nums text-[10px] text-muted-foreground text-center bg-background border border-border rounded-full">
                     {samples.length} points
                 </span>
+                <div className="-mx-2.5 h-px bg-border" role="separator" />
+                <GraphStats />
             </PopoverContent>
         </Popover>
     );
@@ -114,7 +116,7 @@ function ShowPointsControl() {
     );
 }
 
-function GraphButtomStats() {
+function GraphStats() {
     const result = useAtomValue(runResultAtom);
     const engineId = useAtomValue(activeEngineAtom);
     const recording = useAtomValue(isRecordingAtom);
@@ -135,15 +137,19 @@ function GraphButtomStats() {
             ? formatDuration(result.durationMs)
             : "—";
 
-    // Two fixed lines per cell (label above value) so that changing text never wraps and shifts the chart above.
+    return (
+        <div className="grid grid-cols-2 gap-2">
+            <StatCell label={durationLabel} value={durationValue} />
+            <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
+            <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
+            <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
+        </div>
+    );
+}
+
+function GraphButtomStats() {
     return (
         <div className="px-5 py-2.5 bg-background border-t border-border flex flex-col gap-2">
-            <div className="grid grid-cols-4 gap-3">
-                <StatCell label={durationLabel} value={durationValue} />
-                <StatCell label="min" value={graph.hasCurve ? graph.bounds.minValue.toFixed(3) : "—"} />
-                <StatCell label="max" value={graph.hasCurve ? graph.bounds.maxValue.toFixed(3) : "—"} />
-                <StatCell label="overshoot" value={graph.hasCurve ? overshoot.toFixed(3) : "—"} />
-            </div>
             <PlaybackControls />
         </div>
     );
@@ -156,7 +162,7 @@ function PlaybackControls() {
     const hasCurve = samples.length > 0;
 
     return (
-        <div className="pt-1 flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
             <PlaybackSlider
                 id="graph-timeline"
                 label="Timeline"
