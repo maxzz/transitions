@@ -8,7 +8,6 @@ import { type ParamField } from "../model/9-types";
 import { activeDefinitionAtom, activeEngineAtom, activeParamsAtom, applyPresetAtom, updateParamAtom } from "../state/atoms";
 import { CodeSnippetButton } from "./button-code-snippet";
 import { EngineTabs } from "./1-tabs-engine";
-import { PlayStopButton } from "./button-stop-motion";
 
 export function Pane_LeftControls() {
     return (
@@ -24,10 +23,6 @@ export function Pane_LeftControls() {
                 <div className="shrink-0 p-2">
                     <CodeSnippetButton />
                 </div>
-            </div>
-
-            <div className="p-2 bg-muted/20 border-t border-border">
-                <PlayStopButton className="w-full" />
             </div>
         </aside>
     );

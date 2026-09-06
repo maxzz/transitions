@@ -29,7 +29,7 @@ export function StopMotionButton({ className }: { className?: string }) {
     );
 }
 
-function PlayMotionButton({ className }: { className?: string }) {
+export function PlayMotionButton({ className }: { className?: string }) {
     const requestRun = useSetAtom(requestRunAtom);
 
     return (

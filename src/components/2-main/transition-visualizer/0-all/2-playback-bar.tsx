@@ -7,14 +7,15 @@ import { Slider } from "@/ui/shadcn/slider";
 import { formatDuration } from "../model/2-duration";
 import { previewMotion, seekPlayback, setPreviewSpeed } from "../state/preview-motion";
 import { graphSamplesAtom } from "../3-recorded-graph/a-graph-atoms";
-import { StopMotionButton } from "../1-controls/button-stop-motion";
+import { PlayMotionButton, StopMotionButton } from "../1-controls/button-stop-motion";
 
 export function VisualizerPlaybackBar() {
     return (
         <div className="[grid-area:d] px-5 py-2.5 bg-background border-t border-border sm:border-l flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex flex-wrap items-center gap-2">
-                <ReturnToInitialPosition />
+                <PlayMotionButton />
                 <StopMotionButton />
+                <ReturnToInitialPosition />
             </div>
             <PlaybackControls />
         </div>
