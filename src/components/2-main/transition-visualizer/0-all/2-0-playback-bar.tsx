@@ -7,7 +7,7 @@ import { Slider } from "@/ui/shadcn/slider";
 import { formatDuration } from "../model/2-duration";
 import { previewMotion, seekPlayback, setPreviewSpeed } from "../state/preview-motion";
 import { graphSamplesAtom } from "../3-recorded-graph/a-graph-atoms";
-import { PlayMotionButton, StopMotionButton } from "../1-controls/button-stop-motion";
+import { PlayMotionButton, StopMotionButton } from "./2-1-play-stop-buttons";
 
 export function VisualizerPlaybackBar() {
     return (
@@ -26,19 +26,13 @@ function ReturnToInitialPosition() {
     const { returnToInitialPosition } = useSnapshot(appSettings);
 
     return (
-        <div
-            className="px-2 h-7 flex items-center gap-2"
-            title="Return the preview to its starting position one second after the animation finishes"
-        >
+        <Label className="px-2 h-7 flex items-center gap-1" title="Return the preview to its starting position one second after the animation finishes">
             <Checkbox
-                id="return-to-initial-position"
                 checked={returnToInitialPosition}
-                onCheckedChange={(checked) => {
-                    appSettings.returnToInitialPosition = checked === true;
-                }}
+                onCheckedChange={(checked) => { appSettings.returnToInitialPosition = checked === true; }}
             />
-            <Label htmlFor="return-to-initial-position">Return to initial position</Label>
-        </div>
+            <div>Return to initial position</div>
+        </Label>
     );
 }
 
@@ -75,32 +69,15 @@ function PlaybackControls() {
     );
 }
 
-function PlaybackSlider({
-    id,
-    label,
-    valueLabel,
-    min,
-    max,
-    step,
-    value,
-    disabled,
-    onChange,
-}: {
-    id: string;
-    label: string;
-    valueLabel: string;
-    min: number;
-    max: number;
-    step: number;
-    value: number;
-    disabled?: boolean;
-    onChange: (value: number) => void;
+function PlaybackSlider({ id, label, valueLabel, min, max, step, value, disabled, onChange }: {
+    id: string; label: string; valueLabel: string; min: number; max: number; step: number; value: number; disabled?: boolean; onChange: (value: number) => void;
 }) {
     return (
         <div className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.75rem] items-center gap-2">
             <Label className="font-mono text-[10px] text-muted-foreground truncate uppercase tracking-wider" htmlFor={id}>
                 {label}
             </Label>
+
             <Slider
                 id={id}
                 aria-label={label}
@@ -115,6 +92,7 @@ function PlaybackSlider({
                     onChange(next);
                 }}
             />
+
             <span className="font-mono tabular-nums text-[11px] text-foreground text-right truncate">
                 {valueLabel}
             </span>

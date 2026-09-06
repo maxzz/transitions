@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai";
 import { ButtonThemeToggle } from "./8-btn-theme-toggle";
 import { activeDefinitionAtom } from "../2-main/transition-visualizer/state/atoms";
-import { PreviewSelectorTab } from "../2-main/transition-visualizer/0-all/1-tabs-preview-selector";
+import { PreviewSelectorTab } from "../2-main/transition-visualizer/0-all/1-2-tabs-preview-selector";
 
 export function Header() {
     const definition = useAtomValue(activeDefinitionAtom);

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { type ParamField } from "../model/9-types";
 import { activeDefinitionAtom, activeEngineAtom, activeParamsAtom, applyPresetAtom, updateParamAtom } from "../state/atoms";
 import { CodeSnippetButton } from "./button-code-snippet";
-import { EngineTabs } from "./1-tabs-engine";
+import { EngineTabs } from "../0-all/1-1-tabs-engine";
 
 export function Pane_LeftControls() {
     return (

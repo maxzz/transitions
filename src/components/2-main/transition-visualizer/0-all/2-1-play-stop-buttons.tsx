@@ -11,6 +11,17 @@ export function PlayStopButton({ className }: { className?: string }) {
         : <PlayMotionButton className={className} />;
 }
 
+export function PlayMotionButton({ className }: { className?: string }) {
+    const requestRun = useSetAtom(requestRunAtom);
+
+    return (
+        <Button className={className} size="sm" onClick={requestRun}>
+            <Play data-icon="inline-start" />
+            Play
+        </Button>
+    );
+}
+
 export function StopMotionButton({ className }: { className?: string }) {
     const status = useAtomValue(runStatusAtom);
     const stopRun = useSetAtom(stopRunAtom);
@@ -25,17 +36,6 @@ export function StopMotionButton({ className }: { className?: string }) {
         >
             <CircleStop data-icon="inline-start" />
             Stop motion
-        </Button>
-    );
-}
-
-export function PlayMotionButton({ className }: { className?: string }) {
-    const requestRun = useSetAtom(requestRunAtom);
-
-    return (
-        <Button className={className} size="sm" onClick={requestRun}>
-            <Play data-icon="inline-start" />
-            Play
         </Button>
     );
 }
