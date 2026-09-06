@@ -127,35 +127,36 @@ function Part_Load({ mass }: { mass?: number; }) {
 //---------------------------------------------------------------------------
 // Spring coil
 
-/** Side-view coil: straight diagonals with cubic turnarounds at each side. */
+/** Side-view coil: uniform diagonals and turnarounds, starting and ending on the same side. */
 export function getSpringSvgPath(tension?: number): string {
     const wraps = getSpringWraps(tension);
     const coilTopY = SPRING_TOP_Y + SPRING_STEM_HEIGHT;
     const coilBottomY = SPRING_BOTTOM_Y - SPRING_STEM_HEIGHT;
     const coilHeight = coilBottomY - coilTopY;
-    const halfWraps = wraps * 2;
-    const step = coilHeight / halfWraps;
-    const points: CoilPoint[] = [{ x: SPRING_CENTER_X, y: coilTopY }];
+    const peakCount = wraps * 2 + 1;
+    const step = coilHeight / peakCount;
+    const peaks: CoilPoint[] = [];
 
-    for (let index = 0; index < halfWraps; index += 1) {
-        points.push({
+    for (let index = 0; index < peakCount; index += 1) {
+        peaks.push({
             x: SPRING_CENTER_X + (index % 2 === 0 ? SPRING_RADIUS : -SPRING_RADIUS),
             y: coilTopY + (index + 0.5) * step,
         });
     }
 
-    points.push({ x: SPRING_CENTER_X, y: coilBottomY });
+    const virtualPrev = { x: SPRING_CENTER_X - SPRING_RADIUS, y: coilTopY - 0.5 * step };
+    const virtualNext = { x: SPRING_CENTER_X - SPRING_RADIUS, y: coilBottomY + 0.5 * step };
+    const inset = getCornerInset(virtualPrev, peaks[0], peaks[1]);
 
     const commands = [
         `M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`,
         `L ${SPRING_CENTER_X} ${coilTopY}`,
     ];
 
-    for (let index = 1; index < points.length - 1; index += 1) {
-        const previous = points[index - 1];
-        const peak = points[index];
-        const next = points[index + 1];
-        const inset = getCornerInset(previous, peak, next);
+    for (let index = 0; index < peakCount; index += 1) {
+        const previous = index === 0 ? virtualPrev : peaks[index - 1];
+        const peak = peaks[index];
+        const next = index === peakCount - 1 ? virtualNext : peaks[index + 1];
         const start = pointToward(peak, previous, inset);
         const end = pointToward(peak, next, inset);
         const c1 = pointToward(start, peak, inset * 0.55);
