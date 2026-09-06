@@ -127,25 +127,78 @@ function Part_Load({ mass }: { mass?: number; }) {
 //---------------------------------------------------------------------------
 // Spring coil
 
+/** Side-view coil: uniform diagonals and turnarounds, starting and ending on the same side. */
 export function getSpringSvgPath(tension?: number): string {
     const wraps = getSpringWraps(tension);
     const coilTopY = SPRING_TOP_Y + SPRING_STEM_HEIGHT;
     const coilBottomY = SPRING_BOTTOM_Y - SPRING_STEM_HEIGHT;
-    const sampleCount = wraps * SAMPLES_PER_WRAP;
+    const coilHeight = coilBottomY - coilTopY;
+    const peakCount = wraps * 2 + 1;
+    const step = coilHeight / peakCount;
+    const peaks: CoilPoint[] = [];
+
+    for (let index = 0; index < peakCount; index += 1) {
+        peaks.push({
+            x: SPRING_CENTER_X + (index % 2 === 0 ? SPRING_RADIUS : -SPRING_RADIUS),
+            y: coilTopY + (index + 0.5) * step,
+        });
+    }
+
+    const virtualPrev = { x: SPRING_CENTER_X - SPRING_RADIUS, y: coilTopY - 0.5 * step };
+    const virtualNext = { x: SPRING_CENTER_X - SPRING_RADIUS, y: coilBottomY + 0.5 * step };
+    const inset = getCornerInset(virtualPrev, peaks[0], peaks[1]);
+
     const commands = [
         `M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`,
         `L ${SPRING_CENTER_X} ${coilTopY}`,
     ];
 
-    for (let index = 1; index <= sampleCount; index += 1) {
-        const progress = index / sampleCount;
-        const x = SPRING_CENTER_X + Math.sin(progress * wraps * Math.PI * 2) * SPRING_RADIUS;
-        const y = coilTopY + progress * (coilBottomY - coilTopY);
-        commands.push(`L ${x.toFixed(2)} ${y.toFixed(2)}`);
+    for (let index = 0; index < peakCount; index += 1) {
+        const previous = index === 0 ? virtualPrev : peaks[index - 1];
+        const peak = peaks[index];
+        const next = index === peakCount - 1 ? virtualNext : peaks[index + 1];
+        const start = pointToward(peak, previous, inset);
+        const end = pointToward(peak, next, inset);
+        const c1 = pointToward(start, peak, inset * 0.55);
+        const c2 = pointToward(end, peak, inset * 0.55);
+
+        commands.push(`L ${formatPoint(start)}`);
+        commands.push(`C ${formatPoint(c1)}, ${formatPoint(c2)}, ${formatPoint(end)}`);
     }
 
+    commands.push(`L ${SPRING_CENTER_X} ${coilBottomY}`);
     commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
     return commands.join(" ");
+}
+
+type CoilPoint = { x: number; y: number };
+
+function formatPoint(point: CoilPoint): string {
+    return `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+}
+
+function distance(from: CoilPoint, to: CoilPoint): number {
+    return Math.hypot(to.x - from.x, to.y - from.y);
+}
+
+function pointToward(from: CoilPoint, to: CoilPoint, travel: number): CoilPoint {
+    const span = distance(from, to);
+    if (span === 0) {
+        return from;
+    }
+
+    const t = travel / span;
+    return {
+        x: from.x + (to.x - from.x) * t,
+        y: from.y + (to.y - from.y) * t,
+    };
+}
+
+function getCornerInset(previous: CoilPoint, peak: CoilPoint, next: CoilPoint): number {
+    const incoming = distance(previous, peak);
+    const outgoing = distance(peak, next);
+
+    return Math.min(COIL_CORNER_RADIUS, incoming * MAX_CORNER_EDGE_FRACTION, outgoing * MAX_CORNER_EDGE_FRACTION);
 }
 
 const SPRING_TOP_Y = 75;
@@ -153,7 +206,8 @@ const SPRING_BOTTOM_Y = 250;
 const SPRING_CENTER_X = 350;
 const SPRING_RADIUS = 35;
 const SPRING_STEM_HEIGHT = 13;
-const SAMPLES_PER_WRAP = 12;
+const COIL_CORNER_RADIUS = 16;
+const MAX_CORNER_EDGE_FRACTION = 0.24;
 
 export function getSpringWraps(tension?: number): number {
     const resolvedTension = tension === undefined || !Number.isFinite(tension) ? DEFAULT_SPRING_TENSION : tension;

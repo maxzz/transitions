@@ -34,6 +34,34 @@ describe("mechanical spring", () => {
         expect(getSpringSvgPath(30)).not.toBe(getSpringSvgPath(400));
     });
 
+    it("joins straight coil spans with curved turnarounds", () => {
+        const path = getSpringSvgPath(170);
+        const wraps = getSpringWraps(170);
+
+        expect(path.match(/C /g)?.length).toBe(wraps * 2 + 1);
+        expect(path.match(/L /g)?.length).toBe(wraps * 2 + 4);
+    });
+
+    it("uses the same turn radius on the first, middle, and last coils", () => {
+        for (const tension of [30, 170, 400]) {
+            const spans = getCoilTurnHandleSpans(getSpringSvgPath(tension));
+
+            expect(spans[0]).toBeCloseTo(spans[1], 2);
+            expect(spans[0]).toBeCloseTo(spans[spans.length - 1], 2);
+        }
+    });
+
+    it("starts and ends the coil on the same side so the stack stays centered", () => {
+        const path = getSpringSvgPath(400);
+        const curves = getCoilCurves(path);
+        const firstControlX = curves[0].c1x;
+        const lastControlX = curves[curves.length - 1].c1x;
+
+        expect(firstControlX).toBeGreaterThan(350);
+        expect(lastControlX).toBeGreaterThan(350);
+        expect(firstControlX).toBeCloseTo(lastControlX, 5);
+    });
+
     it("keeps extreme responses inside the mechanical stage", () => {
         expect(getSpringDisplacement(8.563)).toBe(-150);
         expect(getSpringDisplacement(-8.563)).toBe(145);
@@ -96,3 +124,20 @@ describe("mechanical load size", () => {
         expect(getLoad_MarkerRadius()).toBe(17);
     });
 });
+
+function getCoilCurves(path: string) {
+    return [...path.matchAll(/L ([-\d.]+) ([-\d.]+) C ([-\d.]+) ([-\d.]+), ([-\d.]+) ([-\d.]+), ([-\d.]+) ([-\d.]+)/g)].map((match) => ({
+        startX: Number(match[1]),
+        startY: Number(match[2]),
+        c1x: Number(match[3]),
+        c1y: Number(match[4]),
+        c2x: Number(match[5]),
+        c2y: Number(match[6]),
+        endX: Number(match[7]),
+        endY: Number(match[8]),
+    }));
+}
+
+function getCoilTurnHandleSpans(path: string) {
+    return getCoilCurves(path).map((curve) => Math.hypot(curve.c1x - curve.startX, curve.c1y - curve.startY));
+}
