@@ -1,4 +1,5 @@
 import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { formatScaleProgress, getScaleFactor } from "./2-2-format-helpers";
 
 /**
  * Scale: a square grows from half the frame (progress 0) to the full frame (progress 1).
@@ -19,14 +20,4 @@ export function ScalePreview() {
             <PreviewProgress>{formatScaleProgress(value)}</PreviewProgress>
         </div>
     );
-}
-
-const MIN_SCALE = 0.5;
-
-export function getScaleFactor(value: number): number {
-    return MIN_SCALE + value * (1 - MIN_SCALE);
-}
-
-export function formatScaleProgress(value: number): string {
-    return value.toFixed(2);
 }

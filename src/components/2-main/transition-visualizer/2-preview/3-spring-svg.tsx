@@ -10,9 +10,7 @@ import { usePreviewValue } from "./1-preview-frame";
 export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
     const value = usePreviewValue();
     const togglePauseResume = useSetAtom(togglePauseResumeAtom);
-    const springPath = useMemo(() => getSpringSvgPath(tension), [tension]);
     const displacement = getSpringDisplacement(value);
-    const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
 
     return (
         <svg
@@ -22,13 +20,7 @@ export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clampe
             aria-labelledby="mechanical-spring-title mechanical-spring-description"
             onClick={togglePauseResume}
         >
-            <title id="mechanical-spring-title">
-                Mechanical spring response preview
-            </title>
-            <desc id="mechanical-spring-description">
-                A suspended mass moves toward an equilibrium line while the selected animation engine runs.
-            </desc>
-            <rect width="700" height="650" className="fill-transparent" />
+            <Part_Backdrop />
 
             <Part_Ceiling />
 
@@ -45,18 +37,7 @@ export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clampe
                 target 1.0
             </text>
 
-            {/* Spring coil */}
-            <g transform={`translate(0 ${SPRING_TOP_Y}) scale(1 ${springScale}) translate(0 -${SPRING_TOP_Y})`}>
-                <path
-                    className="stroke-primary"
-                    fill="none"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                    d={springPath}
-                />
-            </g>
+            <Part_Spring tension={tension} displacement={displacement} />
 
             {clamped && (
                 <path className="stroke-destructive" strokeWidth="3" d="M285 250 H415 M300 250 v14 M325 250 v14 M350 250 v14 M375 250 v14 M400 250 v14" />
@@ -71,6 +52,25 @@ export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clampe
                 <text x="600" y="620" textAnchor="end" className="fill-foreground">{value.toFixed(3)}</text>
             </g>
         </svg>
+    );
+}
+
+function Part_Spring({ tension, displacement }: { tension?: number; displacement: number; }) {
+    const springPath = useMemo(() => getSpringSvgPath(tension), [tension]);
+    const springScale = (SPRING_BOTTOM_Y - SPRING_TOP_Y + displacement) / (SPRING_BOTTOM_Y - SPRING_TOP_Y);
+
+    return (
+        <g transform={`translate(0 ${SPRING_TOP_Y}) scale(1 ${springScale}) translate(0 -${SPRING_TOP_Y})`}>
+            <path
+                className="stroke-primary"
+                fill="none"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+                d={springPath}
+            />
+        </g>
     );
 }
 
@@ -98,7 +98,6 @@ function Part_Load({ mass }: { mass?: number; }) {
     const loadHeight = getLoad_Height(mass);
     const loadX = SPRING_CENTER_X - loadWidth / 2;
     const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
-    const markerRadius = getLoad_MarkerRadius(mass);
 
     function onLoadClick(event: MouseEvent<SVGGElement>) {
         event.stopPropagation();
@@ -121,41 +120,12 @@ function Part_Load({ mass }: { mass?: number; }) {
 
             {/* m {mass} */}
             <text x={SPRING_CENTER_X} y={loadCenterY} textAnchor="middle" className="font-serif text-[17px] fill-foreground italic">m</text>
-
-            {/* Marker inside the mass: circle */}
-            {/* <circle
-                className="fill-background/80 stroke-foreground"
-                strokeWidth="2"
-                cx={SPRING_CENTER_X}
-                cy={loadCenterY}
-                r={markerRadius}
-            /> */}
-
-            {/* Marker inside the mass: line */}
-            {/* <path
-                className="stroke-foreground"
-                strokeLinecap="round"
-                strokeWidth="2"
-                d={`M${SPRING_CENTER_X} ${loadCenterY - markerRadius} V${loadCenterY + markerRadius}`}
-            /> */}
         </g>
     );
 }
 
-const SPRING_TOP_Y = 75;
-const SPRING_BOTTOM_Y = 250;
-const SPRING_CENTER_X = 350;
-const SPRING_RADIUS = 35;
-const SPRING_STEM_HEIGHT = 13;
-const MIN_SPRING_TENSION = 30;
-const MAX_SPRING_TENSION = 400;
-const MIN_SPRING_WRAPS = 2;
-const MAX_SPRING_WRAPS = 18;
-const DEFAULT_SPRING_TENSION = 170;
-const SAMPLES_PER_WRAP = 12;
-const SPRING_TRAVEL = 105;
-const MIN_SPRING_DISPLACEMENT = -150;
-const MAX_SPRING_DISPLACEMENT = 145;
+//---------------------------------------------------------------------------
+// Spring coil
 
 export function getSpringSvgPath(tension?: number): string {
     const wraps = getSpringWraps(tension);
@@ -169,8 +139,7 @@ export function getSpringSvgPath(tension?: number): string {
 
     for (let index = 1; index <= sampleCount; index += 1) {
         const progress = index / sampleCount;
-        const x = SPRING_CENTER_X
-            + Math.sin(progress * wraps * Math.PI * 2) * SPRING_RADIUS;
+        const x = SPRING_CENTER_X + Math.sin(progress * wraps * Math.PI * 2) * SPRING_RADIUS;
         const y = coilTopY + progress * (coilBottomY - coilTopY);
         commands.push(`L ${x.toFixed(2)} ${y.toFixed(2)}`);
     }
@@ -178,6 +147,13 @@ export function getSpringSvgPath(tension?: number): string {
     commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
     return commands.join(" ");
 }
+
+const SPRING_TOP_Y = 75;
+const SPRING_BOTTOM_Y = 250;
+const SPRING_CENTER_X = 350;
+const SPRING_RADIUS = 35;
+const SPRING_STEM_HEIGHT = 13;
+const SAMPLES_PER_WRAP = 12;
 
 export function getSpringWraps(tension?: number): number {
     const resolvedTension = tension === undefined || !Number.isFinite(tension) ? DEFAULT_SPRING_TENSION : tension;
@@ -187,32 +163,25 @@ export function getSpringWraps(tension?: number): number {
     return Math.round(MIN_SPRING_WRAPS + normalizedTension * (MAX_SPRING_WRAPS - MIN_SPRING_WRAPS));
 }
 
+const DEFAULT_SPRING_TENSION = 170;
+const MIN_SPRING_TENSION = 30;
+const MAX_SPRING_TENSION = 400;
+const MIN_SPRING_WRAPS = 2;
+const MAX_SPRING_WRAPS = 18;
+
 export function getSpringDisplacement(value: number): number {
     const resolvedValue = Number.isFinite(value) ? value : 0;
     const displacement = SPRING_TRAVEL * (1 - resolvedValue);
 
-    return Math.min(
-        MAX_SPRING_DISPLACEMENT,
-        Math.max(MIN_SPRING_DISPLACEMENT, displacement),
-    );
+    return Math.min(MAX_SPRING_DISPLACEMENT, Math.max(MIN_SPRING_DISPLACEMENT, displacement));
 }
 
-// Load: size
+const SPRING_TRAVEL = 105;
+const MIN_SPRING_DISPLACEMENT = -150;
+const MAX_SPRING_DISPLACEMENT = 145;
 
-// Load: mass and marker
-const MIN_LOAD_WIDTH = 100;
-const MIN_LOAD_HEIGHT = 120;
-const MAX_LOAD_WIDTH = 240;
-const MAX_LOAD_HEIGHT = 250;
-const DEFAULT_LOAD_WIDTH = 120;
-const DEFAULT_LOAD_HEIGHT = 170;
-
-// Load: marker
-const MIN_MARKER_RADIUS = 10;
-const MAX_MARKER_RADIUS = 36;
-const DEFAULT_MARKER_RADIUS = 17;
-const MIN_MASS = 0.1;
-const MAX_MASS = 20;
+//---------------------------------------------------------------------------
+// Load
 
 export function getLoad_Height(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_HEIGHT, MAX_LOAD_HEIGHT, DEFAULT_LOAD_HEIGHT);
@@ -222,9 +191,12 @@ export function getLoad_Width(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_WIDTH, MAX_LOAD_WIDTH, DEFAULT_LOAD_WIDTH);
 }
 
-export function getLoad_MarkerRadius(mass?: number): number {
-    return interpolateLoadSize(mass, MIN_MARKER_RADIUS, MAX_MARKER_RADIUS, DEFAULT_MARKER_RADIUS);
-}
+const MIN_LOAD_WIDTH = 100;
+const MIN_LOAD_HEIGHT = 120;
+const MAX_LOAD_WIDTH = 240;
+const MAX_LOAD_HEIGHT = 250;
+const DEFAULT_LOAD_WIDTH = 120;
+const DEFAULT_LOAD_HEIGHT = 170;
 
 function interpolateLoadSize(mass: number | undefined, min: number, max: number, fallback: number): number {
     if (mass === undefined || !Number.isFinite(mass)) {
@@ -235,4 +207,31 @@ function interpolateLoadSize(mass: number | undefined, min: number, max: number,
     const normalizedMass = (clampedMass - MIN_MASS) / (MAX_MASS - MIN_MASS);
 
     return min + normalizedMass * (max - min);
+}
+
+const MIN_MASS = 0.1;
+const MAX_MASS = 20;
+
+//---------------------------------------------------------------------------
+
+function Part_Backdrop() {
+    // That <rect> is an invisible click target for the whole preview.
+    // ------------------------------------------------------------------------------------------------
+    // The SVG listens for onClick={togglePauseResume} and shows cursor-pointer, but empty SVG space usually 
+    // does not receive pointer events. Only painted shapes (the coil, mass, lines, text) would be clickable.
+
+    // The rect matches the 700×650 viewBox and uses fill-transparent, so it fills the canvas without drawing anything. 
+    // Clicks in the gaps still hit this rect and bubble to the SVG, which pauses or resumes playback. The mass still 
+    // has its own click handler (stopPropagation + play/stop), so those clicks do not go through this backdrop.
+    return (<>
+        <title id="mechanical-spring-title">
+            Mechanical spring response preview
+        </title>
+
+        <desc id="mechanical-spring-description">
+            A suspended mass moves toward an equilibrium line while the selected animation engine runs.
+        </desc>
+        
+        <rect width="700" height="650" className="fill-transparent" />
+    </>);
 }

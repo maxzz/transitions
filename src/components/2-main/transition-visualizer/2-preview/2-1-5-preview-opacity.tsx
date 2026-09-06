@@ -1,4 +1,5 @@
 import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { formatOpacityProgress, getLegendMarkerTopPercent } from "./2-2-format-helpers";
 
 /**
  * Opacity: a solid layer fades in over the frame, from transparent (progress 0) to opaque (progress 1).
@@ -48,12 +49,4 @@ function OpacityLegend({ value }: { value: number; }) {
             </div>
         </div>
     );
-}
-
-export function getLegendMarkerTopPercent(value: number): number {
-    return (1 - value) * 100;
-}
-
-export function formatOpacityProgress(value: number): string {
-    return `${Math.round(value * 100)}%`;
 }

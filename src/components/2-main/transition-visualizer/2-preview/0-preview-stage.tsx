@@ -1,8 +1,8 @@
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { useAtomValue } from "jotai";
+import { classNames } from "@/utils/classnames";
 import { PreviewModelSelector } from "./7-preview-model-selector";
 import { activeDefinitionAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
-import { PreviewCanvas } from "./1-preview-frame";
 import { MechanicalSpringScene } from "./2-1-1-preview-spring";
 import { TranslatePreview } from "./2-1-2-preview-translate";
 import { ScalePreview } from "./2-1-3-preview-scale";
@@ -66,6 +66,27 @@ function RunStatusBadge() {
         </div>
     );
 }
+
+/**
+ * Square stage sized from the nearest @container-size ancestor. Leave room below
+ * the square when a toolbar sits under the model (`--preview-toolbar`).
+ */
+function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
+    return (
+        <div className={classNames(canvasClasses, className)}>
+            {children}
+        </div>
+    );
+}
+
+const canvasClasses = "\
+relative \
+w-[min(100cqw,calc(100cqh-var(--preview-toolbar,0px)))] aspect-square \
+bg-muted/60 \
+border-2 border-border \
+rounded-xl \
+grid place-items-center \
+";
 
 function TransitionScene() {
     const mode = useAtomValue(visualizationModeAtom);

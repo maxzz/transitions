@@ -1,4 +1,5 @@
 import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { formatTranslateProgress, getTranslateOffsetPercent } from "./2-2-format-helpers";
 
 /**
  * Vertical translation: a pill travels the full height of the frame.
@@ -21,15 +22,4 @@ export function TranslatePreview() {
             <PreviewProgress>{formatTranslateProgress(value)}</PreviewProgress>
         </div>
     );
-}
-
-// The pill is 60% of the frame height, so one frame height equals 100 / 0.6 of the pill's own height.
-const PILL_HEIGHT_RATIO = 0.6;
-
-export function getTranslateOffsetPercent(value: number): number {
-    return -(value * 100) / PILL_HEIGHT_RATIO;
-}
-
-export function formatTranslateProgress(value: number): string {
-    return value.toFixed(2);
 }

@@ -12,27 +12,6 @@ export function usePreviewValue(): number {
 }
 
 /**
- * Square stage sized from the nearest @container-size ancestor. Leave room below
- * the square when a toolbar sits under the model (`--preview-toolbar`).
- */
-export function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
-    return (
-        <div className={cn(canvasClasses, className)}>
-            {children}
-        </div>
-    );
-}
-
-const canvasClasses = "\
-relative \
-w-[min(100cqw,calc(100cqh-var(--preview-toolbar,0px)))] aspect-square \
-bg-muted/60 \
-border-2 border-border \
-rounded-xl \
-grid place-items-center \
-";
-
-/**
  * Outline that marks the animation boundaries of a scene.
  * It is stacked above the animated content so the boundary stays readable where the content overflows it.
  */

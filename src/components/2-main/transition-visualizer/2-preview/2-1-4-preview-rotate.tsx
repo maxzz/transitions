@@ -1,4 +1,5 @@
 import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { formatRotateProgress, getRotationDegrees } from "./2-2-format-helpers";
 
 /**
  * Rotation: a wide card turns a quarter turn counter-clockwise, from landscape (progress 0)
@@ -18,14 +19,4 @@ export function RotatePreview() {
             <PreviewProgress>{formatRotateProgress(value)}</PreviewProgress>
         </div>
     );
-}
-
-const FULL_ROTATION_DEGREES = 90;
-
-export function getRotationDegrees(value: number): number {
-    return -value * FULL_ROTATION_DEGREES;
-}
-
-export function formatRotateProgress(value: number): string {
-    return `${Math.round(value * FULL_ROTATION_DEGREES)}°`;
 }
