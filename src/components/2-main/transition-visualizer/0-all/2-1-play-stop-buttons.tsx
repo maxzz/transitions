@@ -1,8 +1,9 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { Button } from "@/ui/shadcn/button";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, SquareStop } from "lucide-react";
 import { requestRunAtom, runStatusAtom, stopRunAtom } from "../state/atoms";
 import { classNames } from "@/utils/classnames";
+import { IconPlayStop } from "@/ui/icons";
 
 export function PlayStopButton({ className }: { className?: string }) {
     const status = useAtomValue(runStatusAtom);
@@ -26,17 +27,16 @@ export function PlayMotionButton({ className }: { className?: string }) {
 export function StopMotionButton({ className }: { className?: string }) {
     const status = useAtomValue(runStatusAtom);
     const stopRun = useSetAtom(stopRunAtom);
-
+    const running = status === "running";
     return (
         <Button
-            className={className}
+            className={classNames(className, running ? "hover:bg-destructive/10" : "opacity-50")}
             size="icon-sm"
             variant="outline"
-            disabled={status !== "running"}
-            onClick={stopRun}
-            title="Stop motion"
+            onClick={() => running && stopRun()}
+            title="Stop motion (if running)"
         >
-            <Pause className={classNames("size-4", status !== "running" ? "opacity-50" : "fill-foreground")} />
+            <IconPlayStop className={classNames("size-4", running ?  "stroke-destructive! fill-destructive/60!" : "opacity-50")} />
         </Button>
     );
 }
