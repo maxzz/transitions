@@ -7,7 +7,7 @@ import { usePreviewValue } from "./1-preview-frame";
  * Mechanical spring: a mass hangs from a coil and settles on the target line.
  * The coil stiffness (wraps) follows the tension and the load size follows the mass.
  */
-export function MechanicalSpring({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
+export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clamped?: boolean; mass?: number; tension?: number; }) {
     const value = usePreviewValue();
     const togglePauseResume = useSetAtom(togglePauseResumeAtom);
     const springPath = useMemo(() => getSpringSvgPath(tension), [tension]);

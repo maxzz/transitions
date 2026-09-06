@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formatTranslateProgress, getTranslateOffsetPercent } from "./2-1-1-translate-preview";
-import { formatScaleProgress, getScaleFactor } from "./2-1-2--scale-preview";
-import { formatRotateProgress, getRotationDegrees } from "./2-1-3-rotate-preview";
-import { formatOpacityProgress, getLegendMarkerTopPercent } from "./2-1-4-opacity-preview";
+import { formatTranslateProgress, getTranslateOffsetPercent } from "./2-1-2-preview-translate";
+import { formatScaleProgress, getScaleFactor } from "./2-1-3-preview-scale";
+import { formatRotateProgress, getRotationDegrees } from "./2-1-4-preview-rotate";
+import { formatOpacityProgress, getLegendMarkerTopPercent } from "./2-1-5-preview-opacity";
 import { ensurePreviewPlayingSpeed, getPreviewValue, previewMotion, resetPreviewValue, seekPlayback, setPreviewSpeed, setPreviewValue, togglePreviewPause } from "../state/preview-motion";
 
 describe("translate preview", () => {

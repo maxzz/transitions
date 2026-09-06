@@ -1,13 +1,13 @@
 import { useRef } from "react";
 import { useAtomValue } from "jotai";
-import { VisualizationModeControl } from "./7-visualization-mode-control";
-import { activeDefinitionAtom, activeEngineAtom, paramsByEngineAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
+import { PreviewModelSelector } from "./7-preview-model-selector";
+import { activeDefinitionAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
 import { PreviewCanvas } from "./1-preview-frame";
-import { MechanicalSpring } from "./2-0-mechanical-spring-svg";
-import { TranslatePreview } from "./2-1-1-translate-preview";
-import { ScalePreview } from "./2-1-2--scale-preview";
-import { RotatePreview } from "./2-1-3-rotate-preview";
-import { OpacityPreview } from "./2-1-4-opacity-preview";
+import { MechanicalSpringScene } from "./2-1-1-preview-spring";
+import { TranslatePreview } from "./2-1-2-preview-translate";
+import { ScalePreview } from "./2-1-3-preview-scale";
+import { RotatePreview } from "./2-1-4-preview-rotate";
+import { OpacityPreview } from "./2-1-5-preview-opacity";
 import { useEngineRun } from "./8-use-engine-run";
 
 export function PreviewStage() {
@@ -16,15 +16,18 @@ export function PreviewStage() {
     useEngineRun();
 
     return (
-        <div ref={scopeRef} className="h-full min-h-0 bg-muted/20 flex flex-col">
+        <div ref={scopeRef} className="@container h-full min-h-0 bg-muted/20 flex flex-col">
             <PreviewHeader />
 
-            <div className="flex-1 p-3 min-h-0 sm:p-6 [--preview-toolbar:2.75rem] @container-size overflow-hidden grid place-items-center">
+            <div className="flex-1 p-3 min-h-0 sm:p-6 [--stage-toolbar-scale:min(1,100cqi/240px)] [--preview-toolbar:calc(2.75rem*var(--stage-toolbar-scale))] @container-size overflow-hidden grid place-items-center">
                 <div className="flex flex-col items-center gap-2">
                     <PreviewCanvas>
                         <TransitionScene />
                     </PreviewCanvas>
-                    <VisualizationModeControl />
+
+                    <div className="zoom-(--stage-toolbar-scale,1)">
+                        <PreviewModelSelector />
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,9 +44,14 @@ function PreviewHeader() {
     return (
         <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-4">
             <div>
-                <h2 className="text-sm font-semibold">{title}</h2>
-                <p className="mt-1 text-xs text-muted-foreground">{definition.subtitle}</p>
+                <h2 className="text-sm font-semibold">
+                    {title}
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                    {definition.subtitle}
+                </p>
             </div>
+
             <RunStatusBadge />
         </div>
     );
@@ -69,16 +77,5 @@ function TransitionScene() {
         case "rotate": return <RotatePreview />;
         case "opacity": return <OpacityPreview />;
     }
-}
-
-function MechanicalSpringScene() {
-    const engineId = useAtomValue(activeEngineAtom);
-    const params = useAtomValue(paramsByEngineAtom);
-    const clamped = engineId === "spring" && params.spring.clamp;
-    const activeParams = params[engineId];
-    const mass = "mass" in activeParams ? activeParams.mass : undefined;
-    const tension = "tension" in activeParams ? activeParams.tension : "stiffness" in activeParams ? activeParams.stiffness : undefined;
-
-    return <MechanicalSpring clamped={clamped} mass={mass} tension={tension} />;
 }
 

@@ -7,6 +7,8 @@
 @import "@fontsource-variable/yanone-kaffeesatz"; /* https://fontsource.org/fonts/yanone-kaffeesatz/install */
 @import "@fontsource-variable/roboto-condensed"; /* https://fontsource.org/fonts/roboto-condensed/install */
 
+@import "./stage-toolbar-scale.css";
+
 @plugin "tailwindcss-plugin-debug-screens-tw4";
 
 /* Custom fonts */
