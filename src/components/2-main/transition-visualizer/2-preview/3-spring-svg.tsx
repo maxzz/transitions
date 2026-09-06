@@ -127,21 +127,26 @@ function Part_Load({ mass }: { mass?: number; }) {
 //---------------------------------------------------------------------------
 // Spring coil
 
+/** Side-view coil: alternating cubic Bézier C-shapes, not a sampled polyline. */
 export function getSpringSvgPath(tension?: number): string {
     const wraps = getSpringWraps(tension);
     const coilTopY = SPRING_TOP_Y + SPRING_STEM_HEIGHT;
-    const coilBottomY = SPRING_BOTTOM_Y - SPRING_STEM_HEIGHT;
-    const sampleCount = wraps * SAMPLES_PER_WRAP;
+    const coilHeight = SPRING_BOTTOM_Y - SPRING_STEM_HEIGHT - coilTopY;
+    const halfWraps = wraps * 2;
+    const step = coilHeight / halfWraps;
     const commands = [
         `M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`,
         `L ${SPRING_CENTER_X} ${coilTopY}`,
     ];
 
-    for (let index = 1; index <= sampleCount; index += 1) {
-        const progress = index / sampleCount;
-        const x = SPRING_CENTER_X + Math.sin(progress * wraps * Math.PI * 2) * SPRING_RADIUS;
-        const y = coilTopY + progress * (coilBottomY - coilTopY);
-        commands.push(`L ${x.toFixed(2)} ${y.toFixed(2)}`);
+    for (let index = 0; index < halfWraps; index += 1) {
+        const sideX = SPRING_CENTER_X + (index % 2 === 0 ? SPRING_RADIUS : -SPRING_RADIUS);
+        const y0 = coilTopY + index * step;
+        const y1 = y0 + step;
+        const c1y = y0 + step * COIL_CONTROL_PULL;
+        const c2y = y1 - step * COIL_CONTROL_PULL;
+
+        commands.push(`C ${sideX.toFixed(2)} ${c1y.toFixed(2)}, ${sideX.toFixed(2)} ${c2y.toFixed(2)}, ${SPRING_CENTER_X.toFixed(2)} ${y1.toFixed(2)}`);
     }
 
     commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
@@ -153,7 +158,7 @@ const SPRING_BOTTOM_Y = 250;
 const SPRING_CENTER_X = 350;
 const SPRING_RADIUS = 35;
 const SPRING_STEM_HEIGHT = 13;
-const SAMPLES_PER_WRAP = 12;
+const COIL_CONTROL_PULL = 0.22;
 
 export function getSpringWraps(tension?: number): number {
     const resolvedTension = tension === undefined || !Number.isFinite(tension) ? DEFAULT_SPRING_TENSION : tension;

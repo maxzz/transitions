@@ -34,6 +34,13 @@ describe("mechanical spring", () => {
         expect(getSpringSvgPath(30)).not.toBe(getSpringSvgPath(400));
     });
 
+    it("draws the coil with cubic Bézier curves instead of a polyline", () => {
+        const path = getSpringSvgPath(170);
+
+        expect(path.match(/C /g)?.length).toBe(getSpringWraps(170) * 2);
+        expect(path.match(/L /g)?.length).toBe(2);
+    });
+
     it("keeps extreme responses inside the mechanical stage", () => {
         expect(getSpringDisplacement(8.563)).toBe(-150);
         expect(getSpringDisplacement(-8.563)).toBe(145);
