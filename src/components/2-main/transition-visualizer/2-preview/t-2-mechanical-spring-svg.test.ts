@@ -11,13 +11,12 @@ vi.mock("@/store/1-ui-settings", () => ({
 
 import {
     getLoad_Height,
-    getLoad_MarkerRadius,
     getLoad_Width,
     getSpringDisplacement,
     getSpringSvgLayers,
     getSpringSvgPath,
     getSpringWraps,
-} from "./3-spring-svg";
+} from "./3-1-spring-svg-math";
 
 describe("mechanical spring", () => {
     it("tightens from two broad wraps to eighteen dense wraps", () => {
@@ -115,19 +114,12 @@ describe("mechanical load size", () => {
         expect(getLoad_Height()).toBeGreaterThan(getLoad_Width());
     });
 
-    it("scales the inner marker linearly with mass", () => {
-        expect(getLoad_MarkerRadius(0.1)).toBe(10);
-        expect(getLoad_MarkerRadius(10.05)).toBeCloseTo(23);
-        expect(getLoad_MarkerRadius(20)).toBe(36);
-    });
-
     it("increases monotonically with spring mass", () => {
         expect(getLoad_Height(0.1)).toBeLessThan(getLoad_Height(1));
         expect(getLoad_Height(1)).toBeLessThan(getLoad_Height(5));
         expect(getLoad_Height(5)).toBeLessThan(getLoad_Height(20));
         expect(getLoad_Width(0.1)).toBeLessThan(getLoad_Width(1));
         expect(getLoad_Width(20)).toBeGreaterThan(getLoad_Width(5));
-        expect(getLoad_MarkerRadius(0.1)).toBeLessThan(getLoad_MarkerRadius(20));
     });
 
     it("clamps mass to the supported visual range", () => {
@@ -135,14 +127,11 @@ describe("mechanical load size", () => {
         expect(getLoad_Height(100)).toBe(getLoad_Height(20));
         expect(getLoad_Width(0)).toBe(getLoad_Width(0.1));
         expect(getLoad_Width(100)).toBe(getLoad_Width(20));
-        expect(getLoad_MarkerRadius(0)).toBe(getLoad_MarkerRadius(0.1));
-        expect(getLoad_MarkerRadius(100)).toBe(getLoad_MarkerRadius(20));
     });
 
     it("uses the original load size when mass is unavailable", () => {
         expect(getLoad_Height()).toBe(190);
         expect(getLoad_Width()).toBe(100);
-        expect(getLoad_MarkerRadius()).toBe(17);
     });
 });
 
