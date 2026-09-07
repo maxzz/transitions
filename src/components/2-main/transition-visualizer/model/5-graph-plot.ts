@@ -216,6 +216,13 @@ export function mapPlotPoint(plot: Pick<GraphPlot, "left" | "right" | "top" | "b
     };
 }
 
+/** Playback time for a pixel x on an already-built plot, clamped to the time axis. */
+export function mapPlotTime(plot: Pick<GraphPlot, "left" | "right" | "timeMax">, x: number): number {
+    const spanX = plot.right - plot.left;
+    if (!(spanX > 0) || !(plot.timeMax > 0)) return 0;
+    return clamp01((x - plot.left) / spanX) * plot.timeMax;
+}
+
 function clamp01(value: number): number {
     if (value <= 0) return 0;
     if (value >= 1) return 1;

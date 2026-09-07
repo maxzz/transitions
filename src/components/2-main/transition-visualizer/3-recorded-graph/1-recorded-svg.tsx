@@ -1,14 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, type PointerEvent } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
 import { interpolateSampleValue } from "../model/3-samples";
-import { buildGraphPlot, getGraphSize, mapPlotPoint, type GraphPlot } from "../model/5-graph-plot";
+import { buildGraphPlot, getGraphSize, mapPlotPoint, mapPlotTime, type GraphPlot } from "../model/5-graph-plot";
 import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
-import { previewMotion } from "../state/preview-motion";
-import { graphDataAtom, isRecordingAtom } from "./a-graph-atoms";
+import { previewMotion, seekPlayback } from "../state/preview-motion";
+import { graphDataAtom } from "./a-graph-atoms";
 
 const CURVE_STROKE = 2.5;
 const POINT_STROKE = 1.5;
@@ -35,10 +35,10 @@ export function RecordedSvg() {
     );
 
     return (
-        <div ref={ref} className="flex-1 mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-hidden flex items-center justify-center">
+        <div ref={ref} className="flex-1 mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-visible flex items-center justify-center">
             {plot && (
                 <svg
-                    className="shrink-0 block"
+                    className="shrink-0 block overflow-visible"
                     width={plot.width}
                     height={plot.height}
                     viewBox={`0 0 ${plot.width} ${plot.height}`}
@@ -97,40 +97,100 @@ export function RecordedSvg() {
 }
 
 /**
- * Vertical playhead plus the intersection marker. Shown while playing a precomputed
- * curve, or after the timeline has been moved away from the start.
+ * Vertical playhead plus the intersection marker. Always shown on a recorded curve,
+ * including at time zero, and can be dragged horizontally like the timeline slider.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
-    const playing = useAtomValue(isRecordingAtom);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
-    if (!samples.length || (!playing && elapsedMs <= 0)) return null;
+    if (!samples.length) return null;
 
     const last = samples.at(-1);
     const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;
     const playheadValue = onCurve ? interpolateSampleValue(samples, elapsedMs) ?? value : value;
-    const { x, y } = mapPlotPoint(plot, elapsedMs, playheadValue);
+    const { x, y } = mapPlotPoint(playheadPlot(plot), elapsedMs, playheadValue);
 
     return (
-        <g clipPath="url(#response-plot-clip)" aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
-            <line
-                className="stroke-primary"
-                x1={x}
-                x2={x}
-                y1={plot.top}
-                y2={plot.bottom}
-                strokeWidth={PLAYHEAD_STROKE}
-            />
-            <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
-            <circle
-                className="fill-primary stroke-background"
-                cx={x}
-                cy={y}
-                r={PLAYHEAD_DOT_RADIUS}
-                strokeWidth={POINT_STROKE}
-            />
-        </g>
+        <>
+            <g aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
+                <line
+                    className="stroke-primary"
+                    x1={x}
+                    x2={x}
+                    y1={plot.top}
+                    y2={plot.bottom}
+                    strokeWidth={PLAYHEAD_STROKE}
+                />
+                <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
+                <circle
+                    className="fill-primary stroke-background"
+                    cx={x}
+                    cy={y}
+                    r={PLAYHEAD_DOT_RADIUS}
+                    strokeWidth={POINT_STROKE}
+                />
+            </g>
+            <PlotScrubTrack plot={plot} samples={samples} />
+        </>
     );
+}
+
+function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
+    const seekToPointer = (event: PointerEvent<SVGRectElement>) => {
+        const x = clientXToSvgX(event);
+        if (x === null) return;
+        seekPlayback(samples, mapPlotTime(playheadPlot(plot), x));
+    };
+
+    return (
+        <rect
+            className="touch-none cursor-ew-resize"
+            x={plot.left - PLAYHEAD_HALO_RADIUS}
+            y={plot.top}
+            width={plot.right - plot.left + PLAYHEAD_HALO_RADIUS * 2}
+            height={plot.bottom - plot.top}
+            fill="transparent"
+            aria-hidden="true"
+            data-graph-scrub="true"
+            onPointerDown={
+                (event) => {
+                    seekToPointer(event);
+                    try {
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                    } catch {
+                        // Synthetic or already-released pointers still seek on down.
+                    }
+                }
+            }
+            onPointerMove={
+                (event) => {
+                    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+                    seekToPointer(event);
+                }
+            }
+        />
+    );
+}
+
+/** Keep the playhead disk fully inside the plot, including at time zero and the last sample. */
+function playheadPlot(plot: GraphPlot): Pick<GraphPlot, "left" | "right" | "top" | "bottom" | "timeMax" | "valueMin" | "valueMax"> {
+    const inset = PLAYHEAD_HALO_RADIUS + PLAYHEAD_STROKE;
+    return {
+        left: plot.left + inset,
+        right: plot.right - inset,
+        top: plot.top,
+        bottom: plot.bottom,
+        timeMax: plot.timeMax,
+        valueMin: plot.valueMin,
+        valueMax: plot.valueMax,
+    };
+}
+
+function clientXToSvgX(event: PointerEvent<SVGGraphicsElement>): number | null {
+    const svg = event.currentTarget.ownerSVGElement;
+    const ctm = svg?.getScreenCTM();
+    if (!svg || !ctm) return null;
+    return new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse()).x;
 }
 
 function GridAndAxes({ plot }: { plot: GraphPlot; }) {
