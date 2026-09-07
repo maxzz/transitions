@@ -14,6 +14,7 @@ import {
     getLoad_MarkerRadius,
     getLoad_Width,
     getSpringDisplacement,
+    getSpringSvgLayers,
     getSpringSvgPath,
     getSpringWraps,
 } from "./3-spring-svg";
@@ -59,6 +60,16 @@ describe("mechanical spring", () => {
         expect(twoWraps).toBeGreaterThan(tenWraps * 1.5);
         expect(tenWraps).toBeGreaterThan(eighteenWraps);
         expect(twoWraps / eighteenWraps).toBeCloseTo(18 / 2, 0);
+    });
+
+    it("shades far coil spans separately from near spans", () => {
+        const layers = getSpringSvgLayers(30);
+
+        expect(layers.far).toContain("C ");
+        expect(layers.near).toContain("C ");
+        expect(layers.far).not.toBe(layers.near);
+        expect(layers.far.match(/C /g)?.length).toBe(5);
+        expect(layers.near.match(/C /g)?.length).toBe(5);
     });
 
     it("starts and ends the coil on the same side so the stack stays centered", () => {
