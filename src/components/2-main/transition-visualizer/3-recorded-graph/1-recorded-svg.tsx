@@ -103,7 +103,7 @@ export function RecordedSvg() {
  * it stays complete at time zero and at settle, without shifting the time axis.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
-    const { graphPlayheadScrub } = useSnapshot(appSettings);
+    const { graphClickToDrag } = useSnapshot(appSettings);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
     if (!samples.length) return null;
@@ -133,7 +133,7 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
                     strokeWidth={POINT_STROKE}
                 />
             </g>
-            {graphPlayheadScrub === "grab"
+            {graphClickToDrag
                 ? <PlayheadGrabHandle plot={plot} samples={samples} x={x} y={y} />
                 : <PlotScrubTrack plot={plot} samples={samples} />
             }

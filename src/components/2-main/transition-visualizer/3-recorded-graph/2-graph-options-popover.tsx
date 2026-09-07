@@ -2,13 +2,12 @@ import { type ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { classNames } from "@/utils/classnames";
-import { appSettings, type GraphPlayheadScrub } from "@/store/1-ui-settings";
+import { appSettings } from "@/store/1-ui-settings";
 import { EllipsisVertical } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/ui/shadcn/popover";
-import { RadioGroup, RadioGroupItem } from "@/ui/shadcn/radio-group";
 
 import { formatDuration } from "../model/2-duration";
 import { activeEngineAtom, runResultAtom } from "../state/atoms";
@@ -24,11 +23,11 @@ export function GraphOptionsPopover() {
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent align="end" className="w-52">
+            <PopoverContent align="end" className="w-48">
                 <section className="flex flex-col gap-2.5">
                     <SectionHeader>Graph settings</SectionHeader>
                     <ShowPointsControl />
-                    <PlayheadScrubControl />
+                    <ClickToDragControl />
                     <GraphStats />
                 </section>
             </PopoverContent>
@@ -109,35 +108,16 @@ function ShowPointsControl() {
     );
 }
 
-function PlayheadScrubControl() {
-    const { graphPlayheadScrub } = useSnapshot(appSettings);
+function ClickToDragControl() {
+    const { graphClickToDrag } = useSnapshot(appSettings);
 
     return (
-        <div className="flex flex-col gap-1">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-                Marker
-            </span>
-            <RadioGroup
-                className="gap-1"
-                value={graphPlayheadScrub}
-                aria-label="Marker dragging"
-                onValueChange={(value) => {
-                    if (isGraphPlayheadScrub(value)) appSettings.graphPlayheadScrub = value;
-                }}
-            >
-                <Label className="h-6 w-full flex items-center gap-2" title="Move the marker as the pointer travels over the graph">
-                    <RadioGroupItem value="hover" />
-                    <div>Follow pointer</div>
-                </Label>
-                <Label className="h-6 w-full flex items-center gap-2" title="Move the marker left or right only after grabbing its circle">
-                    <RadioGroupItem value="grab" />
-                    <div>Drag circle</div>
-                </Label>
-            </RadioGroup>
-        </div>
+        <Label className="h-6 w-full flex items-center gap-2" title="Move the marker left or right only after grabbing its circle">
+            <Checkbox
+                checked={graphClickToDrag}
+                onCheckedChange={(checked) => { appSettings.graphClickToDrag = checked === true; }}
+            />
+            <div>Click to drag</div>
+        </Label>
     );
-}
-
-function isGraphPlayheadScrub(value: unknown): value is GraphPlayheadScrub {
-    return value === "hover" || value === "grab";
 }
