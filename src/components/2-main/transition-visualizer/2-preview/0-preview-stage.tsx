@@ -9,7 +9,7 @@ import { ScalePreview } from "./2-1-3-preview-scale";
 import { RotatePreview } from "./2-1-4-preview-rotate";
 import { OpacityPreview } from "./2-1-5-preview-opacity";
 import { useEngineRun } from "./8-use-engine-run";
-import { PreviewInfoOverlay } from "./9-preview-info-overlay";
+import { IconModelInfoTooltip } from "./4-info-tooltip";
 
 export function PreviewStage() {
     const scopeRef = useRef<HTMLDivElement>(null);
@@ -29,7 +29,8 @@ export function PreviewStage() {
                     </div>
                 </div>
             </div>
-            <PreviewInfoOverlay />
+
+            <IconModelInfoTooltip />
         </div>
     );
 }

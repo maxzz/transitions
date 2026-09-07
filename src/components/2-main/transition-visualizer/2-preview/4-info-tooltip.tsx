@@ -1,9 +1,9 @@
 import { useAtomValue } from "jotai";
-import { PanelInfoTooltip } from "../0-all/3-panel-info-tooltip";
+import { PanelInfoTooltip } from "../../../../ui/local-ui/7-info-tooltip";
 import { type VisualizationMode } from "../model/9-types";
 import { activeDefinitionAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
 
-export function PreviewInfoOverlay() {
+export function IconModelInfoTooltip() {
     const definition = useAtomValue(activeDefinitionAtom);
     const visualizationMode = useAtomValue(visualizationModeAtom);
     const status = useAtomValue(runStatusAtom);
@@ -14,6 +14,7 @@ export function PreviewInfoOverlay() {
             <h2 className="sr-only">
                 {title}
             </h2>
+            
             <PanelInfoTooltip label={`${title} details`}>
                 <span className="font-semibold">{title}</span>
                 <span className="text-background/80">{definition.subtitle}</span>
