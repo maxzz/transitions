@@ -20,6 +20,9 @@ const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
 
 export type VisualizerDisplay = "mechanical" | "split" | "graph";
 
+/** How the recorded-graph playhead is moved with the pointer. */
+export type GraphPlayheadScrub = "hover" | "grab";
+
 export interface AppSettings {
     theme: ThemeMode;
     showFooter: boolean;
@@ -29,6 +32,7 @@ export interface AppSettings {
     autoRecordResponse: boolean;
     returnToInitialPosition: boolean;
     showGraphPoints: boolean;
+    graphPlayheadScrub: GraphPlayheadScrub;
     reactSpringParams: ReactSpringParams;
     motionParams: MotionParams;
     gsapParams: GsapParams;
@@ -43,6 +47,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     autoRecordResponse: true,
     returnToInitialPosition: false,
     showGraphPoints: true,
+    graphPlayheadScrub: "grab",
     reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
@@ -63,6 +68,7 @@ function loadSettings(): AppSettings {
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
                 returnToInitialPosition: getValidBoolean(parsed.returnToInitialPosition, DEFAULT_SETTINGS.returnToInitialPosition),
                 showGraphPoints: getValidBoolean(parsed.showGraphPoints, DEFAULT_SETTINGS.showGraphPoints),
+                graphPlayheadScrub: getValidGraphPlayheadScrub(parsed.graphPlayheadScrub),
                 reactSpringParams: getValidEngineParams(engineDefinitions.spring, parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
@@ -81,6 +87,10 @@ function loadSettings(): AppSettings {
 
 function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
     return value === "mechanical" || value === "graph" || value === "split" ? value : DEFAULT_SETTINGS.visualizerDisplay;
+}
+
+function getValidGraphPlayheadScrub(value: unknown): GraphPlayheadScrub {
+    return value === "hover" || value === "grab" ? value : DEFAULT_SETTINGS.graphPlayheadScrub;
 }
 
 function getValidBoolean(value: unknown, fallback: boolean): boolean {

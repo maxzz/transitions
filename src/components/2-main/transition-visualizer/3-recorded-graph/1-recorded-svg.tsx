@@ -1,10 +1,10 @@
-import { useMemo, type PointerEvent } from "react";
+import { useMemo, useRef, type PointerEvent } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
 import { interpolateSampleValue } from "../model/3-samples";
-import { buildGraphPlot, getGraphSize, mapPlotPoint, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot";
+import { buildGraphPlot, getGraphSize, mapPlotPoint, mapPlotTime, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot";
 import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
 import { previewMotion, seekPlayback } from "../state/preview-motion";
@@ -15,6 +15,7 @@ const POINT_STROKE = 1.5;
 const PLAYHEAD_STROKE = 1.5;
 const PLAYHEAD_DOT_RADIUS = 5;
 const PLAYHEAD_HALO_RADIUS = 9;
+const PLAYHEAD_GRAB_RADIUS = 14;
 const TICK_LENGTH = 5;
 const TICK_LABEL_GAP = 9;
 
@@ -102,6 +103,7 @@ export function RecordedSvg() {
  * it stays complete at time zero and at settle, without shifting the time axis.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
+    const { graphPlayheadScrub } = useSnapshot(appSettings);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
     if (!samples.length) return null;
@@ -131,7 +133,10 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
                     strokeWidth={POINT_STROKE}
                 />
             </g>
-            <PlotScrubTrack plot={plot} samples={samples} />
+            {graphPlayheadScrub === "grab"
+                ? <PlayheadGrabHandle plot={plot} samples={samples} x={x} y={y} />
+                : <PlotScrubTrack plot={plot} samples={samples} />
+            }
         </>
     );
 }
@@ -152,7 +157,7 @@ function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly 
             height={plot.bottom - plot.top}
             fill="transparent"
             aria-hidden="true"
-            data-graph-scrub="true"
+            data-graph-scrub="hover"
             onPointerDown={
                 (event) => {
                     seekToPointer(event);
@@ -168,6 +173,50 @@ function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly 
                     seekToPointer(event);
                 }
             }
+        />
+    );
+}
+
+function PlayheadGrabHandle({ plot, samples, x, y }: { plot: GraphPlot; samples: readonly SamplePoint[]; x: number; y: number; }) {
+    const draggingRef = useRef(false);
+
+    const seekAlongTime = (event: PointerEvent<SVGCircleElement>) => {
+        const point = clientToSvgPoint(event);
+        if (!point) return;
+        seekPlayback(samples, mapPlotTime(plot, point.x));
+    };
+
+    const endDrag = () => {
+        draggingRef.current = false;
+    };
+
+    return (
+        <circle
+            className="touch-none cursor-grab active:cursor-grabbing"
+            cx={x}
+            cy={y}
+            r={PLAYHEAD_GRAB_RADIUS}
+            fill="transparent"
+            aria-hidden="true"
+            data-graph-scrub="grab"
+            onPointerDown={
+                (event) => {
+                    draggingRef.current = true;
+                    try {
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                    } catch {
+                        // Capture is optional; the drag flag still tracks this press.
+                    }
+                }
+            }
+            onPointerMove={
+                (event) => {
+                    if (!draggingRef.current) return;
+                    seekAlongTime(event);
+                }
+            }
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
         />
     );
 }
