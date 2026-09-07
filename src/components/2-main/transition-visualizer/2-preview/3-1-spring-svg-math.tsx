@@ -185,6 +185,15 @@ const MAX_SPRING_DISPLACEMENT = 145;
 //---------------------------------------------------------------------------
 // Load
 
+export function getLoadGeometry(mass?: number) {
+    const loadWidth = getLoad_Width(mass);
+    const loadHeight = getLoad_Height(mass);
+    const loadX = SPRING_CENTER_X - loadWidth / 2;
+    const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
+
+    return { loadWidth, loadHeight, loadX, loadCenterY };
+}
+
 export function getLoad_Height(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_HEIGHT, MAX_LOAD_HEIGHT, DEFAULT_LOAD_HEIGHT);
 }

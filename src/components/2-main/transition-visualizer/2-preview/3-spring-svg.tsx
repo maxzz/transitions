@@ -3,8 +3,7 @@ import { useSetAtom } from "jotai";
 import { togglePauseResumeAtom, togglePlayStopAtom } from "../state/atoms";
 import { usePreviewValue } from "./1-preview-frame";
 import {
-    getLoad_Height,
-    getLoad_Width,
+    getLoadGeometry,
     getSpringDisplacement,
     getSpringSvgLayers,
     SPRING_BOTTOM_Y,
@@ -110,10 +109,7 @@ function Part_Ceiling() {
 
 function Part_Load({ mass }: { mass?: number; }) {
     const togglePlayStop = useSetAtom(togglePlayStopAtom);
-    const loadWidth = getLoad_Width(mass);
-    const loadHeight = getLoad_Height(mass);
-    const loadX = SPRING_CENTER_X - loadWidth / 2;
-    const loadCenterY = SPRING_BOTTOM_Y + loadHeight / 2;
+    const { loadWidth, loadHeight, loadX, loadCenterY } = getLoadGeometry(mass);
 
     function onLoadClick(event: MouseEvent<SVGGElement>) {
         event.stopPropagation();
