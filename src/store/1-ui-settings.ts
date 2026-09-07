@@ -29,6 +29,7 @@ export interface AppSettings {
     autoRecordResponse: boolean;
     returnToInitialPosition: boolean;
     showGraphPoints: boolean;
+    graphClickToDrag: boolean;
     reactSpringParams: ReactSpringParams;
     motionParams: MotionParams;
     gsapParams: GsapParams;
@@ -43,6 +44,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     autoRecordResponse: true,
     returnToInitialPosition: false,
     showGraphPoints: true,
+    graphClickToDrag: true,
     reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
@@ -53,7 +55,10 @@ function loadSettings(): AppSettings {
         const stored = localStorage.getItem(STORAGE_ID);
         if (stored) {
             // `recordedDurations` was persisted by older versions; the plot range is now derived from the parameters.
-            const { recordedDurations: _legacy, ...parsed } = JSON.parse(stored) as Partial<AppSettings> & { recordedDurations?: unknown };
+            const { recordedDurations: _legacy, graphPlayheadScrub: legacyScrub, ...parsed } = JSON.parse(stored) as Partial<AppSettings> & {
+                recordedDurations?: unknown;
+                graphPlayheadScrub?: unknown;
+            };
             return {
                 ...DEFAULT_SETTINGS,
                 ...parsed,
@@ -63,6 +68,7 @@ function loadSettings(): AppSettings {
                 autoRecordResponse: getValidBoolean(parsed.autoRecordResponse, DEFAULT_SETTINGS.autoRecordResponse),
                 returnToInitialPosition: getValidBoolean(parsed.returnToInitialPosition, DEFAULT_SETTINGS.returnToInitialPosition),
                 showGraphPoints: getValidBoolean(parsed.showGraphPoints, DEFAULT_SETTINGS.showGraphPoints),
+                graphClickToDrag: getValidClickToDrag(parsed.graphClickToDrag, legacyScrub),
                 reactSpringParams: getValidEngineParams(engineDefinitions.spring, parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
@@ -81,6 +87,13 @@ function loadSettings(): AppSettings {
 
 function getValidVisualizerDisplay(value: unknown): VisualizerDisplay {
     return value === "mechanical" || value === "graph" || value === "split" ? value : DEFAULT_SETTINGS.visualizerDisplay;
+}
+
+function getValidClickToDrag(value: unknown, legacyScrub?: unknown): boolean {
+    if (typeof value === "boolean") return value;
+    if (legacyScrub === "grab") return true;
+    if (legacyScrub === "hover") return false;
+    return DEFAULT_SETTINGS.graphClickToDrag;
 }
 
 function getValidBoolean(value: unknown, fallback: boolean): boolean {

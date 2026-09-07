@@ -216,6 +216,57 @@ export function mapPlotPoint(plot: Pick<GraphPlot, "left" | "right" | "top" | "b
     };
 }
 
+/** Playback time for a pixel x on an already-built plot, clamped to the time axis. */
+export function mapPlotTime(plot: Pick<GraphPlot, "left" | "right" | "timeMax">, x: number): number {
+    const spanX = plot.right - plot.left;
+    if (!(spanX > 0) || !(plot.timeMax > 0)) return 0;
+    return clamp01((x - plot.left) / spanX) * plot.timeMax;
+}
+
+/**
+ * Playback time of the closest point on the recorded polyline to a plot-pixel
+ * position, so scrubbing can follow a finger along the curve instead of only X.
+ */
+export function nearestPlotTime(plot: GraphPlot, samples: readonly SamplePoint[], x: number, y: number): number {
+    const count = Math.min(plot.points.length, samples.length);
+    if (count === 0) return 0;
+    if (count === 1) return samples[0].elapsedMs;
+
+    let bestTime = samples[0].elapsedMs;
+    let bestDist = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < count - 1; index += 1) {
+        const from = plot.points[index];
+        const to = plot.points[index + 1];
+        const { t, dist2 } = closestOnSegment(x, y, from.x, from.y, to.x, to.y);
+        if (dist2 >= bestDist) continue;
+        bestDist = dist2;
+        const start = samples[index].elapsedMs;
+        const span = samples[index + 1].elapsedMs - start;
+        bestTime = start + t * span;
+    }
+
+    return bestTime;
+}
+
+function closestOnSegment(px: number, py: number, ax: number, ay: number, bx: number, by: number): { t: number; dist2: number } {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const length2 = dx * dx + dy * dy;
+    if (length2 <= 0) {
+        const ex = px - ax;
+        const ey = py - ay;
+        return { t: 0, dist2: ex * ex + ey * ey };
+    }
+
+    const t = clamp01(((px - ax) * dx + (py - ay) * dy) / length2);
+    const cx = ax + dx * t;
+    const cy = ay + dy * t;
+    const ex = px - cx;
+    const ey = py - cy;
+    return { t, dist2: ex * ex + ey * ey };
+}
+
 function clamp01(value: number): number {
     if (value <= 0) return 0;
     if (value >= 1) return 1;

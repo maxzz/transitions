@@ -1,20 +1,21 @@
-import { useMemo } from "react";
+import { useMemo, useRef, type PointerEvent } from "react";
 import { useAtomValue } from "jotai";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
 import { interpolateSampleValue } from "../model/3-samples";
-import { buildGraphPlot, getGraphSize, mapPlotPoint, type GraphPlot } from "../model/5-graph-plot";
+import { buildGraphPlot, getGraphSize, mapPlotPoint, mapPlotTime, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot";
 import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
-import { previewMotion } from "../state/preview-motion";
-import { graphDataAtom, isRecordingAtom } from "./a-graph-atoms";
+import { previewMotion, seekPlayback } from "../state/preview-motion";
+import { graphDataAtom } from "./a-graph-atoms";
 
 const CURVE_STROKE = 2.5;
 const POINT_STROKE = 1.5;
 const PLAYHEAD_STROKE = 1.5;
 const PLAYHEAD_DOT_RADIUS = 5;
 const PLAYHEAD_HALO_RADIUS = 9;
+const PLAYHEAD_GRAB_RADIUS = 14;
 const TICK_LENGTH = 5;
 const TICK_LABEL_GAP = 9;
 
@@ -35,10 +36,10 @@ export function RecordedSvg() {
     );
 
     return (
-        <div ref={ref} className="flex-1 mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-hidden flex items-center justify-center">
+        <div ref={ref} className="flex-1 mx-3 mt-3 mb-2 min-h-0 sm:mx-6 sm:mt-5 sm:mb-4 overflow-visible flex items-center justify-center">
             {plot && (
                 <svg
-                    className="shrink-0 block"
+                    className="shrink-0 block overflow-visible"
                     width={plot.width}
                     height={plot.height}
                     viewBox={`0 0 ${plot.width} ${plot.height}`}
@@ -97,14 +98,15 @@ export function RecordedSvg() {
 }
 
 /**
- * Vertical playhead plus the intersection marker. Shown while playing a precomputed
- * curve, or after the timeline has been moved away from the start.
+ * Vertical playhead plus the intersection marker. Always shown on a recorded curve,
+ * including at the first and last samples. The disk may overflow the plot edge so
+ * it stays complete at time zero and at settle, without shifting the time axis.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
-    const playing = useAtomValue(isRecordingAtom);
+    const { graphClickToDrag } = useSnapshot(appSettings);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
-    if (!samples.length || (!playing && elapsedMs <= 0)) return null;
+    if (!samples.length) return null;
 
     const last = samples.at(-1);
     const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;
@@ -112,25 +114,119 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
     const { x, y } = mapPlotPoint(plot, elapsedMs, playheadValue);
 
     return (
-        <g clipPath="url(#response-plot-clip)" aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
-            <line
-                className="stroke-primary"
-                x1={x}
-                x2={x}
-                y1={plot.top}
-                y2={plot.bottom}
-                strokeWidth={PLAYHEAD_STROKE}
-            />
-            <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
-            <circle
-                className="fill-primary stroke-background"
-                cx={x}
-                cy={y}
-                r={PLAYHEAD_DOT_RADIUS}
-                strokeWidth={POINT_STROKE}
-            />
-        </g>
+        <>
+            <g aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
+                <line
+                    className="stroke-primary"
+                    x1={x}
+                    x2={x}
+                    y1={plot.top}
+                    y2={plot.bottom}
+                    strokeWidth={PLAYHEAD_STROKE}
+                />
+                <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
+                <circle
+                    className="fill-primary stroke-background"
+                    cx={x}
+                    cy={y}
+                    r={PLAYHEAD_DOT_RADIUS}
+                    strokeWidth={POINT_STROKE}
+                />
+            </g>
+            {graphClickToDrag
+                ? <PlayheadGrabHandle plot={plot} samples={samples} x={x} y={y} />
+                : <PlotScrubTrack plot={plot} samples={samples} />
+            }
+        </>
     );
+}
+
+function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
+    const seekToPointer = (event: PointerEvent<SVGRectElement>) => {
+        const point = clientToSvgPoint(event);
+        if (!point) return;
+        seekPlayback(samples, nearestPlotTime(plot, samples, point.x, point.y));
+    };
+
+    return (
+        <rect
+            className="touch-none cursor-pointer"
+            x={plot.left - PLAYHEAD_HALO_RADIUS}
+            y={plot.top}
+            width={plot.right - plot.left + PLAYHEAD_HALO_RADIUS * 2}
+            height={plot.bottom - plot.top}
+            fill="transparent"
+            aria-hidden="true"
+            data-graph-scrub="hover"
+            onPointerDown={
+                (event) => {
+                    seekToPointer(event);
+                    try {
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                    } catch {
+                        // Synthetic or already-released pointers still seek on down.
+                    }
+                }
+            }
+            onPointerMove={
+                (event) => {
+                    seekToPointer(event);
+                }
+            }
+        />
+    );
+}
+
+function PlayheadGrabHandle({ plot, samples, x, y }: { plot: GraphPlot; samples: readonly SamplePoint[]; x: number; y: number; }) {
+    const draggingRef = useRef(false);
+
+    const seekAlongTime = (event: PointerEvent<SVGCircleElement>) => {
+        const point = clientToSvgPoint(event);
+        if (!point) return;
+        seekPlayback(samples, mapPlotTime(plot, point.x));
+    };
+
+    const endDrag = () => {
+        draggingRef.current = false;
+    };
+
+    return (
+        <circle
+            className="touch-none cursor-grab active:cursor-grabbing"
+            cx={x}
+            cy={y}
+            r={PLAYHEAD_GRAB_RADIUS}
+            fill="transparent"
+            aria-hidden="true"
+            data-graph-scrub="grab"
+            onPointerDown={
+                (event) => {
+                    draggingRef.current = true;
+                    try {
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                    } catch {
+                        // Capture is optional; the drag flag still tracks this press.
+                    }
+                }
+            }
+            onPointerMove={
+                (event) => {
+                    if (!draggingRef.current) return;
+                    seekAlongTime(event);
+                }
+            }
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+        />
+    );
+}
+
+function clientToSvgPoint(event: PointerEvent<SVGGraphicsElement>): { x: number; y: number } | null {
+    const svg = event.currentTarget.ownerSVGElement;
+    const ctm = svg?.getScreenCTM();
+    if (!svg || !ctm) return null;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse());
+    return { x: point.x, y: point.y };
 }
 
 function GridAndAxes({ plot }: { plot: GraphPlot; }) {

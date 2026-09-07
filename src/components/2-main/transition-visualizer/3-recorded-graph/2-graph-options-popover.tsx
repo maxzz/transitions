@@ -27,6 +27,7 @@ export function GraphOptionsPopover() {
                 <section className="flex flex-col gap-2.5">
                     <SectionHeader>Graph settings</SectionHeader>
                     <ShowPointsControl />
+                    <ClickToDragControl />
                     <GraphStats />
                 </section>
             </PopoverContent>
@@ -103,6 +104,20 @@ function ShowPointsControl() {
                 onCheckedChange={(checked) => { appSettings.showGraphPoints = checked === true; }}
             />
             <div>Points</div>
+        </Label>
+    );
+}
+
+function ClickToDragControl() {
+    const { graphClickToDrag } = useSnapshot(appSettings);
+
+    return (
+        <Label className="h-6 w-full flex items-center gap-2" title="Move the marker left or right only after grabbing its circle">
+            <Checkbox
+                checked={graphClickToDrag}
+                onCheckedChange={(checked) => { appSettings.graphClickToDrag = checked === true; }}
+            />
+            <div>Click to drag</div>
         </Label>
     );
 }
