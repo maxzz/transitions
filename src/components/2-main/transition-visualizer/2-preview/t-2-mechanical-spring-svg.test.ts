@@ -10,8 +10,7 @@ vi.mock("@/store/1-ui-settings", () => ({
 }));
 
 import {
-    getLoad_Height,
-    getLoad_Width,
+    getLoadGeometry,
     getSpringDisplacement,
     getSpringSvgLayers,
     getSpringSvgPath,
@@ -96,42 +95,42 @@ describe("mechanical spring", () => {
 
 describe("mechanical load size", () => {
     it("scales height linearly from the minimum size to the maximum size", () => {
-        expect(getLoad_Height(0.1)).toBe(120);
-        expect(getLoad_Height(10.05)).toBeCloseTo(185);
-        expect(getLoad_Height(20)).toBe(250);
+        expect(getLoadGeometry(0.1).loadHeight).toBe(120);
+        expect(getLoadGeometry(10.05).loadHeight).toBeCloseTo(185);
+        expect(getLoadGeometry(20).loadHeight).toBe(250);
     });
 
     it("scales width linearly from the minimum size to the maximum size", () => {
-        expect(getLoad_Width(0.1)).toBe(50);
-        expect(getLoad_Width(10.05)).toBeCloseTo(95);
-        expect(getLoad_Width(20)).toBe(140);
+        expect(getLoadGeometry(0.1).loadWidth).toBe(100);
+        expect(getLoadGeometry(10.05).loadWidth).toBeCloseTo(170);
+        expect(getLoadGeometry(20).loadWidth).toBe(240);
     });
 
     it("keeps the load taller than it is wide", () => {
-        expect(getLoad_Height(0.1)).toBeGreaterThan(getLoad_Width(0.1));
-        expect(getLoad_Height(10.05)).toBeGreaterThan(getLoad_Width(10.05));
-        expect(getLoad_Height(20)).toBeGreaterThan(getLoad_Width(20));
-        expect(getLoad_Height()).toBeGreaterThan(getLoad_Width());
+        expect(getLoadGeometry(0.1).loadHeight).toBeGreaterThan(getLoadGeometry(0.1).loadWidth);
+        expect(getLoadGeometry(10.05).loadHeight).toBeGreaterThan(getLoadGeometry(10.05).loadWidth);
+        expect(getLoadGeometry(20).loadHeight).toBeGreaterThan(getLoadGeometry(20).loadWidth);
+        expect(getLoadGeometry().loadHeight).toBeGreaterThan(getLoadGeometry().loadWidth);
     });
 
     it("increases monotonically with spring mass", () => {
-        expect(getLoad_Height(0.1)).toBeLessThan(getLoad_Height(1));
-        expect(getLoad_Height(1)).toBeLessThan(getLoad_Height(5));
-        expect(getLoad_Height(5)).toBeLessThan(getLoad_Height(20));
-        expect(getLoad_Width(0.1)).toBeLessThan(getLoad_Width(1));
-        expect(getLoad_Width(20)).toBeGreaterThan(getLoad_Width(5));
+        expect(getLoadGeometry(0.1).loadHeight).toBeLessThan(getLoadGeometry(1).loadHeight);
+        expect(getLoadGeometry(1).loadHeight).toBeLessThan(getLoadGeometry(5).loadHeight);
+        expect(getLoadGeometry(5).loadHeight).toBeLessThan(getLoadGeometry(20).loadHeight);
+        expect(getLoadGeometry(0.1).loadWidth).toBeLessThan(getLoadGeometry(1).loadWidth);
+        expect(getLoadGeometry(20).loadWidth).toBeGreaterThan(getLoadGeometry(5).loadWidth);
     });
 
     it("clamps mass to the supported visual range", () => {
-        expect(getLoad_Height(0)).toBe(getLoad_Height(0.1));
-        expect(getLoad_Height(100)).toBe(getLoad_Height(20));
-        expect(getLoad_Width(0)).toBe(getLoad_Width(0.1));
-        expect(getLoad_Width(100)).toBe(getLoad_Width(20));
+        expect(getLoadGeometry(0).loadHeight).toBe(getLoadGeometry(0.1).loadHeight);
+        expect(getLoadGeometry(100).loadHeight).toBe(getLoadGeometry(20).loadHeight);
+        expect(getLoadGeometry(0).loadWidth).toBe(getLoadGeometry(0.1).loadWidth);
+        expect(getLoadGeometry(100).loadWidth).toBe(getLoadGeometry(20).loadWidth);
     });
 
     it("uses the original load size when mass is unavailable", () => {
-        expect(getLoad_Height()).toBe(190);
-        expect(getLoad_Width()).toBe(100);
+        expect(getLoadGeometry().loadHeight).toBe(170);
+        expect(getLoadGeometry().loadWidth).toBe(120);
     });
 });
 

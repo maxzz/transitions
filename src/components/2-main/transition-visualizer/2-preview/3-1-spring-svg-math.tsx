@@ -2,6 +2,7 @@
 // Spring coil
 
 /** Side-view coil: uniform diagonals and turnarounds, starting and ending on the same side. */
+// Exported only for testing.
 export function getSpringSvgPath(tension?: number): string {
     const { turns, coilTopY, coilBottomY } = buildCoilGeometry(tension);
     const commands = [
@@ -157,6 +158,7 @@ function getCornerInset(previous: CoilPoint, peak: CoilPoint, next: CoilPoint, w
 const COIL_CORNER_RADIUS_AT_TWO_WRAPS = 26;
 const MAX_CORNER_EDGE_FRACTION = 0.42;
 
+// Exported only for testing.
 export function getSpringWraps(tension?: number): number {
     const resolvedTension = tension === undefined || !Number.isFinite(tension) ? DEFAULT_SPRING_TENSION : tension;
     const clampedTension = Math.min(MAX_SPRING_TENSION, Math.max(MIN_SPRING_TENSION, resolvedTension));
@@ -194,11 +196,11 @@ export function getLoadGeometry(mass?: number) {
     return { loadWidth, loadHeight, loadX, loadCenterY };
 }
 
-export function getLoad_Height(mass?: number): number {
+function getLoad_Height(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_HEIGHT, MAX_LOAD_HEIGHT, DEFAULT_LOAD_HEIGHT);
 }
 
-export function getLoad_Width(mass?: number): number {
+function getLoad_Width(mass?: number): number {
     return interpolateLoadSize(mass, MIN_LOAD_WIDTH, MAX_LOAD_WIDTH, DEFAULT_LOAD_WIDTH);
 }
 
