@@ -17,21 +17,19 @@ export function PreviewStage() {
     useEngineRun();
 
     return (
-        <div ref={scopeRef} className="@container h-full min-h-0 bg-muted/20 flex flex-col">
+        <div ref={scopeRef} className="relative @container h-full min-h-0 bg-muted/20 flex flex-col">
             <div className="flex-1 p-3 min-h-0 sm:p-6 [--stage-toolbar-scale:min(1,100cqi/240px)] [--preview-toolbar:calc(2.75rem*var(--stage-toolbar-scale))] @container-size overflow-hidden grid place-items-center">
                 <div className="flex flex-col items-center gap-2">
-                    <div className="relative">
-                        <PreviewCanvas>
-                            <TransitionScene />
-                        </PreviewCanvas>
-                        <PreviewInfoOverlay />
-                    </div>
+                    <PreviewCanvas>
+                        <TransitionScene />
+                    </PreviewCanvas>
 
                     <div className="zoom-(--stage-toolbar-scale,1)">
                         <PreviewModelSelector />
                     </div>
                 </div>
             </div>
+            <PreviewInfoOverlay />
         </div>
     );
 }
