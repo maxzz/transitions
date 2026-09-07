@@ -7,6 +7,7 @@ import {
     getValueAxis,
     mapPlotPoint,
     mapPlotTime,
+    nearestPlotTime,
     monotoneCurvePath,
     niceStep,
     ticksBetween,
@@ -134,6 +135,16 @@ describe("graph plot", () => {
         expect(mapPlotTime(plot, plot.right)).toBeCloseTo(plot.timeMax);
         expect(mapPlotTime(plot, plot.left - 20)).toBe(0);
         expect(mapPlotTime(plot, plot.right + 20)).toBeCloseTo(plot.timeMax);
+
+        const samples = [
+            { elapsedMs: 0, value: 0 },
+            { elapsedMs: 250, value: 1.2 },
+            { elapsedMs: 500, value: 1 },
+        ];
+        expect(nearestPlotTime(plot, samples, start.x, start.y)).toBe(0);
+        expect(nearestPlotTime(plot, samples, mid.x, mid.y)).toBeCloseTo(250);
+        expect(nearestPlotTime(plot, samples, plot.points[2].x, plot.points[2].y)).toBe(500);
+        expect(nearestPlotTime(plot, samples, start.x - 30, start.y)).toBe(0);
     });
 
     it("shrinks the point markers when samples are too dense for full-size ones", () => {

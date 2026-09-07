@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
 import { interpolateSampleValue } from "../model/3-samples";
-import { buildGraphPlot, getGraphSize, mapPlotPoint, mapPlotTime, type GraphPlot } from "../model/5-graph-plot";
+import { buildGraphPlot, getGraphSize, mapPlotPoint, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot";
 import type { SamplePoint } from "../model/9-types";
 import { activeDefinitionAtom } from "../state/atoms";
 import { previewMotion, seekPlayback } from "../state/preview-motion";
@@ -98,7 +98,8 @@ export function RecordedSvg() {
 
 /**
  * Vertical playhead plus the intersection marker. Always shown on a recorded curve,
- * including at time zero, and can be dragged horizontally like the timeline slider.
+ * including at the first and last samples. The disk may overflow the plot edge so
+ * it stays complete at time zero and at settle, without shifting the time axis.
  */
 function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
     const { value, elapsedMs } = useSnapshot(previewMotion);
@@ -108,7 +109,7 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
     const last = samples.at(-1);
     const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;
     const playheadValue = onCurve ? interpolateSampleValue(samples, elapsedMs) ?? value : value;
-    const { x, y } = mapPlotPoint(playheadPlot(plot), elapsedMs, playheadValue);
+    const { x, y } = mapPlotPoint(plot, elapsedMs, playheadValue);
 
     return (
         <>
@@ -137,14 +138,14 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
 
 function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
     const seekToPointer = (event: PointerEvent<SVGRectElement>) => {
-        const x = clientXToSvgX(event);
-        if (x === null) return;
-        seekPlayback(samples, mapPlotTime(playheadPlot(plot), x));
+        const point = clientToSvgPoint(event);
+        if (!point) return;
+        seekPlayback(samples, nearestPlotTime(plot, samples, point.x, point.y));
     };
 
     return (
         <rect
-            className="touch-none cursor-ew-resize"
+            className="touch-none cursor-pointer"
             x={plot.left - PLAYHEAD_HALO_RADIUS}
             y={plot.top}
             width={plot.right - plot.left + PLAYHEAD_HALO_RADIUS * 2}
@@ -164,7 +165,6 @@ function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly 
             }
             onPointerMove={
                 (event) => {
-                    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
                     seekToPointer(event);
                 }
             }
@@ -172,25 +172,12 @@ function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly 
     );
 }
 
-/** Keep the playhead disk fully inside the plot, including at time zero and the last sample. */
-function playheadPlot(plot: GraphPlot): Pick<GraphPlot, "left" | "right" | "top" | "bottom" | "timeMax" | "valueMin" | "valueMax"> {
-    const inset = PLAYHEAD_HALO_RADIUS + PLAYHEAD_STROKE;
-    return {
-        left: plot.left + inset,
-        right: plot.right - inset,
-        top: plot.top,
-        bottom: plot.bottom,
-        timeMax: plot.timeMax,
-        valueMin: plot.valueMin,
-        valueMax: plot.valueMax,
-    };
-}
-
-function clientXToSvgX(event: PointerEvent<SVGGraphicsElement>): number | null {
+function clientToSvgPoint(event: PointerEvent<SVGGraphicsElement>): { x: number; y: number } | null {
     const svg = event.currentTarget.ownerSVGElement;
     const ctm = svg?.getScreenCTM();
     if (!svg || !ctm) return null;
-    return new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse()).x;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse());
+    return { x: point.x, y: point.y };
 }
 
 function GridAndAxes({ plot }: { plot: GraphPlot; }) {
