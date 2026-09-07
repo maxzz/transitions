@@ -219,6 +219,12 @@ function buildCoilGeometry(tension?: number) {
     return { turns, coilTopY, coilBottomY };
 }
 
+const SPRING_TOP_Y = 75;
+const SPRING_BOTTOM_Y = 250;
+const SPRING_CENTER_X = 350;
+const SPRING_RADIUS = 35;
+const SPRING_STEM_HEIGHT = 8;
+
 type CoilDepth = "near" | "far";
 type CoilPoint = { x: number; y: number };
 type CoilCubic = { p0: CoilPoint; p1: CoilPoint; p2: CoilPoint; p3: CoilPoint };
@@ -281,12 +287,7 @@ function getCornerInset(previous: CoilPoint, peak: CoilPoint, next: CoilPoint, w
     return Math.min(scaledRadius, incoming * MAX_CORNER_EDGE_FRACTION, outgoing * MAX_CORNER_EDGE_FRACTION);
 }
 
-const SPRING_TOP_Y = 75;
-const SPRING_BOTTOM_Y = 250;
-const SPRING_CENTER_X = 350;
-const SPRING_RADIUS = 35;
-const SPRING_STEM_HEIGHT = 13;
-const COIL_CORNER_RADIUS_AT_TWO_WRAPS = 32;
+const COIL_CORNER_RADIUS_AT_TWO_WRAPS = 26;
 const MAX_CORNER_EDGE_FRACTION = 0.42;
 
 export function getSpringWraps(tension?: number): number {
