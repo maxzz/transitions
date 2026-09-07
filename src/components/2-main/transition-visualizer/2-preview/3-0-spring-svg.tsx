@@ -2,14 +2,7 @@ import { type MouseEvent, useMemo } from "react";
 import { useSetAtom } from "jotai";
 import { togglePauseResumeAtom, togglePlayStopAtom } from "../state/atoms";
 import { usePreviewValue } from "./1-preview-frame";
-import {
-    getLoadGeometry,
-    getSpringDisplacement,
-    getSpringSvgLayers,
-    SPRING_BOTTOM_Y,
-    SPRING_CENTER_X,
-    SPRING_TOP_Y,
-} from "./3-1-spring-svg-math";
+import { getLoadGeometry, getSpringDisplacement, getSpringSvgLayers, SPRING_BOTTOM_Y, SPRING_CENTER_X, SPRING_TOP_Y } from "./3-1-spring-svg-math";
 
 /**
  * Mechanical spring: a mass hangs from a coil and settles on the target line.
@@ -153,7 +146,7 @@ function Part_Backdrop() {
         <desc id="mechanical-spring-description">
             A suspended mass moves toward an equilibrium line while the selected animation engine runs.
         </desc>
-        
+
         <rect width="700" height="650" className="fill-transparent" />
     </>);
 }

@@ -2,24 +2,6 @@
 // Spring coil
 
 /** Side-view coil: uniform diagonals and turnarounds, starting and ending on the same side. */
-// Exported only for testing.
-export function getSpringSvgPath(tension?: number): string {
-    const { turns, coilTopY, coilBottomY } = buildCoilGeometry(tension);
-    const commands = [
-        `M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`,
-        `L ${SPRING_CENTER_X} ${coilTopY}`,
-    ];
-
-    for (const turn of turns) {
-        commands.push(`L ${formatPoint(turn.start)}`);
-        commands.push(`C ${formatPoint(turn.c1)}, ${formatPoint(turn.c2)}, ${formatPoint(turn.end)}`);
-    }
-
-    commands.push(`L ${SPRING_CENTER_X} ${coilBottomY}`);
-    commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
-    return commands.join(" ");
-}
-
 export function getSpringSvgLayers(tension?: number): { near: string; far: string; } {
     const { turns, coilTopY, coilBottomY } = buildCoilGeometry(tension);
     const near: string[] = [];
@@ -46,6 +28,21 @@ export function getSpringSvgLayers(tension?: number): { near: string; far: strin
     add("near", `M ${SPRING_CENTER_X} ${coilBottomY} L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
 
     return { far: far.join(" "), near: near.join(" ") };
+}
+
+// Exported only for testing.
+export function getSpringSvgPath(tension?: number): string {
+    const { turns, coilTopY, coilBottomY } = buildCoilGeometry(tension);
+    const commands = [`M ${SPRING_CENTER_X} ${SPRING_TOP_Y}`, `L ${SPRING_CENTER_X} ${coilTopY}`];
+
+    for (const turn of turns) {
+        commands.push(`L ${formatPoint(turn.start)}`);
+        commands.push(`C ${formatPoint(turn.c1)}, ${formatPoint(turn.c2)}, ${formatPoint(turn.end)}`);
+    }
+
+    commands.push(`L ${SPRING_CENTER_X} ${coilBottomY}`);
+    commands.push(`L ${SPRING_CENTER_X} ${SPRING_BOTTOM_Y}`);
+    return commands.join(" ");
 }
 
 function buildCoilGeometry(tension?: number) {
@@ -94,18 +91,11 @@ const SPRING_RADIUS = 35;
 const SPRING_STEM_HEIGHT = 8;
 
 type CoilDepth = "near" | "far";
-type CoilPoint = { x: number; y: number };
-type CoilCubic = { p0: CoilPoint; p1: CoilPoint; p2: CoilPoint; p3: CoilPoint };
+type CoilPoint = { x: number; y: number; };
+type CoilCubic = { p0: CoilPoint; p1: CoilPoint; p2: CoilPoint; p3: CoilPoint; };
 
 function oppositeDepth(depth: CoilDepth): CoilDepth {
     return depth === "near" ? "far" : "near";
-}
-
-function lerpPoint(from: CoilPoint, to: CoilPoint, t: number): CoilPoint {
-    return {
-        x: from.x + (to.x - from.x) * t,
-        y: from.y + (to.y - from.y) * t,
-    };
 }
 
 function splitCubic(p0: CoilPoint, p1: CoilPoint, p2: CoilPoint, p3: CoilPoint): [CoilCubic, CoilCubic] {
@@ -122,16 +112,19 @@ function splitCubic(p0: CoilPoint, p1: CoilPoint, p2: CoilPoint, p3: CoilPoint):
     ];
 }
 
+function lerpPoint(from: CoilPoint, to: CoilPoint, t: number): CoilPoint {
+    return {
+        x: from.x + (to.x - from.x) * t,
+        y: from.y + (to.y - from.y) * t,
+    };
+}
+
 function cubicCommand(cubic: CoilCubic): string {
     return `M ${formatPoint(cubic.p0)} C ${formatPoint(cubic.p1)}, ${formatPoint(cubic.p2)}, ${formatPoint(cubic.p3)}`;
 }
 
 function formatPoint(point: CoilPoint): string {
     return `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
-}
-
-function distance(from: CoilPoint, to: CoilPoint): number {
-    return Math.hypot(to.x - from.x, to.y - from.y);
 }
 
 function pointToward(from: CoilPoint, to: CoilPoint, travel: number): CoilPoint {
@@ -145,6 +138,10 @@ function pointToward(from: CoilPoint, to: CoilPoint, travel: number): CoilPoint 
         x: from.x + (to.x - from.x) * t,
         y: from.y + (to.y - from.y) * t,
     };
+}
+
+function distance(from: CoilPoint, to: CoilPoint): number {
+    return Math.hypot(to.x - from.x, to.y - from.y);
 }
 
 function getCornerInset(previous: CoilPoint, peak: CoilPoint, next: CoilPoint, wraps: number): number {

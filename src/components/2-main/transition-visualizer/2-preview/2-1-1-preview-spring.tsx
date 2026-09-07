@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { MechanicalSpringSvg } from "./3-spring-svg";
+import { MechanicalSpringSvg } from "./3-0-spring-svg";
 import { activeEngineAtom, paramsByEngineAtom } from "../state/atoms";
 
 export function MechanicalSpringScene() {
