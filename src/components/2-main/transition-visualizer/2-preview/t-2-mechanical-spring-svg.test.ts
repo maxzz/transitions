@@ -51,6 +51,16 @@ describe("mechanical spring", () => {
         }
     });
 
+    it("shrinks the turn radius as the coil count rises", () => {
+        const twoWraps = getCoilTurnHandleSpans(getSpringSvgPath(30))[0];
+        const tenWraps = getCoilTurnHandleSpans(getSpringSvgPath(215))[0];
+        const eighteenWraps = getCoilTurnHandleSpans(getSpringSvgPath(400))[0];
+
+        expect(twoWraps).toBeGreaterThan(tenWraps * 1.5);
+        expect(tenWraps).toBeGreaterThan(eighteenWraps);
+        expect(twoWraps / eighteenWraps).toBeCloseTo(18 / 2, 0);
+    });
+
     it("starts and ends the coil on the same side so the stack stays centered", () => {
         const path = getSpringSvgPath(400);
         const curves = getCoilCurves(path);
