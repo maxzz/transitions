@@ -10,7 +10,7 @@ export function TranslatePreview() {
     const value = usePreviewValue();
 
     return (
-        <div className="relative size-1/2 flex items-end justify-center">
+        <div className="relative size-3/5 flex items-end justify-center">
             <div aria-hidden className="absolute inset-0 bg-chart-1 rounded-sm" />
 
             <div

@@ -9,7 +9,7 @@ export function ScalePreview() {
     const value = usePreviewValue();
 
     return (
-        <div className="relative size-2/3 bg-chart-1 rounded-sm">
+        <div className="relative size-3/4 bg-chart-1 rounded-sm">
             <div
                 className="size-full bg-background will-change-transform border-[5px] border-foreground rounded-sm"
                 style={{ transform: `scale(${getScaleFactor(value)})` }}

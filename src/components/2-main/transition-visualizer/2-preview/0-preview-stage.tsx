@@ -1,7 +1,6 @@
 import { useRef, type ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { classNames } from "@/utils/classnames";
-import { PreviewModelSelector } from "./7-preview-model-selector";
 import { visualizationModeAtom } from "../state/atoms";
 import { MechanicalSpringScene } from "./2-1-1-preview-spring";
 import { TranslatePreview } from "./2-1-2-preview-translate";
@@ -17,17 +16,11 @@ export function PreviewStage() {
     useEngineRun();
 
     return (
-        <div ref={scopeRef} className="relative @container h-full min-h-0 bg-muted/20 flex flex-col">
-            <div className="flex-1 p-3 min-h-0 sm:p-6 [--stage-toolbar-scale:min(1,100cqi/240px)] [--preview-toolbar:calc(2.75rem*var(--stage-toolbar-scale))] @container-size overflow-hidden grid place-items-center">
-                <div className="flex flex-col items-center gap-2">
-                    <PreviewCanvas>
-                        <TransitionScene />
-                    </PreviewCanvas>
-
-                    <div className="zoom-(--stage-toolbar-scale,1)">
-                        <PreviewModelSelector />
-                    </div>
-                </div>
+        <div ref={scopeRef} className="relative h-full min-h-0 bg-muted/20 flex flex-col">
+            <div className="flex-1 min-h-0 @container-size overflow-hidden grid place-items-center">
+                <PreviewCanvas>
+                    <TransitionScene />
+                </PreviewCanvas>
             </div>
 
             <IconModelInfoTooltip />
@@ -35,10 +28,7 @@ export function PreviewStage() {
     );
 }
 
-/**
- * Square stage sized from the nearest @container-size ancestor. Leave room below
- * the square when a toolbar sits under the model (`--preview-toolbar`).
- */
+/** Square stage sized from the nearest @container-size ancestor. */
 function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
     return (
         <div className={classNames(canvasClasses, className)}>
@@ -49,10 +39,7 @@ function PreviewCanvas({ className, children }: { className?: string; children: 
 
 const canvasClasses = "\
 relative \
-w-[min(100cqw,calc(100cqh-var(--preview-toolbar,0px)))] aspect-square \
-bg-muted/60 \
-border-2 border-border \
-rounded-xl \
+w-[min(100cqw,100cqh)] aspect-square \
 grid place-items-center \
 ";
 

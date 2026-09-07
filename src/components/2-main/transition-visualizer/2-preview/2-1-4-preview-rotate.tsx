@@ -9,7 +9,7 @@ export function RotatePreview() {
     const value = usePreviewValue();
 
     return (
-        <div className="relative size-2/3 bg-chart-1 rounded-sm flex items-center justify-center">
+        <div className="relative size-3/4 bg-chart-1 rounded-sm flex items-center justify-center">
             <div
                 className="w-[90%] h-1/2 bg-background will-change-transform border-[5px] border-foreground rounded-sm"
                 style={{ transform: `rotate(${getRotationDegrees(value)}deg)` }}

@@ -10,7 +10,7 @@ export function OpacityPreview() {
     const value = usePreviewValue();
 
     return (
-        <div className="relative size-2/3 flex items-center gap-6">
+        <div className="relative size-3/4 flex items-center gap-6">
             <div className="self-stretch flex-1 relative bg-chart-1 rounded-sm">
                 <div
                     className="size-full bg-background will-change-[opacity] rounded-sm"
