@@ -47,8 +47,28 @@ export type GraphPlot = GraphSize & {
 
 export const GRAPH_MARGIN = { left: 48, right: 20, top: 14, bottom: 32 } as const;
 
+export type GraphMargin = { left: number; right: number; top: number; bottom: number };
+
+/** Reference box the default margins were designed for. Smaller containers scale them down. */
+const GRAPH_MARGIN_REF = { width: 400, height: 360 } as const;
+
 /** The chart may fill the available height, but never grows taller than this fraction of its width. */
 export const MAX_GRAPH_HEIGHT_RATIO = 0.9;
+
+/** Plot margins as a fraction of the measured container, clamped so labels stay readable. */
+export function getGraphMargin(width: number, height: number): GraphMargin {
+    const scale = Math.min(
+        1.15,
+        Math.max(0.6, Math.min(width / GRAPH_MARGIN_REF.width, height / GRAPH_MARGIN_REF.height)),
+    );
+
+    return {
+        left: Math.round(GRAPH_MARGIN.left * scale),
+        right: Math.round(GRAPH_MARGIN.right * scale),
+        top: Math.round(GRAPH_MARGIN.top * scale),
+        bottom: Math.round(GRAPH_MARGIN.bottom * scale),
+    };
+}
 
 const MIN_X_TICK_GAP_PX = 72;
 const MIN_Y_TICK_GAP_PX = 44;
@@ -151,10 +171,11 @@ export function monotoneCurvePath(points: readonly GraphPoint[]): string {
 
 export function buildGraphPlot(data: GraphData, size: GraphSize): GraphPlot {
     const { width, height } = size;
-    const left = GRAPH_MARGIN.left;
-    const top = GRAPH_MARGIN.top;
-    const right = Math.max(width - GRAPH_MARGIN.right, left + 1);
-    const bottom = Math.max(height - GRAPH_MARGIN.bottom, top + 1);
+    const margin = getGraphMargin(width, height);
+    const left = margin.left;
+    const top = margin.top;
+    const right = Math.max(width - margin.right, left + 1);
+    const bottom = Math.max(height - margin.bottom, top + 1);
     const plotWidth = right - left;
     const plotHeight = bottom - top;
 

@@ -8,6 +8,7 @@ import { type ParamField } from "../model/9-types";
 import { activeDefinitionAtom, activeEngineAtom, activeParamsAtom, applyPresetAtom, updateParamAtom } from "../state/atoms";
 import { CodeSnippetButton } from "./button-code-snippet";
 import { EngineTabs } from "../0-all/1-1-tabs-engine";
+import { PreviewModelSelector } from "../2-preview/7-preview-model-selector";
 
 export function Pane_LeftControls() {
     return (
@@ -20,8 +21,9 @@ export function Pane_LeftControls() {
                 <Control_Preset />
                 <Control_OptionRows />
 
-                <div className="shrink-0 p-2">
+                <div className="shrink-0 p-2 flex flex-wrap items-center justify-between gap-2">
                     <CodeSnippetButton />
+                    <PreviewModelSelector />
                 </div>
             </div>
         </aside>

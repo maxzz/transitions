@@ -1,5 +1,0 @@
-@property --stage-toolbar-scale {
-    syntax: "<number>";
-    inherits: true;
-    initial-value: 1;
-}
