@@ -1,7 +1,6 @@
-import { useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
-import { classNames } from "@/utils/classnames";
 import { type VisualizationMode } from "../model/9-types";
 import { activeDefinitionAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
 import { MechanicalSpringScene } from "./2-1-1-preview-spring";
@@ -26,16 +25,15 @@ export function Panel_PreviewStage() {
 }
 
 /**
- * Square stage from the pane's size container, then a nested size container so
- * strokes, type, and gaps scale with `cqmin` of the square — not the window.
+ * The pane is the size container; the square is `min(cqw, cqh)` of that pane.
+ * Tokens use `cqmin` on the square itself — that resolves against the pane, which
+ * is the same length as the square side, so a third wrapper is not needed.
  */
 function PreviewCanvas({ children }: { children: ReactNode; }) {
     return (
         <div className={containerClasses}>
             <div className={canvasClasses}>
-                <div className={canvasUiClasses}>
-                    {children}
-                </div>
+                {children}
             </div>
         </div>
     );
@@ -43,10 +41,8 @@ function PreviewCanvas({ children }: { children: ReactNode; }) {
 
 const containerClasses = "flex-1 min-h-0 @container-size overflow-hidden grid place-items-center";
 
-const canvasClasses = "relative w-[min(100cqw,100cqh)] aspect-square @container-size";
-
-const canvasUiClasses = "\
-size-full \
+const canvasClasses = "\
+relative w-[min(100cqw,100cqh)] aspect-square \
 [--preview-stroke:clamp(1.5px,0.95cqmin,3px)] \
 [--preview-stroke-thick:clamp(2px,1.5cqmin,5px)] \
 [--preview-label:clamp(0.7rem,5.5cqmin,1.25rem)] \
@@ -55,7 +51,8 @@ size-full \
 [--preview-legend:clamp(1.15rem,7cqmin,2.5rem)] \
 [--preview-marker:clamp(2.5rem,14cqmin,5rem)] \
 [--preview-radius:clamp(0.4rem,3.2cqmin,1.25rem)] \
-grid place-items-center";
+grid place-items-center \
+";
 
 function TransitionScene() {
     const mode = useAtomValue(visualizationModeAtom);

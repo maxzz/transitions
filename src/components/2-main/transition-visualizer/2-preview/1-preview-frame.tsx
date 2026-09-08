@@ -18,8 +18,8 @@ export function usePreviewValue(): number {
 export function PreviewFrame({ className, filled, ...rest }: HTMLAttributes<HTMLDivElement> & { filled?: boolean; }) {
     return (
         <div
-            aria-hidden
             className={cn("absolute inset-0 border-(length:--preview-stroke,3px) border-foreground rounded-sm pointer-events-none", filled && "bg-chart-1", className)}
+            aria-hidden
             {...rest}
         />
     );
