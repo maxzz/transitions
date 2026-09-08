@@ -23,7 +23,7 @@ const TICK_LABEL_GAP = 9;
  * The plot box is sized from the graph pane (`cqi`/`cqb`), then measured so the
  * SVG viewBox matches that container. Tick labels scale with the same container.
  */
-export function RecordedSvg() {
+export function Recordedview() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
     const data = useAtomValue(graphDataAtom);
     const { showGraphPoints } = useSnapshot(appSettings);

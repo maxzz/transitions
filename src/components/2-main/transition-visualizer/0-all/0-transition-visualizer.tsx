@@ -5,8 +5,8 @@ import { cn } from "@/utils/classnames";
 import { Pane_LeftControls } from "../1-controls/0-control-panel";
 import { PreviewSelectorTab } from "./1-2-tabs-preview-selector";
 import { VisualizerPlaybackBar } from "./2-0-playback-bar";
-import { ResponseGraph } from "../3-recorded-graph/0-recorder-view";
-import { PreviewStage } from "../2-preview/0-preview-stage";
+import { Panel_ResponseGraph } from "../3-recorded-graph/0-recorder-view";
+import { Panel_PreviewStage } from "../2-preview/0-preview-stage";
 import { activeDefinitionAtom } from "../state/atoms";
 
 export function TransitionVisualizer() {
@@ -23,12 +23,12 @@ export function TransitionVisualizer() {
                 <Pane_LeftControls />
 
                 <div className={cn("[grid-area:b] min-w-0 min-h-48 overflow-auto", isGraph && "hidden", !isGraph && "border-t border-border sm:border-t-0", isMechanical && "sm:border-l")} aria-hidden={isGraph}>
-                    <PreviewStage />
+                    <Panel_PreviewStage />
                 </div>
 
                 {!isMechanical && (
                     <div className={cn("[grid-area:c] min-w-0 min-h-48 overflow-auto border-t border-l border-border sm:border-t-0")}>
-                        <ResponseGraph />
+                        <Panel_ResponseGraph />
                     </div>
                 )}
 

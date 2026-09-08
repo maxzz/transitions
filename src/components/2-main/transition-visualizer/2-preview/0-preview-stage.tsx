@@ -10,7 +10,7 @@ import { OpacityPreview } from "./2-1-5-preview-opacity";
 import { useEngineRun } from "./8-use-engine-run";
 import { IconModelInfoTooltip } from "./4-info-tooltip";
 
-export function PreviewStage() {
+export function Panel_PreviewStage() {
     const scopeRef = useRef<HTMLDivElement>(null);
 
     useEngineRun();
