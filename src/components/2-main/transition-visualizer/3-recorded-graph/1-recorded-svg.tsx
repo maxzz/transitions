@@ -23,7 +23,7 @@ const TICK_LABEL_GAP = 9;
  * The plot box is sized from the graph pane (`cqi`/`cqb`), then measured so the
  * SVG viewBox matches that container. Tick labels scale with the same container.
  */
-export function Recordedview() {
+export function RecordedView() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
     const data = useAtomValue(graphDataAtom);
     const definition = useAtomValue(activeDefinitionAtom);
@@ -52,17 +52,7 @@ export function Recordedview() {
     );
 }
 
-function RecordedSvg({
-    plot,
-    samples,
-    showGraphPoints,
-    title,
-}: {
-    plot: GraphPlot;
-    samples: readonly SamplePoint[];
-    showGraphPoints: boolean;
-    title: string;
-}) {
+function RecordedSvg({ plot, samples, showGraphPoints, title }: { plot: GraphPlot; samples: readonly SamplePoint[]; showGraphPoints: boolean; title: string; }) {
     return (
         <svg
             className="block size-full overflow-visible"
@@ -130,45 +120,48 @@ function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples: readon
     const { graphClickToDrag } = useSnapshot(appSettings);
     const { value, elapsedMs } = useSnapshot(previewMotion);
 
-    if (!samples.length) return null;
+    if (!samples.length) {
+        return null;
+    }
 
     const last = samples.at(-1);
     const onCurve = last !== undefined && elapsedMs <= last.elapsedMs;
     const playheadValue = onCurve ? interpolateSampleValue(samples, elapsedMs) ?? value : value;
     const { x, y } = mapPlotPoint(plot, elapsedMs, playheadValue);
 
-    return (
-        <>
-            <g aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
-                <line
-                    className="stroke-primary"
-                    x1={x}
-                    x2={x}
-                    y1={plot.top}
-                    y2={plot.bottom}
-                    strokeWidth={PLAYHEAD_STROKE}
-                />
-                <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
-                <circle
-                    className="fill-primary stroke-background"
-                    cx={x}
-                    cy={y}
-                    r={PLAYHEAD_DOT_RADIUS}
-                    strokeWidth={POINT_STROKE}
-                />
-            </g>
-            {graphClickToDrag
-                ? <PlayheadGrabHandle plot={plot} samples={samples} x={x} y={y} />
-                : <PlotScrubTrack plot={plot} samples={samples} />
-            }
-        </>
-    );
+    return (<>
+        <g aria-hidden="true" data-graph-playhead="true" className="pointer-events-none">
+            <line
+                className="stroke-primary"
+                x1={x}
+                x2={x}
+                y1={plot.top}
+                y2={plot.bottom}
+                strokeWidth={PLAYHEAD_STROKE}
+            />
+            <circle className="fill-primary/30" cx={x} cy={y} r={PLAYHEAD_HALO_RADIUS} />
+            <circle
+                className="fill-primary stroke-background"
+                cx={x}
+                cy={y}
+                r={PLAYHEAD_DOT_RADIUS}
+                strokeWidth={POINT_STROKE}
+            />
+        </g>
+        {graphClickToDrag
+            ? <PlayheadGrabHandle plot={plot} samples={samples} x={x} y={y} />
+            : <PlotScrubTrack plot={plot} samples={samples} />
+        }
+    </>);
 }
 
 function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
+
     const seekToPointer = (event: PointerEvent<SVGRectElement>) => {
         const point = clientToSvgPoint(event);
-        if (!point) return;
+        if (!point) {
+            return;
+        }
         seekPlayback(samples, nearestPlotTime(plot, samples, point.x, point.y));
     };
 

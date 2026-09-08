@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { Recordedview } from "./1-recorded-svg";
+import { RecordedView } from "./1-recorded-svg";
 import { activeDefinitionAtom } from "../state/atoms";
 import { GraphOptionsPopover } from "./2-graph-options-popover";
 import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
@@ -7,7 +7,7 @@ import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
 export function Panel_ResponseGraph() {
     return (
         <div className="relative h-full min-h-0 @container-size bg-muted/20 flex flex-col">
-            <Recordedview />
+            <RecordedView />
             <InfoToolbar />
         </div>
     );
