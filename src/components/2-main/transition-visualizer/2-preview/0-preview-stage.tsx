@@ -43,8 +43,7 @@ function PreviewCanvas({ className, children }: { className?: string; children: 
 }
 
 const canvasClasses = "\
-relative \
-w-[min(100cqw,100cqh)] aspect-square \
+relative w-[min(100cqw,100cqh)] aspect-square \
 @container-size \
 ";
 

@@ -6,12 +6,6 @@ import { mapPlotPoint, mapPlotTime, nearestPlotTime, type GraphPlot } from "../m
 import type { SamplePoint } from "../model/9-types";
 import { previewMotion, seekPlayback } from "../state/preview-motion";
 
-const POINT_STROKE = 1.5;
-const PLAYHEAD_STROKE = 1.5;
-const PLAYHEAD_DOT_RADIUS = 5;
-const PLAYHEAD_HALO_RADIUS = 9;
-const PLAYHEAD_GRAB_RADIUS = 14;
-
 /**
  * Vertical playhead plus the intersection marker. Always shown on a recorded curve,
  * including at the first and last samples. The disk may overflow the plot edge so
@@ -55,6 +49,12 @@ export function RecordingPlayhead({ plot, samples }: { plot: GraphPlot; samples:
         }
     </>);
 }
+
+const POINT_STROKE = 1.5;
+const PLAYHEAD_STROKE = 1.5;
+const PLAYHEAD_DOT_RADIUS = 5;
+const PLAYHEAD_HALO_RADIUS = 9;
+const PLAYHEAD_GRAB_RADIUS = 14;
 
 function PlotScrubTrack({ plot, samples }: { plot: GraphPlot; samples: readonly SamplePoint[]; }) {
 
