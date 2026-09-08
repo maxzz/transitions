@@ -1,30 +1,27 @@
 import { useRef, type ReactNode } from "react";
 import { useAtomValue } from "jotai";
+import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
 import { classNames } from "@/utils/classnames";
-import { visualizationModeAtom } from "../state/atoms";
+import { type VisualizationMode } from "../model/9-types";
+import { activeDefinitionAtom, runStatusAtom, visualizationModeAtom } from "../state/atoms";
 import { MechanicalSpringScene } from "./2-1-1-preview-spring";
 import { TranslatePreview } from "./2-1-2-preview-translate";
 import { ScalePreview } from "./2-1-3-preview-scale";
 import { RotatePreview } from "./2-1-4-preview-rotate";
 import { OpacityPreview } from "./2-1-5-preview-opacity";
 import { useEngineRun } from "./8-use-engine-run";
-import { IconModelInfoTooltip } from "./4-info-tooltip";
 
 export function Panel_PreviewStage() {
-    const scopeRef = useRef<HTMLDivElement>(null);
-
     useEngineRun();
 
     return (
-        <div ref={scopeRef} className="relative h-full min-h-0 bg-muted/20 flex flex-col">
-            <div className="flex-1 min-h-0 @container-size overflow-hidden grid place-items-center">
-                <PreviewCanvas>
-                    <TransitionScene />
-                </PreviewCanvas>
-            </div>
+        <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
+            <PreviewCanvas>
+                <TransitionScene />
+            </PreviewCanvas>
 
             <IconModelInfoTooltip />
-        </div>
+        </div >
     );
 }
 
@@ -32,20 +29,21 @@ export function Panel_PreviewStage() {
  * Square stage from the pane's size container, then a nested size container so
  * strokes, type, and gaps scale with `cqmin` of the square — not the window.
  */
-function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
+function PreviewCanvas({ children }: { children: ReactNode; }) {
     return (
-        <div className={classNames(canvasClasses, className)}>
-            <div className={canvasUiClasses}>
-                {children}
+        <div className={containerClasses}>
+            <div className={canvasClasses}>
+                <div className={canvasUiClasses}>
+                    {children}
+                </div>
             </div>
         </div>
     );
 }
 
-const canvasClasses = "\
-relative w-[min(100cqw,100cqh)] aspect-square \
-@container-size \
-";
+const containerClasses = "flex-1 min-h-0 @container-size overflow-hidden grid place-items-center";
+
+const canvasClasses = "relative w-[min(100cqw,100cqh)] aspect-square @container-size";
 
 const canvasUiClasses = "\
 size-full \
@@ -57,8 +55,7 @@ size-full \
 [--preview-legend:clamp(1.15rem,7cqmin,2.5rem)] \
 [--preview-marker:clamp(2.5rem,14cqmin,5rem)] \
 [--preview-radius:clamp(0.4rem,3.2cqmin,1.25rem)] \
-grid place-items-center \
-";
+grid place-items-center";
 
 function TransitionScene() {
     const mode = useAtomValue(visualizationModeAtom);
@@ -70,4 +67,35 @@ function TransitionScene() {
         case "rotate": return <RotatePreview />;
         case "opacity": return <OpacityPreview />;
     }
+}
+
+//---------------------------------------------------------------------------
+
+function IconModelInfoTooltip() {
+    const definition = useAtomValue(activeDefinitionAtom);
+    const visualizationMode = useAtomValue(visualizationModeAtom);
+    const status = useAtomValue(runStatusAtom);
+    const title = previewResponseTitle(visualizationMode);
+
+    return (
+        <div className="absolute top-1.5 right-1.5 z-10">
+            <h2 className="sr-only">
+                {title}
+            </h2>
+
+            <PanelInfoTooltip label={`${title} details`}>
+                <span className="font-semibold">{title}</span>
+                <span className="text-background/80">{definition.subtitle}</span>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-background/80" role="status">
+                    {status === "running" ? "Playing" : "Ready"}
+                </span>
+            </PanelInfoTooltip>
+        </div>
+    );
+}
+
+function previewResponseTitle(mode: VisualizationMode): string {
+    if (mode === "spring") return "Mechanical response";
+    if (mode === "translateY") return "Translation response";
+    return `${mode[0].toUpperCase()}${mode.slice(1)} response`;
 }
