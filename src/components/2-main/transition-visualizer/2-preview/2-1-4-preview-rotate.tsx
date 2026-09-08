@@ -11,7 +11,7 @@ export function RotatePreview() {
     return (
         <div className="relative size-3/4 bg-chart-1 rounded-sm flex items-center justify-center">
             <div
-                className="w-[90%] h-1/2 bg-background will-change-transform border-(length:--preview-stroke-thick,5px) border-foreground rounded-sm"
+                className={rotateClasses}
                 style={{ transform: `rotate(${getRotationDegrees(value)}deg)` }}
             />
 
@@ -20,3 +20,13 @@ export function RotatePreview() {
         </div>
     );
 }
+
+const rotateClasses = "\
+w-[90%] \
+h-1/2 \
+bg-background \
+will-change-transform \
+border-(length:--preview-stroke-thick,5px) \
+border-foreground \
+rounded-sm \
+";

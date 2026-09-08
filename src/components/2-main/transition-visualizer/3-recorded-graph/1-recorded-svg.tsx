@@ -27,20 +27,17 @@ export function RecordedSvg() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
     const data = useAtomValue(graphDataAtom);
     const { showGraphPoints } = useSnapshot(appSettings);
+
     const plot = useMemo(
         () => {
             const size = getGraphSize(width, height);
             return size ? buildGraphPlot(data, size) : null;
         },
-        [data, width, height],
-    );
+        [data, width, height]);
 
     return (
         <div className="flex-1 p-[clamp(0.25rem,1.2cqi,0.5rem)] min-h-0 @container-size overflow-hidden grid place-items-center">
-            <div
-                ref={ref}
-                className="w-[100cqi] h-[min(100cqb,90cqi)] [--graph-label:clamp(0.6rem,2.4cqi,0.75rem)]"
-            >
+            <div className="w-[100cqi] h-[min(100cqb,90cqi)] [--graph-label:clamp(0.6rem,2.4cqi,0.75rem)]" ref={ref}>
                 {plot && (
                     <svg
                         className="block size-full overflow-visible"
@@ -50,49 +47,49 @@ export function RecordedSvg() {
                         role="img"
                         aria-labelledby="response-graph-title response-graph-description"
                     >
-                    <RecordedTitle />
+                        <RecordedTitle />
 
-                    <defs>
-                        <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.45" />
-                            <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.03" />
-                        </linearGradient>
-                        <clipPath id="response-plot-clip">
-                            <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
-                        </clipPath>
-                    </defs>
+                        <defs>
+                            <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.45" />
+                                <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.03" />
+                            </linearGradient>
+                            <clipPath id="response-plot-clip">
+                                <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
+                            </clipPath>
+                        </defs>
 
-                    <GridAndAxes plot={plot} />
+                        <GridAndAxes plot={plot} />
 
-                    {plot.hasCurve && (
-                        <g clipPath="url(#response-plot-clip)">
-                            <path d={plot.areaPath} fill="url(#response-area-fill)" />
-                            <path
-                                className="stroke-primary"
-                                d={plot.linePath}
-                                strokeWidth={CURVE_STROKE}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                fill="none"
-                            />
-                            {showGraphPoints && (
-                                <g aria-hidden="true">
-                                    {plot.points.map(
-                                        (point, index) => (
-                                            <circle
-                                                className="fill-primary stroke-background"
-                                                strokeWidth={POINT_STROKE}
-                                                cx={point.x}
-                                                cy={point.y}
-                                                r={plot.pointRadius}
-                                                key={index}
-                                            />
-                                        )
-                                    )}
-                                </g>
-                            )}
-                        </g>
-                    )}
+                        {plot.hasCurve && (
+                            <g clipPath="url(#response-plot-clip)">
+                                <path d={plot.areaPath} fill="url(#response-area-fill)" />
+                                <path
+                                    className="stroke-primary"
+                                    d={plot.linePath}
+                                    strokeWidth={CURVE_STROKE}
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    fill="none"
+                                />
+                                {showGraphPoints && (
+                                    <g aria-hidden="true">
+                                        {plot.points.map(
+                                            (point, index) => (
+                                                <circle
+                                                    className="fill-primary stroke-background"
+                                                    strokeWidth={POINT_STROKE}
+                                                    cx={point.x}
+                                                    cy={point.y}
+                                                    r={plot.pointRadius}
+                                                    key={index}
+                                                />
+                                            )
+                                        )}
+                                    </g>
+                                )}
+                            </g>
+                        )}
 
                         <RecordingPlayhead plot={plot} samples={data.samples} />
                     </svg>
@@ -226,7 +223,7 @@ function PlayheadGrabHandle({ plot, samples, x, y }: { plot: GraphPlot; samples:
     );
 }
 
-function clientToSvgPoint(event: PointerEvent<SVGGraphicsElement>): { x: number; y: number } | null {
+function clientToSvgPoint(event: PointerEvent<SVGGraphicsElement>): { x: number; y: number; } | null {
     const svg = event.currentTarget.ownerSVGElement;
     const ctm = svg?.getScreenCTM();
     if (!svg || !ctm) return null;

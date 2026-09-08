@@ -11,13 +11,30 @@ export function ScalePreview() {
     return (
         <div className="relative size-3/4 bg-chart-1 rounded-sm">
             <div
-                className="size-full bg-background will-change-transform border-(length:--preview-stroke-thick,5px) border-foreground rounded-sm"
+                className={scaleClasses}
                 style={{ transform: `scale(${getScaleFactor(value)})` }}
             />
 
             <PreviewFrame />
-            <div aria-hidden className="absolute inset-1/4 border-(length:--preview-stroke,3px) border-foreground rounded-sm pointer-events-none" />
+            <div aria-hidden className={frameClasses} />
             <PreviewProgress>{formatScaleProgress(value)}</PreviewProgress>
         </div>
     );
 }
+
+const scaleClasses = "\
+size-full \
+bg-background \
+will-change-transform \
+border-(length:--preview-stroke-thick,5px) \
+border-foreground \
+rounded-sm \
+";
+
+const frameClasses = "\
+absolute inset-1/4 \
+border-(length:--preview-stroke,3px) \
+border-foreground \
+rounded-sm \
+pointer-events-none \
+";

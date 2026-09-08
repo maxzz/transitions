@@ -29,12 +29,12 @@ export function OpacityPreview() {
 function OpacityLegend({ value }: { value: number; }) {
     return (
         <div className="shrink-0 relative w-(--preview-legend,2.5rem) h-full" aria-hidden>
-            <div className="size-full bg-chart-1 bg-linear-to-t from-background/0 to-background border-(length:--preview-stroke,3px) border-foreground rounded-sm" />
+            <div className={legendClasses} />
 
             {/* Zero-width track spanning the bar interior; the marker's `top` is a percentage of it. */}
             <div className="absolute inset-x-1/2 inset-y-0.75">
                 <svg
-                    className="absolute left-0 w-(--preview-marker,5rem) h-[calc(var(--preview-marker,5rem)/5)] -translate-x-1/2 -translate-y-1/2"
+                    className={markerClasses}
                     style={{ top: `${getLegendMarkerTopPercent(value)}%` }}
                     viewBox="0 0 80 16"
                     fill="none"
@@ -50,3 +50,16 @@ function OpacityLegend({ value }: { value: number; }) {
         </div>
     );
 }
+
+const legendClasses = "\
+size-full \
+bg-chart-1 \
+bg-linear-to-t from-background/0 to-background \
+border-(length:--preview-stroke,3px) \
+border-foreground \
+rounded-sm \
+";
+
+const markerClasses = "\
+absolute left-0 w-(--preview-marker,5rem) h-[calc(var(--preview-marker,5rem)/5)] -translate-x-1/2 -translate-y-1/2 \
+";
