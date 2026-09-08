@@ -26,6 +26,7 @@ const TICK_LABEL_GAP = 9;
 export function Recordedview() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
     const data = useAtomValue(graphDataAtom);
+    const definition = useAtomValue(activeDefinitionAtom);
     const { showGraphPoints } = useSnapshot(appSettings);
 
     const plot = useMemo(
@@ -39,63 +40,84 @@ export function Recordedview() {
         <div className="flex-1 p-[clamp(0.25rem,1.2cqi,0.5rem)] min-h-0 @container-size overflow-hidden grid place-items-center">
             <div className="w-[100cqi] h-[min(100cqb,90cqi)] [--graph-label:clamp(0.6rem,2.4cqi,0.75rem)]" ref={ref}>
                 {plot && (
-                    <svg
-                        className="block size-full overflow-visible"
-                        width={plot.width}
-                        height={plot.height}
-                        viewBox={`0 0 ${plot.width} ${plot.height}`}
-                        role="img"
-                        aria-labelledby="response-graph-title response-graph-description"
-                    >
-                        <RecordedTitle />
-
-                        <defs>
-                            <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.45" />
-                                <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.03" />
-                            </linearGradient>
-                            <clipPath id="response-plot-clip">
-                                <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
-                            </clipPath>
-                        </defs>
-
-                        <GridAndAxes plot={plot} />
-
-                        {plot.hasCurve && (
-                            <g clipPath="url(#response-plot-clip)">
-                                <path d={plot.areaPath} fill="url(#response-area-fill)" />
-                                <path
-                                    className="stroke-primary"
-                                    d={plot.linePath}
-                                    strokeWidth={CURVE_STROKE}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    fill="none"
-                                />
-                                {showGraphPoints && (
-                                    <g aria-hidden="true">
-                                        {plot.points.map(
-                                            (point, index) => (
-                                                <circle
-                                                    className="fill-primary stroke-background"
-                                                    strokeWidth={POINT_STROKE}
-                                                    cx={point.x}
-                                                    cy={point.y}
-                                                    r={plot.pointRadius}
-                                                    key={index}
-                                                />
-                                            )
-                                        )}
-                                    </g>
-                                )}
-                            </g>
-                        )}
-
-                        <RecordingPlayhead plot={plot} samples={data.samples} />
-                    </svg>
+                    <RecordedSvg
+                        plot={plot}
+                        samples={data.samples}
+                        showGraphPoints={showGraphPoints}
+                        title={definition.label}
+                    />
                 )}
             </div>
         </div>
+    );
+}
+
+function RecordedSvg({
+    plot,
+    samples,
+    showGraphPoints,
+    title,
+}: {
+    plot: GraphPlot;
+    samples: readonly SamplePoint[];
+    showGraphPoints: boolean;
+    title: string;
+}) {
+    return (
+        <svg
+            className="block size-full overflow-visible"
+            width={plot.width}
+            height={plot.height}
+            viewBox={`0 0 ${plot.width} ${plot.height}`}
+            role="img"
+            aria-labelledby="response-graph-title response-graph-description"
+        >
+            <RecordedTitle title={title} />
+
+            <defs>
+                <linearGradient id="response-area-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor="var(--chart-2)" stopOpacity="0.45" />
+                    <stop offset="1" stopColor="var(--chart-2)" stopOpacity="0.03" />
+                </linearGradient>
+                <clipPath id="response-plot-clip">
+                    <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
+                </clipPath>
+            </defs>
+
+            <GridAndAxes plot={plot} />
+
+            {plot.hasCurve && (
+                <g clipPath="url(#response-plot-clip)">
+                    <path d={plot.areaPath} fill="url(#response-area-fill)" />
+                    <path
+                        className="stroke-primary"
+                        d={plot.linePath}
+                        strokeWidth={CURVE_STROKE}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                    />
+                    {showGraphPoints && (
+                        <g aria-hidden="true">
+                            {plot.points.map(
+                                (point, index) => (
+                                    <circle
+                                        className="fill-primary stroke-background"
+                                        strokeWidth={POINT_STROKE}
+                                        cx={point.x}
+                                        cy={point.y}
+                                        r={plot.pointRadius}
+                                        key={index}
+                                    />
+                                )
+                            )}
+                        </g>
+                    )}
+                </g>
+            )}
+
+            <RecordingPlayhead plot={plot} samples={samples} />
+        </svg>
     );
 }
 
@@ -298,12 +320,10 @@ function GridAndAxes({ plot }: { plot: GraphPlot; }) {
     );
 }
 
-function RecordedTitle() {
-    const definition = useAtomValue(activeDefinitionAtom);
-
+function RecordedTitle({ title }: { title: string; }) {
     return (
         <>
-            <title id="response-graph-title">{definition.label} transition response graph</title>
+            <title id="response-graph-title">{title} transition response graph</title>
             <desc id="response-graph-description">
                 Displacement over actual elapsed time, including any overshoot.
             </desc>
