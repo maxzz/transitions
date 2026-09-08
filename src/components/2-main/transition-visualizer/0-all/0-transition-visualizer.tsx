@@ -49,6 +49,7 @@ overflow-auto sm:overflow-hidden \
 grid \
 ";
 
+/** Window `sm` is the only viewport breakpoint: stacked chrome when the window is very narrow. */
 const splitGridClasses = "\
 grid-cols-2 \
 grid-rows-[auto_minmax(12rem,1fr)_auto] \

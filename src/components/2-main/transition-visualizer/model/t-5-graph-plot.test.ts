@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
     buildGraphPlot,
     formatTimeTick,
+    getGraphMargin,
     getGraphSize,
     getTimeAxis,
     getValueAxis,
+    GRAPH_MARGIN,
     mapPlotPoint,
     mapPlotTime,
     nearestPlotTime,
@@ -57,6 +59,13 @@ describe("graph sizing", () => {
         expect(getGraphSize(1000, 500)).toEqual({ width: 1000, height: 500 });
         expect(getGraphSize(undefined, 500)).toBeNull();
         expect(getGraphSize(400, 10)).toBeNull();
+    });
+
+    it("keeps the design margins at the reference container and shrinks them in a smaller one", () => {
+        expect(getGraphMargin(400, 360)).toEqual(GRAPH_MARGIN);
+        const small = getGraphMargin(200, 180);
+        expect(small.left).toBeLessThan(GRAPH_MARGIN.left);
+        expect(small.left).toBeGreaterThanOrEqual(Math.round(GRAPH_MARGIN.left * 0.6));
     });
 });
 

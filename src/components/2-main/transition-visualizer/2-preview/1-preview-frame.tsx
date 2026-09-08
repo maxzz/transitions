@@ -19,7 +19,7 @@ export function PreviewFrame({ className, filled, ...rest }: HTMLAttributes<HTML
     return (
         <div
             aria-hidden
-            className={cn("absolute inset-0 border-[3px] border-foreground rounded-sm pointer-events-none", filled && "bg-chart-1", className)}
+            className={cn("absolute inset-0 border-(length:--preview-stroke,3px) border-foreground rounded-sm pointer-events-none", filled && "bg-chart-1", className)}
             {...rest}
         />
     );
@@ -28,7 +28,7 @@ export function PreviewFrame({ className, filled, ...rest }: HTMLAttributes<HTML
 /** Numeric readout in the bottom-right corner of a scene. */
 export function PreviewProgress({ className, children }: { className?: string; children: ReactNode; }) {
     return (
-        <span className={cn("absolute right-3 bottom-2 text-xl font-mono tabular-nums text-foreground leading-none z-10", className)}>
+        <span className={cn("absolute right-(--preview-pad,0.75rem) bottom-(--preview-pad,0.5rem) text-(length:--preview-label,1.25rem) font-mono tabular-nums text-foreground leading-none z-10", className)}>
             {children}
         </span>
     );

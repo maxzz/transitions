@@ -6,7 +6,7 @@ import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
 
 export function ResponseGraph() {
     return (
-        <div className="relative h-full min-h-0 bg-muted/20 flex flex-col">
+        <div className="relative h-full min-h-0 @container-size bg-muted/20 flex flex-col">
             <RecordedSvg />
             <InfoToolbar />
         </div>

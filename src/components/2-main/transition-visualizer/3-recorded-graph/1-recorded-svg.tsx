@@ -20,8 +20,8 @@ const TICK_LENGTH = 5;
 const TICK_LABEL_GAP = 9;
 
 /**
- * The chart is laid out in real pixels (the SVG viewBox matches the measured box), so
- * text and strokes keep their size at any panel width instead of scaling with the drawing.
+ * The plot box is sized from the graph pane (`cqi`/`cqb`), then measured so the
+ * SVG viewBox matches that container. Tick labels scale with the same container.
  */
 export function RecordedSvg() {
     const { ref, width, height } = useResizeObserver<HTMLDivElement>({ round: Math.floor });
@@ -36,16 +36,20 @@ export function RecordedSvg() {
     );
 
     return (
-        <div ref={ref} className="flex-1 mx-2 mt-2 mb-1.5 min-h-0 overflow-visible flex items-center justify-center">
-            {plot && (
-                <svg
-                    className="shrink-0 block overflow-visible"
-                    width={plot.width}
-                    height={plot.height}
-                    viewBox={`0 0 ${plot.width} ${plot.height}`}
-                    role="img"
-                    aria-labelledby="response-graph-title response-graph-description"
-                >
+        <div className="flex-1 p-[clamp(0.25rem,1.2cqi,0.5rem)] min-h-0 @container-size overflow-hidden grid place-items-center">
+            <div
+                ref={ref}
+                className="w-[100cqi] h-[min(100cqb,90cqi)] [--graph-label:clamp(0.6rem,2.4cqi,0.75rem)]"
+            >
+                {plot && (
+                    <svg
+                        className="block size-full overflow-visible"
+                        width={plot.width}
+                        height={plot.height}
+                        viewBox={`0 0 ${plot.width} ${plot.height}`}
+                        role="img"
+                        aria-labelledby="response-graph-title response-graph-description"
+                    >
                     <RecordedTitle />
 
                     <defs>
@@ -90,9 +94,10 @@ export function RecordedSvg() {
                         </g>
                     )}
 
-                    <RecordingPlayhead plot={plot} samples={data.samples} />
-                </svg>
-            )}
+                        <RecordingPlayhead plot={plot} samples={data.samples} />
+                    </svg>
+                )}
+            </div>
         </div>
     );
 }
@@ -264,7 +269,7 @@ function GridAndAxes({ plot }: { plot: GraphPlot; }) {
                 )}
             </g>
 
-            <g className="text-xs font-mono tabular-nums fill-muted-foreground">
+            <g className="text-(length:--graph-label,0.75rem) font-mono tabular-nums fill-muted-foreground">
                 {plot.xTicks.map(
                     (tick, index, all) => (
                         <text

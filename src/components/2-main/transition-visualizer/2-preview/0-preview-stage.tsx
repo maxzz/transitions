@@ -28,11 +28,16 @@ export function PreviewStage() {
     );
 }
 
-/** Square stage sized from the nearest @container-size ancestor. */
+/**
+ * Square stage from the pane's size container, then a nested size container so
+ * strokes, type, and gaps scale with `cqmin` of the square — not the window.
+ */
 function PreviewCanvas({ className, children }: { className?: string; children: ReactNode; }) {
     return (
         <div className={classNames(canvasClasses, className)}>
-            {children}
+            <div className={canvasUiClasses}>
+                {children}
+            </div>
         </div>
     );
 }
@@ -40,6 +45,19 @@ function PreviewCanvas({ className, children }: { className?: string; children: 
 const canvasClasses = "\
 relative \
 w-[min(100cqw,100cqh)] aspect-square \
+@container-size \
+";
+
+const canvasUiClasses = "\
+size-full \
+[--preview-stroke:clamp(1.5px,0.95cqmin,3px)] \
+[--preview-stroke-thick:clamp(2px,1.5cqmin,5px)] \
+[--preview-label:clamp(0.7rem,5.5cqmin,1.25rem)] \
+[--preview-pad:clamp(0.2rem,1.8cqmin,0.75rem)] \
+[--preview-gap:clamp(0.4rem,3.5cqmin,1.5rem)] \
+[--preview-legend:clamp(1.15rem,7cqmin,2.5rem)] \
+[--preview-marker:clamp(2.5rem,14cqmin,5rem)] \
+[--preview-radius:clamp(0.4rem,3.2cqmin,1.25rem)] \
 grid place-items-center \
 ";
 
@@ -54,4 +72,3 @@ function TransitionScene() {
         case "opacity": return <OpacityPreview />;
     }
 }
-

@@ -14,7 +14,7 @@ export function TranslatePreview() {
             <div aria-hidden className="absolute inset-0 bg-chart-1 rounded-sm" />
 
             <div
-                className="relative top-[30%] w-[35%] h-[60%] bg-background will-change-transform border-[5px] border-foreground rounded-[20px]"
+                className="relative top-[30%] w-[35%] h-[60%] bg-background will-change-transform border-(length:--preview-stroke-thick,5px) border-foreground rounded-(--preview-radius,1.25rem)"
                 style={{ transform: `translateY(${getTranslateOffsetPercent(value)}%)` }}
             />
 
