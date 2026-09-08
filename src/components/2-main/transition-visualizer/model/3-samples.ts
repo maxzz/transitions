@@ -1,10 +1,4 @@
-import type { SamplePoint } from "./9-types";
-
-export type SampleBounds = {
-    durationMs: number;
-    minValue: number;
-    maxValue: number;
-};
+import { type SampleBounds, type SamplePoint } from "./9-types";
 
 export function sanitizeSamples(samples: readonly SamplePoint[]): SamplePoint[] {
     const clean: SamplePoint[] = [];

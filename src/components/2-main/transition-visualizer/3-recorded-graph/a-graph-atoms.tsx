@@ -1,6 +1,7 @@
 import { atom } from "jotai";
+import { type SampleBounds } from "../model/9-types";
 import { getPlotDurationMs } from "../model/2-duration";
-import { getSampleBounds, type SampleBounds } from "../model/3-samples";
+import { getSampleBounds } from "../model/3-samples";
 import type { GraphData } from "../model/5-graph-plot";
 import {
     activeEngineAtom,

@@ -4,7 +4,7 @@ import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
 import {
     type GsapParams,
     type MotionParams,
-    type ReactSpringParams,
+    type SpringParams,
 } from "@/components/2-main/transition-visualizer/model/9-types";
 import {
     engineDefinitions,
@@ -21,18 +21,18 @@ const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
 export type VisualizerDisplay = "mechanical" | "split" | "graph";
 
 export interface AppSettings {
-    theme: ThemeMode;
-    showFooter: boolean;
-    panelSizes: PanelSizes;
-    expandedSections: string[];
-    visualizerDisplay: VisualizerDisplay;
-    autoRecordResponse: boolean;
-    returnToInitialPosition: boolean;
-    showGraphPoints: boolean;
-    graphClickToDrag: boolean;
-    reactSpringParams: ReactSpringParams;
-    motionParams: MotionParams;
-    gsapParams: GsapParams;
+    theme: ThemeMode;                       // the theme of the app
+    showFooter: boolean;                    // false to hide the footer
+    panelSizes: PanelSizes;                 // the sizes of the panels
+    expandedSections: string[];             // the sections that are expanded by default
+    visualizerDisplay: VisualizerDisplay;   // "mechanical" to show the mechanical response, "split" to show the mechanical response and the graph side by side, "graph" to show only the graph
+    autoRecordResponse: boolean;            // false to disable recording of the response
+    returnToInitialPosition: boolean;       // false to keep the final position of the transition
+    showGraphPoints: boolean;               // false to hide the points on the graph
+    graphClickToDrag: boolean;              // false to disable scrubbing of the graph
+    reactSpringParams: SpringParams;        // the parameters for the react-spring transition
+    motionParams: MotionParams;             // the parameters for the Motion transition
+    gsapParams: GsapParams;                 // the parameters for the GSAP transition
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -43,7 +43,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     visualizerDisplay: "split",
     autoRecordResponse: true,
     returnToInitialPosition: false,
-    showGraphPoints: true,
+    showGraphPoints: false,
     graphClickToDrag: true,
     reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },

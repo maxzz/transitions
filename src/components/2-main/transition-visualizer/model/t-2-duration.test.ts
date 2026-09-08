@@ -7,7 +7,7 @@ import {
     formatDuration,
     getPlotDurationMs,
     motionSpringDurationMs,
-    reactSpringDurationMs,
+    springDurationMs,
 } from "./2-duration";
 
 describe("estimateDurationMs", () => {
@@ -48,24 +48,24 @@ describe("estimateDurationMs", () => {
 
 describe("reactSpringDurationMs", () => {
     it("integrates in whole milliseconds and rests at the react-spring thresholds", () => {
-        const durationMs = reactSpringDurationMs(springDefaults);
+        const durationMs = springDurationMs(springDefaults);
         expect(Number.isInteger(durationMs)).toBe(true);
         expect(durationMs).toBeGreaterThan(300);
         expect(durationMs).toBeLessThan(800);
     });
 
     it("settles sooner with a looser precision", () => {
-        expect(reactSpringDurationMs({ ...springDefaults, precision: 0.1 }))
-            .toBeLessThan(reactSpringDurationMs({ ...springDefaults, precision: 0.001 }));
+        expect(springDurationMs({ ...springDefaults, precision: 0.1 }))
+            .toBeLessThan(springDurationMs({ ...springDefaults, precision: 0.001 }));
     });
 
     it("stops at the target when clamped", () => {
         const wobbly = { ...springDefaults, tension: 180, friction: 12 };
-        expect(reactSpringDurationMs({ ...wobbly, clamp: true })).toBeLessThan(reactSpringDurationMs(wobbly));
+        expect(springDurationMs({ ...wobbly, clamp: true })).toBeLessThan(springDurationMs(wobbly));
     });
 
     it("never exceeds the maximum duration", () => {
-        expect(reactSpringDurationMs({ ...springDefaults, friction: 0.001, precision: 0.001 })).toBeLessThanOrEqual(MAX_DURATION_MS);
+        expect(springDurationMs({ ...springDefaults, friction: 0.001, precision: 0.001 })).toBeLessThanOrEqual(MAX_DURATION_MS);
     });
 });
 

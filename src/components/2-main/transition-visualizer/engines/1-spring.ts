@@ -1,5 +1,5 @@
 import { SpringValue } from "@react-spring/web";
-import type { EngineAdapter, ReactSpringParams } from "../model/9-types";
+import type { EngineAdapter, SpringParams } from "../model/9-types";
 
 /**
  * react-spring's frame loop (rafz) advances the physics by a fixed 16.667 ms on the first frame
@@ -13,7 +13,7 @@ export function advanceSpringClock(physicsMs: number, lastFrameAt: number | null
     return physicsMs + Math.ceil(dt);
 }
 
-export const reactSpringAdapter: EngineAdapter<ReactSpringParams> = {
+export const reactSpringAdapter: EngineAdapter<SpringParams> = {
     id: "spring",
     run(params, callbacks) {
         const progress = new SpringValue(0);

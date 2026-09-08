@@ -1,63 +1,11 @@
 import { calcGeneratorDuration, spring } from "motion";
-import type { EngineId, EngineParamsMap, MotionParams, ReactSpringParams } from "./9-types";
-
-export const MAX_DURATION_MS = 30_000;
+import type { EngineId, EngineParamsMap, MotionParams, SpringParams } from "./9-types";
 
 /**
- * Physics engines detect rest inside a frame, so their last recorded frame lands up to one
- * (rafz-capped) frame after the exact rest time. The plot is laid out with this much extra room.
- */
-export const SETTLE_HEADROOM_MS = 64;
-
-/**
- * Exact duration of the engine's own timeline for the given parameters, computed the way the
- * engine itself does, so it is known before the run starts and does not depend on frame timing.
- */
-export function estimateDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
-    switch (engineId) {
-        case "gsap":
-            return clampDuration((params as EngineParamsMap["gsap"]).duration * 1000);
-        case "motion":
-            return clampDuration(motionSpringDurationMs(params as MotionParams));
-        case "spring":
-            return clampDuration(reactSpringDurationMs(params as ReactSpringParams));
-    }
-}
-
-/** Time range the recorded graph is laid out for, decided before the run starts. */
-export function getPlotDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
-    const exact = estimateDurationMs(engineId, params);
-    return engineId === "gsap" ? exact : Math.min(MAX_DURATION_MS, exact + SETTLE_HEADROOM_MS);
-}
-
-export function formatDuration(durationMs: number): string {
-    return durationMs < 1000
-        ? `${Math.round(durationMs)} ms`
-        : `${(durationMs / 1000).toFixed(2)} s`;
-}
-
-/** Motion resolves its spring analytically and fixes the duration up front by stepping the generator. */
-export function motionSpringDurationMs(params: MotionParams): number {
-    return calcGeneratorDuration(spring({ keyframes: [0, 1], ...params }));
-}
-
-/**
- * Replica of react-spring's `SpringValue.advance` physics for a 0 → 1 move: semi-implicit Euler in
- * 1 ms steps, at rest once |velocity| <= precision / 10 and |target - position| <= precision.
- * Returns the physics time (ms) at which react-spring reports rest.
- */
-export function reactSpringDurationMs(params: ReactSpringParams): number {
-    return integrateReactSpring(params);
-}
-
-/**
- * Same integrator as `reactSpringDurationMs`, calling `onStep` at t=0 and after every 1 ms step
+ * Same integrator as `springDurationMs`, calling `onStep` at t=0 and after every 1 ms step
  * so the curve can be sampled offline without running SpringValue on rAF.
  */
-export function integrateReactSpring(
-    params: ReactSpringParams,
-    onStep?: (elapsedMs: number, position: number) => void,
-): number {
+export function integrateSpring(params: SpringParams, onStep?: (elapsedMs: number, position: number) => void,): number {
     const to = 1;
     const { tension, friction, clamp } = params;
     if (!(tension > 0)) {
@@ -91,7 +39,58 @@ export function integrateReactSpring(
     return MAX_DURATION_MS;
 }
 
+export const MAX_DURATION_MS = 30_000;
+
+export function formatDuration(durationMs: number): string {
+    return durationMs < 1000
+        ? `${Math.round(durationMs)} ms`
+        : `${(durationMs / 1000).toFixed(2)} s`;
+}
+
+/** Time range the recorded graph is laid out for, decided before the run starts. */
+export function getPlotDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
+    const exact = estimateDurationMs(engineId, params);
+    return engineId === "gsap" ? exact : Math.min(MAX_DURATION_MS, exact + SETTLE_HEADROOM_MS);
+}
+
+/**
+ * Physics engines detect rest inside a frame, so their last recorded frame lands up to one
+ * (rafz-capped) frame after the exact rest time. The plot is laid out with this much extra room.
+ */
+export const SETTLE_HEADROOM_MS = 64;
+
+//---------------------------------------------------------------------------
+// The rest is exported for testing purposes
+
+/** Estimate the duration of the engine's own timeline for the given parameters, computed the way the engine 
+ * itself does, so it is known before the run starts and does not depend on frame timing. 
+ */
+export function estimateDurationMs(engineId: EngineId, params: EngineParamsMap[EngineId]): number {
+    switch (engineId) {
+        case "gsap":
+            return clampDuration((params as EngineParamsMap["gsap"]).duration * 1000);
+        case "motion":
+            return clampDuration(motionSpringDurationMs(params as MotionParams));
+        case "spring":
+            return clampDuration(springDurationMs(params as SpringParams));
+    }
+}
+
 function clampDuration(durationMs: number): number {
     if (!Number.isFinite(durationMs)) return MAX_DURATION_MS;
     return Math.min(MAX_DURATION_MS, Math.max(1, durationMs));
+}
+
+/**  Motion resolves its spring analytically and fixes the duration up front by stepping the generator. */
+export function motionSpringDurationMs(params: MotionParams): number {
+    return calcGeneratorDuration(spring({ keyframes: [0, 1], ...params }));
+}
+
+/**
+ * Replica of react-spring's `SpringValue.advance` physics for a 0 → 1 move: semi-implicit Euler in
+ * 1 ms steps, at rest once |velocity| <= precision / 10 and |target - position| <= precision.
+ * Returns the physics time (ms) at which react-spring reports rest.
+ */
+export function springDurationMs(params: SpringParams): number {
+    return integrateSpring(params);
 }

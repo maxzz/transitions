@@ -1,5 +1,5 @@
 import { clamp } from "@/utils/numbers";
-import { type EngineDefinition, type EngineId, type EngineParamsMap, type GsapParams, type MotionParams, type ReactSpringParams } from "./9-types";
+import { type EngineDefinition, type EngineId, type EngineParamsMap, type GsapParams, type MotionParams, type SpringParams } from "./9-types";
 import { springDefaults, springDefinition } from "./1-1-definitions-spring";
 import { motionDefaults, motionDefinition } from "./1-2-definitions-motion";
 import { gsapDefaults, gsapDefinition } from "./1-3-definitions-gsap";
@@ -14,8 +14,8 @@ export const engineDefinitions = {
 
 export const engineIds = Object.keys(engineDefinitions) as EngineId[];
 
-export function getDefinition(engineId: EngineId): EngineDefinition<ReactSpringParams | MotionParams | GsapParams> {
-    return engineDefinitions[engineId] as EngineDefinition<ReactSpringParams | MotionParams | GsapParams>;
+export function getDefinition(engineId: EngineId): EngineDefinition<SpringParams | MotionParams | GsapParams> {
+    return engineDefinitions[engineId] as EngineDefinition<SpringParams | MotionParams | GsapParams>;
 }
 
 export function getValidEngineParams<P>(definition: EngineDefinition<P>, stored: unknown): P {

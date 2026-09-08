@@ -2,7 +2,7 @@ import type { SpringParams } from "./9-1-1-types-spring";
 import type { MotionParams } from "./9-1-2-types-motion";
 import type { GsapEaseDirection, GsapEaseFamily, GsapParams } from "./9-1-3-types-gsap";
 
-export type { GsapEaseDirection, GsapEaseFamily, GsapParams, MotionParams, SpringParams as ReactSpringParams };
+export type { GsapEaseDirection, GsapEaseFamily, GsapParams, MotionParams, SpringParams };
 
 export type EngineId = "spring" | "motion" | "gsap";
 
@@ -15,6 +15,12 @@ export type SamplePoint = {
     value: number;
 };
 
+export type SampleBounds = {
+    durationMs: number;
+    minValue: number;
+    maxValue: number;
+};
+
 export type RunResult = {
     engineId: EngineId;
     durationMs: number;
@@ -23,11 +29,17 @@ export type RunResult = {
     stopped?: boolean;
 };
 
+//---------------------------------------------------------------------------
+// Engine parameter types
+
 export type EngineParamsMap = {
     spring: SpringParams;
     motion: MotionParams;
     gsap: GsapParams;
 };
+
+//---------------------------------------------------------------------------
+// Field types for the parameter fields
 
 export type NumberField<P> = {
     kind: "number";
@@ -59,6 +71,9 @@ export type SelectField<P> = {
 };
 
 export type ParamField<P> = NumberField<P> | BooleanField<P> | SelectField<P>;
+
+//---------------------------------------------------------------------------
+// Engine definitions
 
 export type EnginePreset<P> = {
     id: string;

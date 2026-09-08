@@ -1,5 +1,4 @@
-import type { SampleBounds } from "./3-samples";
-import type { SamplePoint } from "./9-types";
+import { type SampleBounds, type SamplePoint } from "./9-types";
 
 export type GraphSize = {
     width: number;
