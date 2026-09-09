@@ -35,19 +35,23 @@ function OpacityLegend({ value }: { value: number; }) {
 
             {/* Zero-width track spanning the bar interior; the marker's `top` is a percentage of it. */}
             <div className="absolute inset-x-1/2 inset-y-0.75">
-                <PreviewMovingSvg
+                <div
                     className={markerClasses}
                     style={{ top: `${getLegendMarkerTopPercent(value)}%` }}
-                    viewBox="0 0 80 16"
-                    fill="none"
                 >
-                    <path
-                        className="stroke-foreground"
-                        strokeWidth="3"
-                        strokeLinejoin="round"
-                        d="M3 2.5 L13.5 8 L3 13.5 Z M77 2.5 L66.5 8 L77 13.5 Z"
-                    />
-                </PreviewMovingSvg>
+                    <PreviewMovingSvg
+                        className="size-full"
+                        viewBox="0 0 80 16"
+                        fill="none"
+                    >
+                        <path
+                            className="stroke-foreground"
+                            strokeWidth="3"
+                            strokeLinejoin="round"
+                            d="M3 2.5 L13.5 8 L3 13.5 Z M77 2.5 L66.5 8 L77 13.5 Z"
+                        />
+                    </PreviewMovingSvg>
+                </div>
             </div>
         </div>
     );
