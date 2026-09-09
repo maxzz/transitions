@@ -1,10 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const motionSpies = vi.hoisted(() => ({
+    animateCalls: [] as number[],
+}));
+
 vi.mock("motion", async (importOriginal) => {
     const actual = await importOriginal<typeof import("motion")>();
     return {
         ...actual,
         animate: (value: { set: (next: number) => void; }, to: number) => {
+            motionSpies.animateCalls.push(to);
             value.set(to);
             return Promise.resolve();
         },
@@ -70,6 +75,7 @@ describe("opacity preview", () => {
 
 describe("preview motion store", () => {
     afterEach(() => {
+        motionSpies.animateCalls.length = 0;
         resetPreviewValue();
         setPreviewSpeed(1);
     });
@@ -93,7 +99,7 @@ describe("preview motion store", () => {
         expect(previewResetOpacity.get()).toBe(1);
     });
 
-    it("fades the moving parts out before snapping back to the initial pose", async () => {
+    it("fades the moving parts out, then fades them back in at the initial pose", async () => {
         setPreviewValue(1, 240);
         const done = fadeResetPreviewToInitial();
         expect(previewResetOpacity.get()).toBe(0);
@@ -102,6 +108,7 @@ describe("preview motion store", () => {
         expect(getPreviewValue()).toBe(0);
         expect(previewMotion.elapsedMs).toBe(0);
         expect(previewResetOpacity.get()).toBe(1);
+        expect(motionSpies.animateCalls).toEqual([0, 1, 1]);
     });
 
     it("cancels an in-flight return fade without changing the pose", async () => {
