@@ -46,11 +46,16 @@ export function useEngineRun() {
 
     useEffect(
         () => {
-            if (status !== "settled" || result?.stopped || !returnToInitialPosition) return undefined;
-            const timer = setTimeout(() => {
-                // Fade the moving parts out, then snap the pose so the preview does not jump.
-                if (appSettings.returnToInitialPosition) fadeResetPreviewToInitial();
-            }, RETURN_TO_INITIAL_DELAY_MS);
+            if (status !== "settled" || result?.stopped || !returnToInitialPosition) {
+                return undefined;
+            }
+            const timer = setTimeout(
+                () => {
+                    if (appSettings.returnToInitialPosition) { // Fade the moving parts out, then snap the pose so the preview does not jump.
+                        fadeResetPreviewToInitial();
+                    }
+                },
+                RETURN_TO_INITIAL_DELAY_MS);
             return () => {
                 clearTimeout(timer);
                 cancelPreviewResetFade();
@@ -60,7 +65,9 @@ export function useEngineRun() {
 
     useEffect(
         () => {
-            if (status !== "running") return undefined;
+            if (status !== "running") {
+                return undefined;
+            }
 
             const shouldDelayReplay = !appSettings.returnToInitialPosition && getPreviewValue() !== 0;
             let cancelled = false;
@@ -76,15 +83,13 @@ export function useEngineRun() {
             };
 
             const finish = (stopped = false) => {
-                completeRun({
-                    token,
-                    stopped,
-                    elapsedMs: previewMotion.elapsedMs,
-                });
+                completeRun({ token, stopped, elapsedMs: previewMotion.elapsedMs });
             };
 
             const tick = (now: number) => {
-                if (cancelled) return;
+                if (cancelled) {
+                    return;
+                }
                 const dt = lastNow === 0 ? 0 : now - lastNow;
                 lastNow = now;
                 const next = previewMotion.elapsedMs + dt * previewMotion.speed;
@@ -99,7 +104,9 @@ export function useEngineRun() {
 
             const launch = () => {
                 replayTimer = null;
-                if (cancelled) return;
+                if (cancelled) {
+                    return;
+                }
                 resetPreviewValue();
                 if (durationMs <= 0) {
                     finish();
@@ -111,9 +118,13 @@ export function useEngineRun() {
             };
 
             const stop = () => {
-                if (cancelled) return;
+                if (cancelled) {
+                    return;
+                }
                 cancelled = true;
-                if (replayTimer !== null) clearTimeout(replayTimer);
+                if (replayTimer !== null) {
+                    clearTimeout(replayTimer);
+                }
                 cancelAnimationFrame(frame);
                 finish(true);
             };
@@ -128,7 +139,9 @@ export function useEngineRun() {
 
             return () => {
                 cancelled = true;
-                if (replayTimer !== null) clearTimeout(replayTimer);
+                if (replayTimer !== null) {
+                    clearTimeout(replayTimer);
+                }
                 cancelAnimationFrame(frame);
                 registerStopActiveRun(null);
             };

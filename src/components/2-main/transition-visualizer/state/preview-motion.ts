@@ -24,15 +24,6 @@ export const previewMotion = proxy({
 /** Opacity of the moving preview parts while returning to the initial pose. 1 = visible. */
 export const previewResetOpacity = motionValue(1);
 
-/** Fade-out duration in seconds before the pose snaps back. */
-export const PREVIEW_RESET_FADE_OUT_DURATION = 0.3;
-
-/** Pause, in seconds, while the model is gone so the disappearance reads. */
-export const PREVIEW_RESET_HOLD_DURATION = 0.45;
-
-/** Fade-in duration in seconds after the pose has snapped back. */
-export const PREVIEW_RESET_FADE_IN_DURATION = 0.6;
-
 let resetFadeToken = 0;
 
 export function setPreviewValue(value: number, elapsedMs?: number) {
@@ -53,7 +44,9 @@ export function togglePreviewPause() {
 
 /** A stopped or newly started run should not stay frozen from a previous pause. */
 export function ensurePreviewPlayingSpeed() {
-    if (previewMotion.speed === 0) setPreviewSpeed(1);
+    if (previewMotion.speed === 0) {
+        setPreviewSpeed(1);
+    }
 }
 
 export function getPreviewValue(): number {
@@ -72,6 +65,7 @@ export function cancelPreviewResetFade() {
     previewResetOpacity.jump(1);
 }
 
+//---------------------------------------------------------------------------
 /**
  * Fade the moving preview parts out, pause while they are gone, snap to the initial pose,
  * then fade them back in. Used when "return to initial position" fires after a run settles.
@@ -87,33 +81,40 @@ export async function fadeResetPreviewToInitial(): Promise<void> {
     previewResetOpacity.jump(1);
 
     try {
-        await animate(previewResetOpacity, 0, {
-            duration: PREVIEW_RESET_FADE_OUT_DURATION,
-            ease: "easeOut",
-        });
-        if (token !== resetFadeToken) return;
+        await animate(previewResetOpacity, 0, { duration: PREVIEW_RESET_FADE_OUT_DURATION, ease: "easeOut", });
+        if (token !== resetFadeToken) {
+            return;
+        }
 
         // Tick a dummy value so the hold lasts and Motion's frame loop stays alive.
-        await animate(motionValue(0), 1, {
-            duration: PREVIEW_RESET_HOLD_DURATION,
-            ease: "linear",
-        });
-        if (token !== resetFadeToken) return;
+        await animate(motionValue(0), 1, { duration: PREVIEW_RESET_HOLD_DURATION, ease: "linear", });
+        if (token !== resetFadeToken) {
+            return;
+        }
 
         previewMotion.value = 0;
         previewMotion.elapsedMs = 0;
 
-        await animate(previewResetOpacity, 1, {
-            duration: PREVIEW_RESET_FADE_IN_DURATION,
-            ease: "easeInOut",
-        });
+        await animate(previewResetOpacity, 1, { duration: PREVIEW_RESET_FADE_IN_DURATION, ease: "easeInOut", });
     } catch {
         return;
     }
 }
 
+/** Fade-out duration in seconds before the pose snaps back. */
+const PREVIEW_RESET_FADE_OUT_DURATION = 0.3;
+
+/** Pause, in seconds, while the model is gone so the disappearance reads. */
+const PREVIEW_RESET_HOLD_DURATION = 0.45;
+
+/** Fade-in duration in seconds after the pose has snapped back. */
+const PREVIEW_RESET_FADE_IN_DURATION = 0.6;
+
+//---------------------------------------------------------------------------
+
 export function seekPlayback(samples: readonly SamplePoint[], elapsedMs: number) {
     const durationMs = samples.at(-1)?.elapsedMs ?? 0;
     const next = Number.isFinite(elapsedMs) ? Math.min(durationMs, Math.max(0, elapsedMs)) : 0;
+    
     setPreviewValue(interpolateSampleValue(samples, next) ?? 0, next);
 }

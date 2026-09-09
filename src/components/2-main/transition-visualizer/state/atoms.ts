@@ -133,7 +133,9 @@ export const applyPresetAtom = atom(
     (get, set, update: { engineId: EngineId; presetId: string; }) => {
         const definition = engineDefinitions[update.engineId];
         const preset = definition.presets.find(({ id }) => id === update.presetId);
-        if (!preset) return;
+        if (!preset) {
+            return;
+        }
 
         const current = get(paramsByEngineAtom);
         const nextParams = { ...preset.params } as EngineParamsMap[typeof update.engineId];
@@ -161,7 +163,9 @@ export const hydrateCurveAtom = atom(
 export const publishLiveSamplesAtom = atom(
     null,
     (get, set, update: { token: number; samples: SamplePoint[]; }) => {
-        if (get(runTokenAtom) !== update.token) return;
+        if (get(runTokenAtom) !== update.token) {
+            return;
+        }
         set(liveSamplesAtom, update.samples);
         set(extendExpectedDurationAtom, { token: update.token, elapsedMs: update.samples.at(-1)?.elapsedMs ?? 0 });
     },
@@ -174,7 +178,9 @@ export const publishLiveSamplesAtom = atom(
 export const extendExpectedDurationAtom = atom(
     null,
     (get, set, update: { token: number; elapsedMs: number; }) => {
-        if (get(runTokenAtom) !== update.token) return;
+        if (get(runTokenAtom) !== update.token) {
+            return;
+        }
         if (update.elapsedMs > get(expectedDurationMsAtom)) {
             set(expectedDurationMsAtom, update.elapsedMs);
         }
@@ -184,7 +190,9 @@ export const extendExpectedDurationAtom = atom(
 export const completeRunAtom = atom(
     null,
     (get, set, update: { token: number; stopped?: boolean; elapsedMs?: number; }) => {
-        if (get(runTokenAtom) !== update.token) return;
+        if (get(runTokenAtom) !== update.token) {
+            return;
+        }
         const current = get(runResultAtom);
         if (current && update.stopped) {
             set(runResultAtom, { ...current, stopped: true, durationMs: Math.max(update.elapsedMs ?? current.durationMs, 1) });
@@ -198,7 +206,9 @@ export const completeRunAtom = atom(
 export const stopRunAtom = atom(
     null,
     (get) => {
-        if (get(runStatusAtom) !== "running") return;
+        if (get(runStatusAtom) !== "running") {
+            return;
+        }
         stopActiveRun?.();
     }
 );
