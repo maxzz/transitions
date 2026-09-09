@@ -4,7 +4,7 @@ import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { PanelInfoTooltip } from "@/ui/local-ui/7-info-tooltip";
 import { useResizeObserver } from "@/utils/util-hooks/use-resize-observer";
-import { buildGraphPlot, getGraphSize } from "../model/5-graph-plot";
+import { buildGraphPlot, getGraphSize } from "../model/5-graph-plot-math";
 import { activeDefinitionAtom } from "../state/atoms";
 import { RecordedSvg } from "./1-0-recorded-svg";
 import { GraphOptionsPopover } from "./2-graph-options-popover";

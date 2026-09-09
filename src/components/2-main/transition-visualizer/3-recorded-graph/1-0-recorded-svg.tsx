@@ -1,4 +1,4 @@
-import { type GraphPlot } from "../model/5-graph-plot";
+import { type GraphPlot } from "../model/5-graph-plot-math";
 import { type SamplePoint } from "../model/9-types";
 import { RecordingPlayhead } from "./1-1-recorded-svg-playhead";
 

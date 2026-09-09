@@ -2,7 +2,7 @@ import { useRef, type PointerEvent } from "react";
 import { useSnapshot } from "valtio";
 import { appSettings } from "@/store/1-ui-settings";
 import { interpolateSampleValue } from "../model/3-samples";
-import { mapPlotPoint, mapPlotTime, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot";
+import { mapPlotPoint, mapPlotTime, nearestPlotTime, type GraphPlot } from "../model/5-graph-plot-math";
 import type { SamplePoint } from "../model/9-types";
 import { previewMotion, seekPlayback } from "../state/preview-motion";
 

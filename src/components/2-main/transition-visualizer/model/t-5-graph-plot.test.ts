@@ -13,7 +13,7 @@ import {
     monotoneCurvePath,
     niceStep,
     ticksBetween,
-} from "./5-graph-plot";
+} from "./5-graph-plot-math";
 
 describe("graph axes", () => {
     it("picks nice steps that respect the tick budget", () => {
