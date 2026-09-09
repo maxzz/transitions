@@ -1,6 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const motionSpies = vi.hoisted(() => ({
+    animateCalls: [] as number[],
+}));
+
+vi.mock("motion", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("motion")>();
+    return {
+        ...actual,
+        animate: (value: { set: (next: number) => void; }, to: number) => {
+            motionSpies.animateCalls.push(to);
+            value.set(to);
+            return Promise.resolve();
+        },
+    };
+});
+
 import { formatOpacityProgress, formatRotateProgress, formatScaleProgress, formatTranslateProgress, getLegendMarkerTopPercent, getRotationDegrees, getScaleFactor, getTranslateOffsetPercent } from "./2-2-format-helpers";
-import { ensurePreviewPlayingSpeed, getPreviewValue, previewMotion, resetPreviewValue, seekPlayback, setPreviewSpeed, setPreviewValue, togglePreviewPause } from "../state/preview-motion";
+import { cancelPreviewResetFade, ensurePreviewPlayingSpeed, fadeResetPreviewToInitial, getPreviewValue, previewMotion, previewResetOpacity, resetPreviewValue, seekPlayback, setPreviewSpeed, setPreviewValue, togglePreviewPause } from "../state/preview-motion";
 
 describe("translate preview", () => {
     it("moves the pill by exactly one frame height between start and target", () => {
@@ -57,6 +74,12 @@ describe("opacity preview", () => {
 });
 
 describe("preview motion store", () => {
+    afterEach(() => {
+        motionSpies.animateCalls.length = 0;
+        resetPreviewValue();
+        setPreviewSpeed(1);
+    });
+
     it("shares the live value between writers and readers", () => {
         setPreviewValue(0.42);
         expect(getPreviewValue()).toBe(0.42);
@@ -73,6 +96,37 @@ describe("preview motion store", () => {
         resetPreviewValue();
         expect(getPreviewValue()).toBe(0);
         expect(previewMotion.elapsedMs).toBe(0);
+        expect(previewResetOpacity.get()).toBe(1);
+    });
+
+    it("fades the moving parts out, then fades them back in at the initial pose", async () => {
+        setPreviewValue(1, 240);
+        const done = fadeResetPreviewToInitial();
+        expect(previewResetOpacity.get()).toBe(0);
+        expect(getPreviewValue()).toBe(1);
+        await done;
+        expect(getPreviewValue()).toBe(0);
+        expect(previewMotion.elapsedMs).toBe(0);
+        expect(previewResetOpacity.get()).toBe(1);
+        expect(motionSpies.animateCalls).toEqual([0, 1, 1]);
+    });
+
+    it("cancels an in-flight return fade without changing the pose", async () => {
+        setPreviewValue(1, 240);
+        const done = fadeResetPreviewToInitial();
+        cancelPreviewResetFade();
+        await done;
+        expect(getPreviewValue()).toBe(1);
+        expect(previewMotion.elapsedMs).toBe(240);
+        expect(previewResetOpacity.get()).toBe(1);
+    });
+
+    it("skips the fade when the preview is already at the initial pose", async () => {
+        setPreviewValue(0, 240);
+        await fadeResetPreviewToInitial();
+        expect(getPreviewValue()).toBe(0);
+        expect(previewMotion.elapsedMs).toBe(0);
+        expect(previewResetOpacity.get()).toBe(1);
     });
 
     it("records the frame clock for the graph playhead", () => {

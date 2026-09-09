@@ -1,3 +1,4 @@
+import { animate, motionValue } from "motion";
 import { proxy } from "valtio";
 import { interpolateSampleValue } from "../model/3-samples";
 import type { SamplePoint } from "../model/9-types";
@@ -19,6 +20,20 @@ export const previewMotion = proxy({
     elapsedMs: 0,
     speed: 1,
 });
+
+/** Opacity of the moving preview parts while returning to the initial pose. 1 = visible. */
+export const previewResetOpacity = motionValue(1);
+
+/** Fade-out duration in seconds before the pose snaps back. */
+export const PREVIEW_RESET_FADE_OUT_DURATION = 0.3;
+
+/** Pause, in seconds, while the model is gone so the disappearance reads. */
+export const PREVIEW_RESET_HOLD_DURATION = 0.45;
+
+/** Fade-in duration in seconds after the pose has snapped back. */
+export const PREVIEW_RESET_FADE_IN_DURATION = 0.6;
+
+let resetFadeToken = 0;
 
 export function setPreviewValue(value: number, elapsedMs?: number) {
     previewMotion.value = Number.isFinite(value) ? value : 0;
@@ -46,8 +61,55 @@ export function getPreviewValue(): number {
 }
 
 export function resetPreviewValue() {
+    cancelPreviewResetFade();
     previewMotion.value = 0;
     previewMotion.elapsedMs = 0;
+}
+
+/** Stop an in-flight return fade and show the moving parts again without changing pose. */
+export function cancelPreviewResetFade() {
+    resetFadeToken += 1;
+    previewResetOpacity.jump(1);
+}
+
+/**
+ * Fade the moving preview parts out, pause while they are gone, snap to the initial pose,
+ * then fade them back in. Used when "return to initial position" fires after a run settles.
+ */
+export async function fadeResetPreviewToInitial(): Promise<void> {
+    if (previewMotion.value === 0) {
+        previewMotion.elapsedMs = 0;
+        previewResetOpacity.jump(1);
+        return;
+    }
+
+    const token = ++resetFadeToken;
+    previewResetOpacity.jump(1);
+
+    try {
+        await animate(previewResetOpacity, 0, {
+            duration: PREVIEW_RESET_FADE_OUT_DURATION,
+            ease: "easeOut",
+        });
+        if (token !== resetFadeToken) return;
+
+        // Tick a dummy value so the hold lasts and Motion's frame loop stays alive.
+        await animate(motionValue(0), 1, {
+            duration: PREVIEW_RESET_HOLD_DURATION,
+            ease: "linear",
+        });
+        if (token !== resetFadeToken) return;
+
+        previewMotion.value = 0;
+        previewMotion.elapsedMs = 0;
+
+        await animate(previewResetOpacity, 1, {
+            duration: PREVIEW_RESET_FADE_IN_DURATION,
+            ease: "easeInOut",
+        });
+    } catch {
+        return;
+    }
 }
 
 export function seekPlayback(samples: readonly SamplePoint[], elapsedMs: number) {

@@ -1,7 +1,8 @@
-import { type HTMLAttributes, type ReactNode } from "react";
+import { type ComponentProps, type HTMLAttributes, type ReactNode } from "react";
+import { motion } from "motion/react";
 import { useSnapshot } from "valtio";
 import { cn } from "@/utils/classnames";
-import { previewMotion } from "../state/preview-motion";
+import { previewMotion, previewResetOpacity } from "../state/preview-motion";
 
 /**
  * Live normalized progress (0 = start, 1 = target) of the running animation.
@@ -23,6 +24,22 @@ export function PreviewFrame({ className, filled, ...rest }: HTMLAttributes<HTML
             {...rest}
         />
     );
+}
+
+/**
+ * Moving part of a preview scene. Fades out via Motion before the pose snaps back
+ * to the initial position, then appears again at the new pose.
+ */
+export function PreviewMovingPart({ style, ...rest }: ComponentProps<typeof motion.div>) {
+    return <motion.div {...rest} style={{ ...style, opacity: previewResetOpacity }} />;
+}
+
+export function PreviewMovingSvgGroup({ style, ...rest }: ComponentProps<typeof motion.g>) {
+    return <motion.g {...rest} style={{ ...style, opacity: previewResetOpacity }} />;
+}
+
+export function PreviewMovingSvg({ style, ...rest }: ComponentProps<typeof motion.svg>) {
+    return <motion.svg {...rest} style={{ ...style, opacity: previewResetOpacity }} />;
 }
 
 /** Numeric readout in the bottom-right corner of a scene. */
