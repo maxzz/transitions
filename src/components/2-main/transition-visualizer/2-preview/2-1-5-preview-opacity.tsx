@@ -1,4 +1,4 @@
-import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { PreviewFrame, PreviewMovingPart, PreviewMovingSvg, PreviewProgress, usePreviewValue } from "./1-preview-frame";
 import { formatOpacityProgress, getLegendMarkerTopPercent } from "./2-2-format-helpers";
 
 /**
@@ -12,10 +12,12 @@ export function OpacityPreview() {
     return (
         <div className="relative size-3/4 flex items-center gap-(--preview-gap,1.5rem)">
             <div className="self-stretch flex-1 relative bg-chart-1 rounded-sm">
-                <div
-                    className="size-full bg-background will-change-[opacity] rounded-sm"
-                    style={{ opacity: value }}
-                />
+                <PreviewMovingPart className="size-full">
+                    <div
+                        className="size-full bg-background will-change-[opacity] rounded-sm"
+                        style={{ opacity: value }}
+                    />
+                </PreviewMovingPart>
 
                 <PreviewFrame />
                 <PreviewProgress>{formatOpacityProgress(value)}</PreviewProgress>
@@ -33,7 +35,7 @@ function OpacityLegend({ value }: { value: number; }) {
 
             {/* Zero-width track spanning the bar interior; the marker's `top` is a percentage of it. */}
             <div className="absolute inset-x-1/2 inset-y-0.75">
-                <svg
+                <PreviewMovingSvg
                     className={markerClasses}
                     style={{ top: `${getLegendMarkerTopPercent(value)}%` }}
                     viewBox="0 0 80 16"
@@ -45,7 +47,7 @@ function OpacityLegend({ value }: { value: number; }) {
                         strokeLinejoin="round"
                         d="M3 2.5 L13.5 8 L3 13.5 Z M77 2.5 L66.5 8 L77 13.5 Z"
                     />
-                </svg>
+                </PreviewMovingSvg>
             </div>
         </div>
     );

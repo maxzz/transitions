@@ -1,7 +1,7 @@
 import { type MouseEvent, useMemo } from "react";
 import { useSetAtom } from "jotai";
 import { togglePauseResumeAtom, togglePlayStopAtom } from "../state/atoms";
-import { usePreviewValue } from "./1-preview-frame";
+import { PreviewMovingSvgGroup, usePreviewValue } from "./1-preview-frame";
 import { getLoadGeometry, getSpringDisplacement, getSpringSvgLayers, SPRING_BOTTOM_Y, SPRING_CENTER_X, SPRING_TOP_Y } from "./3-1-spring-svg-math";
 
 /**
@@ -38,15 +38,17 @@ export function MechanicalSpringSvg({ clamped = false, mass, tension }: { clampe
                 target 1.0
             </text>
 
-            <Part_Spring tension={tension} displacement={displacement} />
+            <PreviewMovingSvgGroup>
+                <Part_Spring tension={tension} displacement={displacement} />
+
+                <g transform={`translate(0 ${displacement})`}>
+                    <Part_Load mass={mass} />
+                </g>
+            </PreviewMovingSvgGroup>
 
             {clamped && (
                 <path className="stroke-destructive" strokeWidth="3" d="M285 250 H415 M300 250 v14 M325 250 v14 M350 250 v14 M375 250 v14 M400 250 v14" />
             )}
-
-            <g transform={`translate(0 ${displacement})`}>
-                <Part_Load mass={mass} />
-            </g>
 
             <g className="font-mono text-[15px]">
                 <text x="100" y="620" className="fill-muted-foreground">progress</text>

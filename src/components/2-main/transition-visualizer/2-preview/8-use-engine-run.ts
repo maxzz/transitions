@@ -12,7 +12,7 @@ import {
     runStatusAtom,
     runTokenAtom,
 } from "../state/atoms";
-import { getPreviewValue, previewMotion, resetPreviewValue, setPreviewValue } from "../state/preview-motion";
+import { cancelPreviewResetFade, fadeResetPreviewToInitial, getPreviewValue, previewMotion, resetPreviewValue, setPreviewValue } from "../state/preview-motion";
 
 const REPLAY_FROM_INITIAL_DELAY_MS = 500;
 const RETURN_TO_INITIAL_DELAY_MS = 1_000;
@@ -48,9 +48,13 @@ export function useEngineRun() {
         () => {
             if (status !== "settled" || result?.stopped || !returnToInitialPosition) return undefined;
             const timer = setTimeout(() => {
-                if (appSettings.returnToInitialPosition) resetPreviewValue();
+                // Fade the moving parts out, then snap the pose so the preview does not jump.
+                if (appSettings.returnToInitialPosition) fadeResetPreviewToInitial();
             }, RETURN_TO_INITIAL_DELAY_MS);
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer);
+                cancelPreviewResetFade();
+            };
         },
         [status, token, result?.stopped, returnToInitialPosition]);
 

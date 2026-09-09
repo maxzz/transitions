@@ -1,4 +1,4 @@
-import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { PreviewFrame, PreviewMovingPart, PreviewProgress, usePreviewValue } from "./1-preview-frame";
 import { formatTranslateProgress, getTranslateOffsetPercent } from "./2-2-format-helpers";
 
 /**
@@ -13,7 +13,7 @@ export function TranslatePreview() {
         <div className="relative size-3/5 flex items-end justify-center">
             <div aria-hidden className="absolute inset-0 bg-chart-1 rounded-sm" />
 
-            <div
+            <PreviewMovingPart
                 className={translateClasses}
                 style={{ transform: `translateY(${getTranslateOffsetPercent(value)}%)` }}
             />

@@ -1,4 +1,4 @@
-import { PreviewFrame, PreviewProgress, usePreviewValue } from "./1-preview-frame";
+import { PreviewFrame, PreviewMovingPart, PreviewProgress, usePreviewValue } from "./1-preview-frame";
 import { formatRotateProgress, getRotationDegrees } from "./2-2-format-helpers";
 
 /**
@@ -10,7 +10,7 @@ export function RotatePreview() {
 
     return (
         <div className="relative size-3/4 bg-chart-1 rounded-sm flex items-center justify-center">
-            <div
+            <PreviewMovingPart
                 className={rotateClasses}
                 style={{ transform: `rotate(${getRotationDegrees(value)}deg)` }}
             />

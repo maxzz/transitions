@@ -1,3 +1,4 @@
+import { animate, motionValue } from "motion";
 import { proxy } from "valtio";
 import { interpolateSampleValue } from "../model/3-samples";
 import type { SamplePoint } from "../model/9-types";
@@ -19,6 +20,14 @@ export const previewMotion = proxy({
     elapsedMs: 0,
     speed: 1,
 });
+
+/** Opacity of the moving preview parts while returning to the initial pose. 1 = visible. */
+export const previewResetOpacity = motionValue(1);
+
+/** Fade-out duration in seconds before the pose snaps back. */
+export const PREVIEW_RESET_FADE_DURATION = 0.3;
+
+let resetFadeToken = 0;
 
 export function setPreviewValue(value: number, elapsedMs?: number) {
     previewMotion.value = Number.isFinite(value) ? value : 0;
@@ -46,8 +55,44 @@ export function getPreviewValue(): number {
 }
 
 export function resetPreviewValue() {
+    cancelPreviewResetFade();
     previewMotion.value = 0;
     previewMotion.elapsedMs = 0;
+}
+
+/** Stop an in-flight return fade and show the moving parts again without changing pose. */
+export function cancelPreviewResetFade() {
+    resetFadeToken += 1;
+    previewResetOpacity.jump(1);
+}
+
+/**
+ * Hide the moving preview parts, snap them to the initial pose, then show them again.
+ * Used when "return to initial position" fires after a run settles.
+ */
+export function fadeResetPreviewToInitial(): Promise<void> {
+    if (previewMotion.value === 0) {
+        previewMotion.elapsedMs = 0;
+        previewResetOpacity.jump(1);
+        return Promise.resolve();
+    }
+
+    const token = ++resetFadeToken;
+    previewResetOpacity.jump(1);
+
+    return animate(previewResetOpacity, 0, {
+        type: "tween",
+        duration: PREVIEW_RESET_FADE_DURATION,
+        ease: "easeOut",
+    }).then(
+        () => {
+            if (token !== resetFadeToken) return;
+            previewMotion.value = 0;
+            previewMotion.elapsedMs = 0;
+            previewResetOpacity.jump(1);
+        },
+        () => undefined,
+    );
 }
 
 export function seekPlayback(samples: readonly SamplePoint[], elapsedMs: number) {
