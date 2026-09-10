@@ -13,7 +13,7 @@ export function Header() {
             <div className="flex items-center gap-2">
                 <img className="pt-px" src={hummingbird} alt="Hummingbird" width={24} height={24} />
 
-                <div className="-ml-1.5 pt-px text-md uppercase tracking-tight text-[#70a749] scale-y-60">
+                <div className="-ml-2 pt-0.5 text-md uppercase tracking-tight text-[#70a749] scale-y-60">
                     Transitions Visualizer
                 </div>
 
