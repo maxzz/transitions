@@ -5,7 +5,7 @@ import {
     createInitialHeroPageState,
     parseHeroPageSettings,
     resolveLaunchPage,
-} from "./1-hero-page-store";
+} from "../model/4-hero-page-settings";
 
 describe("parseHeroPageSettings", () => {
     it("falls back to first-launch defaults", () => {

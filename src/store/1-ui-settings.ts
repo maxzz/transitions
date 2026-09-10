@@ -1,6 +1,12 @@
 import { proxy, subscribe } from "valtio";
 import { type ThemeMode, themeApplyMode } from "../utils/theme-apply";
 import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
+import { type AppPageId, type HeroPageState } from "@/components/2-main/hero-page/model/2-types";
+import {
+    DEFAULT_HERO_PAGE_SETTINGS,
+    createInitialHeroPageState,
+    parseHeroPageSettings,
+} from "@/components/2-main/hero-page/model/4-hero-page-settings";
 import {
     type GsapParams,
     type MotionParams,
@@ -17,6 +23,7 @@ import {
 const STORE_KEY = "tm-transition-visualizer";
 const STORE_VER = "v1.0";
 const STORAGE_ID = `${STORE_KEY}__${STORE_VER}`;
+const LEGACY_HERO_PAGE_STORAGE_ID = "tm-hero-page__v1";
 
 export type VisualizerDisplay = "mechanical" | "split" | "graph";
 
@@ -33,6 +40,7 @@ export interface AppSettings {
     reactSpringParams: SpringParams;        // the parameters for the react-spring transition
     motionParams: MotionParams;             // the parameters for the Motion transition
     gsapParams: GsapParams;                 // the parameters for the GSAP transition
+    heroPage: HeroPageState;                // hero splash visibility, last viewed page, and the page shown on launch
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -48,6 +56,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     reactSpringParams: { ...springDefaults },
     motionParams: { ...motionDefaults },
     gsapParams: { ...gsapDefaults },
+    heroPage: createInitialHeroPageState(DEFAULT_HERO_PAGE_SETTINGS),
 };
 
 function loadSettings(): AppSettings {
@@ -72,6 +81,7 @@ function loadSettings(): AppSettings {
                 reactSpringParams: getValidEngineParams(engineDefinitions.spring, parsed.reactSpringParams),
                 motionParams: getValidEngineParams(engineDefinitions.motion, parsed.motionParams),
                 gsapParams: getValidEngineParams(engineDefinitions.gsap, parsed.gsapParams),
+                heroPage: getValidHeroPage(parsed.heroPage),
             };
         }
     } catch (error) {
@@ -82,6 +92,7 @@ function loadSettings(): AppSettings {
         reactSpringParams: { ...springDefaults },
         motionParams: { ...motionDefaults },
         gsapParams: { ...gsapDefaults },
+        heroPage: getValidHeroPage(),
     };
 }
 
@@ -100,6 +111,28 @@ function getValidBoolean(value: unknown, fallback: boolean): boolean {
     return typeof value === "boolean" ? value : fallback;
 }
 
+function getValidHeroPage(value?: unknown): HeroPageState {
+    if (value != null) {
+        return createInitialHeroPageState(parseHeroPageSettings(value));
+    }
+    return loadLegacyHeroPage() ?? createInitialHeroPageState(DEFAULT_HERO_PAGE_SETTINGS);
+}
+
+function loadLegacyHeroPage(): HeroPageState | undefined {
+    try {
+        const stored = localStorage.getItem(LEGACY_HERO_PAGE_STORAGE_ID);
+        if (!stored) {
+            return undefined;
+        }
+        const state = createInitialHeroPageState(parseHeroPageSettings(JSON.parse(stored)));
+        localStorage.removeItem(LEGACY_HERO_PAGE_STORAGE_ID);
+        return state;
+    } catch (error) {
+        console.error("Failed to migrate hero page settings", error);
+        return undefined;
+    }
+}
+
 // appSettings
 
 export const appSettings = proxy<AppSettings>(loadSettings());
@@ -114,3 +147,12 @@ subscribe(appSettings, () => {
         console.error("Failed to save settings", error);
     }
 });
+
+export function openPage(page: AppPageId) {
+    appSettings.heroPage.currentPage = page;
+    appSettings.heroPage.lastViewedPage = page;
+}
+
+export function setShowHeroPage(show: boolean) {
+    appSettings.heroPage.showHeroPage = show;
+}
