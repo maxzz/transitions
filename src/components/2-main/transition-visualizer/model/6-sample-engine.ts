@@ -44,8 +44,11 @@ function sampleSpring(params: SpringParams): SamplePoint[] {
         }
     });
 
-    if (samples.at(-1)?.elapsedMs !== last.elapsedMs) {
+    const tail = samples.at(-1);
+    if (!tail || tail.elapsedMs !== last.elapsedMs) {
         samples.push(last);
+    } else {
+        samples[samples.length - 1] = last;
     }
 
     return samples;

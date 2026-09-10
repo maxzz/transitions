@@ -6,6 +6,7 @@ import {
     estimateDurationMs,
     formatDuration,
     getPlotDurationMs,
+    integrateSpring,
     motionSpringDurationMs,
     springDurationMs,
 } from "./2-duration";
@@ -66,6 +67,18 @@ describe("reactSpringDurationMs", () => {
 
     it("never exceeds the maximum duration", () => {
         expect(springDurationMs({ ...springDefaults, friction: 0.001, precision: 0.001 })).toBeLessThanOrEqual(MAX_DURATION_MS);
+    });
+
+    it("snaps the idle pose to the target like react-spring", () => {
+        let last = Number.NaN;
+        const durationMs = integrateSpring(
+            { ...springDefaults, tension: 165, friction: 12, precision: 0.01 },
+            (_elapsedMs, position) => {
+                last = position;
+            },
+        );
+        expect(durationMs).toBeGreaterThan(0);
+        expect(last).toBe(1);
     });
 });
 

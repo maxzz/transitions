@@ -23,6 +23,10 @@ export function integrateSpring(params: SpringParams, onStep?: (elapsedMs: numbe
 
     for (let stepsDone = 0; stepsDone <= MAX_DURATION_MS; stepsDone += 1) {
         if (Math.abs(velocity) <= restVelocity && Math.abs(to - position) <= precision) {
+            // react-spring's SpringValue.advance snaps to `to` when the spring goes idle.
+            if (position !== to) {
+                onStep?.(stepsDone, to);
+            }
             return stepsDone;
         }
         if (clamp && position >= to) {
@@ -89,6 +93,7 @@ export function motionSpringDurationMs(params: MotionParams): number {
 /**
  * Replica of react-spring's `SpringValue.advance` physics for a 0 → 1 move: semi-implicit Euler in
  * 1 ms steps, at rest once |velocity| <= precision / 10 and |target - position| <= precision.
+ * On rest the last sample is snapped to the target, matching the idle write in SpringValue.advance.
  * Returns the physics time (ms) at which react-spring reports rest.
  */
 export function springDurationMs(params: SpringParams): number {
