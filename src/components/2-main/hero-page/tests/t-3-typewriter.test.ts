@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCumulativeDelays, characterDelayMs, lengthAtProgress } from "./3-typewriter";
+import { buildCumulativeDelays, characterDelayMs, lengthAtProgress } from "../model/3-typewriter";
 
 describe("characterDelayMs", () => {
     it("pauses longer after a sentence than after a letter", () => {
