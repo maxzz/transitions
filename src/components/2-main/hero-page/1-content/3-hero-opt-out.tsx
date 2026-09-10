@@ -3,10 +3,10 @@ import { Button } from "@/ui/shadcn/button";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
 import { HERO_CONTINUE_LABEL, HERO_OPT_OUT_LABEL } from "../model/1-copy";
-import { heroPageStore, openPage, setShowHeroPage } from "../state/1-hero-page-store";
+import { appSettings, openPage, setShowHeroPage } from "@/store/1-ui-settings";
 
 export function HeroOptOut() {
-    const { showHeroPage } = useSnapshot(heroPageStore);
+    const { showHeroPage } = useSnapshot(appSettings.heroPage);
 
     return (
         <div className="px-6 pb-8 w-full flex flex-col items-center justify-center gap-4">
