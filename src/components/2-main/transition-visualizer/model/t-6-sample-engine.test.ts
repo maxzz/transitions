@@ -13,7 +13,7 @@ describe("sampleEngine", () => {
         expect(motion[0]).toEqual({ elapsedMs: 0, value: 0 });
         expect(gsap[0]).toEqual({ elapsedMs: 0, value: 0 });
 
-        expect(spring.at(-1)!.value).toBeCloseTo(1, 1);
+        expect(spring.at(-1)!.value).toBe(1);
         expect(motion.at(-1)!.value).toBeCloseTo(1, 1);
         expect(gsap.at(-1)!.value).toBe(1);
     });
@@ -29,8 +29,14 @@ describe("sampleEngine", () => {
         const samples = sampleEngine("spring", springDefaults);
         const estimated = estimateDurationMs("spring", springDefaults);
         expect(samples.at(-1)!.elapsedMs).toBe(estimated);
+        expect(samples.at(-1)!.value).toBe(1);
         expect(samples.length).toBeGreaterThan(8);
         expect(samples[1]!.elapsedMs).toBeGreaterThanOrEqual(SAMPLE_STEP_MS);
+    });
+
+    it("snaps a React Spring rest leftover to the target", () => {
+        const samples = sampleEngine("spring", { ...springDefaults, tension: 165, friction: 12 });
+        expect(samples.at(-1)!.value).toBe(1);
     });
 
     it("includes Motion overshoot for a bouncy spring", () => {

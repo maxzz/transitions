@@ -32,6 +32,7 @@ describe("translate preview", () => {
 
     it("formats progress with two decimals", () => {
         expect(formatTranslateProgress(0.98765)).toBe("0.99");
+        expect(formatTranslateProgress(1)).toBe("1.00");
     });
 });
 
@@ -44,6 +45,7 @@ describe("scale preview", () => {
 
     it("formats progress with two decimals", () => {
         expect(formatScaleProgress(1.234)).toBe("1.23");
+        expect(formatScaleProgress(1)).toBe("1.00");
     });
 });
 
@@ -56,6 +58,7 @@ describe("rotate preview", () => {
 
     it("formats progress as whole degrees", () => {
         expect(formatRotateProgress(0.8666)).toBe("78°");
+        expect(formatRotateProgress(1)).toBe("90°");
         expect(formatRotateProgress(2.47)).toBe("222°");
     });
 });
@@ -69,6 +72,7 @@ describe("opacity preview", () => {
 
     it("formats progress as a whole percentage", () => {
         expect(formatOpacityProgress(0.666)).toBe("67%");
+        expect(formatOpacityProgress(1)).toBe("100%");
         expect(formatOpacityProgress(1.17)).toBe("117%");
     });
 });
