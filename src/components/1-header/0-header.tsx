@@ -2,25 +2,28 @@ import { useAtomValue } from "jotai";
 import { ButtonThemeToggle } from "./8-btn-theme-toggle";
 import { activeDefinitionAtom } from "../2-main/transition-visualizer/state/atoms";
 import { PreviewSelectorTab } from "../2-main/transition-visualizer/0-all/1-2-tabs-preview-selector";
+import hummingbird from "@/assets/icons/logo.svg";
+import { EngineTabs } from "../2-main/transition-visualizer/0-all/1-1-tabs-engine";
 
 export function Header() {
     const definition = useAtomValue(activeDefinitionAtom);
     return (
         <header className="px-3 py-2 bg-background border-b border-border flex items-center justify-between">
-
-            <div>
+            <div className="flex items-center gap-2">
                 {/* <p className="pb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-                Transition laboratory
-            </p> */}
+                    Transition laboratory
+                </p>
+
                 <p className="pb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
                     laboratory
                 </p>
 
+                <span className="size-5 font-mono font-bold text-[10px] text-primary-foreground bg-primary rounded-md grid place-items-center">
+                    TV
+                </span> */}
 
-                <div className="flex items-center gap-2">
-                    <span className="size-5 font-mono font-bold text-[10px] text-primary-foreground bg-primary rounded-md grid place-items-center">
-                        TV
-                    </span>
+                <div className="flex items-center gap-1">
+                    <img src={hummingbird} alt="Hummingbird" width={24} height={24} />
 
                     <div>
                         <span className="text-sm font-medium tracking-tight">
@@ -29,12 +32,14 @@ export function Header() {
                     </div>
                 </div>
 
-                <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
+                <EngineTabs />
+
+                {/* <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
                     {definition.label} visualizer
                 </h1>
                 <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                     Tune native animation parameters, run the same mechanical response, and inspect the recorded curve.
-                </p>
+                </p> */}
 
             </div>
 
