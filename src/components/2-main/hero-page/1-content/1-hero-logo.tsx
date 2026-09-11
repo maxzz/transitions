@@ -27,13 +27,21 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
                 }
             }}
         >
-            <img
-                className="size-24 sm:size-28"
-                src={hummingbird}
-                alt=""
-                width={112}
-                height={112}
-            />
+            <button
+                type="button"
+                className="cursor-pointer"
+                onClick={() => window.location.reload()}
+                aria-label="Reload hero page"
+                title="Reload hero page"
+            >
+                <img
+                    className="size-24 sm:size-28"
+                    src={hummingbird}
+                    alt=""
+                    width={112}
+                    height={112}
+                />
+            </button>
 
             <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
                 {HERO_EYEBROW}
