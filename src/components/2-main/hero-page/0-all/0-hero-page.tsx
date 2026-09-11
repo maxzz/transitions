@@ -6,6 +6,7 @@ import { playTypewriter } from "../model/3-typewriter";
 import { HeroLogo } from "../1-content/1-hero-logo";
 import { HeroDescription } from "../1-content/2-hero-description";
 import { HeroOptOut } from "../1-content/3-hero-opt-out";
+import { HeroEnter } from "../1-content/4-hero-enter";
 
 const pageVariants = {
     hidden: { opacity: 0 },
@@ -55,6 +56,7 @@ export function HeroPage() {
 
                 <div className="px-6 min-h-0 flex-1 flex flex-col items-center justify-center">
                     <HeroLogo onReady={startDescription} />
+                    <HeroEnter />
                     <HeroDescription typed={typed} />
                 </div>
 

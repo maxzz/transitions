@@ -4,7 +4,7 @@ import { HERO_DESCRIPTION } from "../model/1-copy";
 export function HeroDescription({ typed }: { typed: MotionValue<string>; }) {
     return (
         <p
-            className="mt-8 max-w-xl min-h-24 text-sm sm:text-base text-muted-foreground text-center leading-relaxed contain-[layout]"
+            className="mt-6 max-w-xl min-h-24 text-sm sm:text-base text-muted-foreground text-center leading-relaxed contain-[layout]"
             aria-label={HERO_DESCRIPTION}
         >
             <motion.span aria-hidden>{typed}</motion.span>
