@@ -20,9 +20,13 @@ export function HeroEnter() {
             <Button
                 type="button"
                 size="lg"
-                className="mt-6 px-10 h-12 text-base font-semibold text-white bg-[#70a749] hover:bg-[#5d8d3c] rounded-full shadow-md cursor-pointer"
+                className="relative isolate mt-6 px-10 h-12 text-base font-semibold text-white bg-[#70a749] hover:bg-[#5d8d3c] border-0 rounded-(--hero-enter-radius) shadow-md [--hero-enter-radius:9999px] [--hero-enter-inset:3px] cursor-pointer"
                 onClick={() => openPage("visualizer")}
             >
+                <span
+                    aria-hidden
+                    className="absolute inset-(--hero-enter-inset) border-2 border-white rounded-[calc(var(--hero-enter-radius)-var(--hero-enter-inset))] pointer-events-none"
+                />
                 {HERO_CONTINUE_LABEL}
             </Button>
         </motion.div>
