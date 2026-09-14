@@ -2,8 +2,8 @@
 
 @utility main-section-bg {
     --s: 6px;
-    --c1: #07362e;
-    --c2: #245966;
+    --c1: #D5FFE3;
+    --c2: #B7E2B6;
     --l: var(--c1) 20%, #0000 0;
     --g: 35%, var(--c2) 0 45%, var(--c1) 0;
 
