@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { MotionConfig, motion, useMotionValue, useReducedMotion } from "motion/react";
 import { ButtonThemeToggle } from "@/components/1-header/8-btn-theme-toggle";
-import brushedAlum from "@/assets/patterns/brushed-alum.png";
 import { HERO_DESCRIPTION } from "../model/1-copy";
 import { playTypewriter } from "../model/3-typewriter";
 import { HeroLogo } from "../1-content/1-hero-logo";
 import { HeroDescription } from "../1-content/2-hero-description";
 import { HeroOptOut } from "../1-content/3-hero-opt-out";
 import { HeroEnter } from "../1-content/4-hero-enter";
+// import buried from "@/assets/patterns/circles.png";
+import buried from "@/assets/patterns/classy-fabric.png";
 
 const pageVariants = {
     hidden: { opacity: 0 },
@@ -45,8 +46,10 @@ export function HeroPage() {
     return (
         <MotionConfig reducedMotion="user">
             <motion.section
-                className="relative min-h-0 w-full h-full bg-[#002e63] overflow-hidden flex flex-col"
-                style={{ backgroundImage: `url(${brushedAlum})` }}
+                // className="relative min-h-0 w-full h-full bg-[#005563] overflow-hidden flex flex-col"
+                // className="relative min-h-0 w-full h-full bg-[#00a1d6] overflow-hidden flex flex-col"
+                className="relative min-h-0 w-full h-full bg-[#284333] overflow-hidden flex flex-col"
+                style={{ backgroundImage: `url(${buried})` }}
                 initial="hidden"
                 animate="show"
                 variants={pageVariants}
