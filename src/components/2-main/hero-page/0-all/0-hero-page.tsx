@@ -3,42 +3,27 @@ import { MotionConfig, motion, useMotionValue, useReducedMotion } from "motion/r
 import { ButtonThemeToggle } from "@/components/1-header/8-btn-theme-toggle";
 import { HERO_DESCRIPTION } from "../model/1-copy";
 import { playTypewriter } from "../model/3-typewriter";
-import { HeroLogo } from "../1-content/1-hero-logo";
-import { HeroDescription } from "../1-content/2-hero-description";
-import { HeroOptOut } from "../1-content/3-hero-opt-out";
-import { HeroEnter } from "../1-content/4-hero-enter";
-
-const pageVariants = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            duration: 0.55,
-            ease: "easeOut" as const,
-            when: "beforeChildren" as const,
-            delayChildren: 0.35,
-        },
-    },
-};
+import { HeroLogo } from "./1-hero-logo";
+import { HeroDescription } from "./2-hero-description";
+import { HeroOptOut } from "./3-hero-opt-out";
+import { HeroEnter } from "./4-hero-enter";
 
 export function HeroPage() {
     const typed = useMotionValue("");
     const shouldReduceMotion = useReducedMotion();
     const stopTypingRef = useRef<(() => void) | null>(null);
 
-    useEffect(() => {
-        return () => {
-            stopTypingRef.current?.();
-        };
-    }, []);
+    useEffect(
+        () => {
+            return () => {
+                stopTypingRef.current?.();
+            };
+        },
+        []);
 
     function startDescription() {
         stopTypingRef.current?.();
-        stopTypingRef.current = playTypewriter(
-            HERO_DESCRIPTION,
-            (value) => typed.set(value),
-            { reducedMotion: shouldReduceMotion === true },
-        );
+        stopTypingRef.current = playTypewriter(HERO_DESCRIPTION, (value) => typed.set(value), { reducedMotion: shouldReduceMotion === true });
     }
 
     return (
@@ -65,3 +50,16 @@ export function HeroPage() {
         </MotionConfig>
     );
 }
+
+const pageVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            duration: 0.55,
+            ease: "easeOut" as const,
+            when: "beforeChildren" as const,
+            //delayChildren: 0.35,
+        },
+    },
+};

@@ -3,19 +3,6 @@ import { motion } from "motion/react";
 import hummingbird from "@/assets/icons/logo.svg";
 import { HERO_EYEBROW, HERO_TITLE } from "../model/1-copy";
 
-const logoVariants = {
-    hidden: { opacity: 0, scale: 0.88 },
-    show: {
-        opacity: 1,
-        scale: 1,
-        transition: {
-            type: "spring" as const,
-            bounce: 0.2,
-            visualDuration: 0.45,
-        },
-    },
-};
-
 export function HeroLogo({ onReady }: { onReady: () => void; }) {
     return (
         <motion.div
@@ -28,16 +15,16 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
             }}
         >
             <button
-                type="button"
                 className="cursor-pointer"
                 onClick={() => window.location.reload()}
-                aria-label="Reload hero page"
                 title="Reload hero page"
+                aria-label="Reload hero page"
+                type="button"
             >
                 <img
                     className="size-24 sm:size-28"
                     src={hummingbird}
-                    alt=""
+                    alt="Hummingbird logo"
                     width={112}
                     height={112}
                 />
@@ -53,3 +40,16 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
         </motion.div>
     );
 }
+
+const logoVariants = {
+    hidden: { opacity: 0, scale: 0.88 },
+    show: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: "spring" as const,
+            bounce: 0.2,
+            visualDuration: 0.45,
+        },
+    },
+};
