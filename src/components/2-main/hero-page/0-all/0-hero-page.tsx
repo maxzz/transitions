@@ -44,7 +44,7 @@ export function HeroPage() {
     return (
         <MotionConfig reducedMotion="user">
             <motion.section
-                className="relative min-h-0 w-full h-full overflow-hidden flex flex-col"
+                className="relative min-h-0 w-full h-full overflow-hidden flex flex-col main-section-bg"
                 initial="hidden"
                 animate="show"
                 variants={pageVariants}

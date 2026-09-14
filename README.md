@@ -15,6 +15,7 @@ A laboratory for tuning animation transitions and seeing how they actually behav
 - [Getting started](#getting-started)
 - [Tech stack](#tech-stack)
 - [Acknowledgments](#acknowledgments)
+- [Credits](#credits)
 
 ## Features
 
@@ -127,3 +128,9 @@ React 19, TypeScript, Vite, Tailwind CSS 4, and shadcn/ui. Visualizer state uses
 * [Motion library transitions](https://motion.dev/docs/react-transitions#spring-visualiser)
 
 * [A Friendly Introduction to Spring Physics](https://www.joshwcomeau.com/animation/a-friendly-introduction-to-spring-physics) by Josh W. Comeau
+
+## Credits
+
+Materials used in the project:
+
+* [CSS Pattern](https://css-pattern.com) by Temani Afif — CSS-only background patterns (chevrons on the hero page)
