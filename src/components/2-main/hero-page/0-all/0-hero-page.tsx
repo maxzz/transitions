@@ -8,7 +8,8 @@ import { HeroDescription } from "../1-content/2-hero-description";
 import { HeroOptOut } from "../1-content/3-hero-opt-out";
 import { HeroEnter } from "../1-content/4-hero-enter";
 // import buried from "@/assets/patterns/circles.png";
-import buried from "@/assets/patterns/classy-fabric.png";
+// import buried from "@/assets/patterns/classy-fabric.png";
+import buried from "@/assets/patterns/church.png";
 
 const pageVariants = {
     hidden: { opacity: 0 },
@@ -48,7 +49,8 @@ export function HeroPage() {
             <motion.section
                 // className="relative min-h-0 w-full h-full bg-[#005563] overflow-hidden flex flex-col"
                 // className="relative min-h-0 w-full h-full bg-[#00a1d6] overflow-hidden flex flex-col"
-                className="relative min-h-0 w-full h-full bg-[#284333] overflow-hidden flex flex-col"
+                // className="relative min-h-0 w-full h-full bg-[#284333] overflow-hidden flex flex-col"
+                className="relative min-h-0 w-full h-full bg-[#c2a96d] dark:bg-[#19727e] overflow-hidden flex flex-col"
                 style={{ backgroundImage: `url(${buried})` }}
                 initial="hidden"
                 animate="show"
