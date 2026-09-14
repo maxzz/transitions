@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { MotionConfig, motion, useMotionValue, useReducedMotion } from "motion/react";
 import { ButtonThemeToggle } from "@/components/1-header/8-btn-theme-toggle";
+import brushedAlum from "@/assets/patterns/brushed-alum.png";
 import { HERO_DESCRIPTION } from "../model/1-copy";
 import { playTypewriter } from "../model/3-typewriter";
 import { HeroLogo } from "../1-content/1-hero-logo";
@@ -44,7 +45,8 @@ export function HeroPage() {
     return (
         <MotionConfig reducedMotion="user">
             <motion.section
-                className="relative min-h-0 w-full h-full bg-background overflow-hidden flex flex-col"
+                className="relative min-h-0 w-full h-full bg-[#002e63] overflow-hidden flex flex-col"
+                style={{ backgroundImage: `url(${brushedAlum})` }}
                 initial="hidden"
                 animate="show"
                 variants={pageVariants}
