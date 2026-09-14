@@ -1,4 +1,14 @@
-background-color: #002e63;
-background-image: url("./brushed-alum.png");
-
-//patterns produced by https://transparenttextures.com
+/*https://css-pattern.com/chevrons*/
+.main-section-bg {
+  --s: 6px; /* control the size*/
+  --c1: #07362e;
+  --c2: #245966;
+  
+  --l:var(--c1) 20%,#0000 0;
+  --g:35%,var(--c2) 0 45%,var(--c1) 0;
+  background:
+    linear-gradient(45deg,var(--l) 45%,var(--c1) 0 70%,#0000 0),
+    linear-gradient(-45deg,var(--l) var(--g) 70%,#0000 0),
+    linear-gradient(45deg,var(--c1) var(--g));
+  background-size: var(--s) var(--s);
+}
