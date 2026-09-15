@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MotionConfig, motion, useMotionValue, useReducedMotion } from "motion/react";
 import { ButtonThemeToggle } from "@/components/1-header/8-btn-theme-toggle";
 import { Section3_Footer } from "@/components/3-footer";
+import { shouldSkipHeroEnterMotion } from "@/components/0-all/8-page-navigation";
 import { HERO_DESCRIPTION } from "../model/1-messages";
 import { playTypewriter } from "../model/8-typewriter";
 import { HeroLogo } from "./1-hero-logo";
@@ -13,6 +14,8 @@ export function HeroPage() {
     const typed = useMotionValue("");
     const shouldReduceMotion = useReducedMotion();
     const stopTypingRef = useRef<(() => void) | null>(null);
+    const startedTypewriterRef = useRef(false);
+    const [skipEnterMotion] = useState(shouldSkipHeroEnterMotion);
 
     useEffect(
         () => {
@@ -23,15 +26,27 @@ export function HeroPage() {
         []);
 
     function startDescription() {
+        if (startedTypewriterRef.current) {
+            return;
+        }
+        startedTypewriterRef.current = true;
         stopTypingRef.current?.();
         stopTypingRef.current = playTypewriter(HERO_DESCRIPTION, (value) => typed.set(value), { reducedMotion: shouldReduceMotion === true });
     }
+
+    useEffect(
+        () => {
+            if (skipEnterMotion) {
+                startDescription();
+            }
+        },
+        [skipEnterMotion]);
 
     return (
         <MotionConfig reducedMotion="user">
             <motion.section
                 className="relative min-h-0 w-full h-full overflow-hidden flex flex-col main-section-bg"
-                initial="hidden"
+                initial={skipEnterMotion ? false : "hidden"}
                 animate="show"
                 variants={pageVariants}
                 aria-labelledby="hero-page-title"

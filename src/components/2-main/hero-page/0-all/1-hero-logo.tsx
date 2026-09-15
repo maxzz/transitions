@@ -1,6 +1,7 @@
 import { type AnimationDefinition, type Transition, type Variants } from "motion/react";
 import { motion } from "motion/react";
 import hummingbird from "@/assets/icons/logo.svg";
+import { AppLogoViewTransition } from "@/components/0-all/8-page-navigation";
 
 export function HeroLogo({ onReady }: { onReady: () => void; }) {
     return (
@@ -20,17 +21,19 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
                 aria-label="Reload hero page"
                 type="button"
             >
-                <motion.img
-                    className="size-24 sm:size-28 will-change-transform"
-                    src={hummingbird}
-                    alt="Hummingbird logo"
-                    width={112}
-                    height={112}
-                    whileHover={{
-                        scaleX: [null, 0.9, 0.95, 1, -0.9, -0.95, -1],
-                        transition: logoHoverTransition,
-                    }}
-                />
+                <AppLogoViewTransition>
+                    <motion.img
+                        className="size-24 sm:size-28 will-change-transform"
+                        src={hummingbird}
+                        alt="Hummingbird logo"
+                        width={112}
+                        height={112}
+                        whileHover={{
+                            scaleX: [null, 0.9, 0.95, 1, -0.9, -0.95, -1],
+                            transition: logoHoverTransition,
+                        }}
+                    />
+                </AppLogoViewTransition>
             </button>
 
             <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">

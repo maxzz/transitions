@@ -1,10 +1,12 @@
 import { useSnapshot } from "valtio";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { Label } from "@/ui/shadcn/label";
-import { appSettings, openPage, setShowHeroPage } from "@/store/1-ui-settings";
+import { appSettings, setShowHeroPage } from "@/store/1-ui-settings";
+import { useAppPageNav } from "@/components/0-all/8-page-navigation";
 
 export function HeroOptOut() {
     const { showHeroPage } = useSnapshot(appSettings.heroPage);
+    const { navigatePage } = useAppPageNav();
 
     return (
         <div className="px-6 pb-4 w-full flex items-center justify-center">
@@ -16,7 +18,7 @@ export function HeroOptOut() {
                             const skipNextTime = checked === true;
                             setShowHeroPage(!skipNextTime);
                             if (skipNextTime) {
-                                openPage("visualizer");
+                                navigatePage("visualizer");
                             }
                         }
                     }

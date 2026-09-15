@@ -1,30 +1,38 @@
-import { useSnapshot } from "valtio";
 import { Toaster } from '@/ui/shadcn/sonner';
 import { AllDialogs } from './1-globals';
 import { Header } from '../1-header';
 import { HeroPage } from '../2-main/hero-page';
 import { MainBody } from '../2-main';
-import { appSettings } from '@/store/1-ui-settings';
+import { AppPageNavProvider, AppPageViewTransition, useAppPageNav } from './8-page-navigation';
 
 export function App() {
-    const { currentPage } = useSnapshot(appSettings.heroPage);
+    return (
+        <AppPageNavProvider>
+            <Toaster />
+            <AllDialogs />
+            <AppPages />
+        </AppPageNavProvider>
+    );
+}
 
-    return (<>
-        <Toaster />
-        <AllDialogs />
+function AppPages() {
+    const { currentPage } = useAppPageNav();
 
-        {currentPage === "hero"
-            ? (
-                <main className="h-dvh text-xs bg-background overflow-hidden">
-                    <HeroPage />
-                </main>
-            )
-            : (
-                <main className="h-dvh text-xs bg-background overflow-hidden grid grid-rows-[auto_1fr]">
-                    <Header />
-                    <MainBody />
-                </main>
-            )
-        }
-    </>);
+    return (
+        <AppPageViewTransition>
+            {currentPage === "hero"
+                ? (
+                    <main className="h-dvh text-xs bg-background overflow-hidden">
+                        <HeroPage />
+                    </main>
+                )
+                : (
+                    <main className="h-dvh text-xs bg-background overflow-hidden grid grid-rows-[auto_1fr]">
+                        <Header />
+                        <MainBody />
+                    </main>
+                )
+            }
+        </AppPageViewTransition>
+    );
 }

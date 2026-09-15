@@ -1,0 +1,89 @@
+/* React <ViewTransition> classes for hero <-> laboratory navigation. */
+
+:root {
+    --nav-vt-duration: 420ms;
+    --nav-vt-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+
+::view-transition-group(.nav-enter-forward),
+::view-transition-group(.nav-exit-forward),
+::view-transition-group(.nav-enter-back),
+::view-transition-group(.nav-exit-back),
+::view-transition-group(.logo-morph) {
+    animation-duration: var(--nav-vt-duration);
+    animation-timing-function: var(--nav-vt-ease);
+}
+
+::view-transition-new(.nav-enter-forward) {
+    animation: nav-in-from-right var(--nav-vt-duration) var(--nav-vt-ease) both;
+}
+
+::view-transition-old(.nav-exit-forward) {
+    animation: nav-out-to-left var(--nav-vt-duration) var(--nav-vt-ease) both;
+}
+
+::view-transition-new(.nav-enter-back) {
+    animation: nav-in-from-left var(--nav-vt-duration) var(--nav-vt-ease) both;
+}
+
+::view-transition-old(.nav-exit-back) {
+    animation: nav-out-to-right var(--nav-vt-duration) var(--nav-vt-ease) both;
+}
+
+@keyframes nav-in-from-right {
+    from {
+        opacity: 0;
+        transform: translateX(2.75rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes nav-out-to-left {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-2.75rem);
+    }
+}
+
+@keyframes nav-in-from-left {
+    from {
+        opacity: 0;
+        transform: translateX(-2.75rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes nav-out-to-right {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(2.75rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+    }
+}

@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Button } from "@/ui/shadcn/button";
-import { openPage } from "@/store/1-ui-settings";
+import { useAppPageNav } from "@/components/0-all/8-page-navigation";
 
 const enterVariants = {
     hidden: { opacity: 0 },
@@ -14,13 +14,15 @@ const enterVariants = {
 };
 
 export function HeroEnter() {
+    const { navigatePage } = useAppPageNav();
+
     return (
         <motion.div variants={enterVariants}>
             <Button
                 type="button"
                 size="lg"
                 className={enterButtonClasses}
-                onClick={() => openPage("visualizer")}
+                onClick={() => navigatePage("visualizer")}
             >
                 <span
                     aria-hidden
