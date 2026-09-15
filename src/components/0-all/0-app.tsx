@@ -4,7 +4,6 @@ import { AllDialogs } from './1-globals';
 import { Header } from '../1-header';
 import { HeroPage } from '../2-main/hero-page';
 import { MainBody } from '../2-main';
-import { Section3_Footer } from '../3-footer';
 import { appSettings } from '@/store/1-ui-settings';
 
 export function App() {
@@ -21,10 +20,9 @@ export function App() {
                 </main>
             )
             : (
-                <main className="h-dvh text-xs bg-background overflow-hidden grid grid-rows-[auto_1fr_auto]">
+                <main className="h-dvh text-xs bg-background overflow-hidden grid grid-rows-[auto_1fr]">
                     <Header />
                     <MainBody />
-                    <Section3_Footer />
                 </main>
             )
         }

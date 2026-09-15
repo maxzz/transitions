@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { MotionConfig, motion, useMotionValue, useReducedMotion } from "motion/react";
 import { ButtonThemeToggle } from "@/components/1-header/8-btn-theme-toggle";
+import { Section3_Footer } from "@/components/3-footer";
 import { HERO_DESCRIPTION } from "../model/1-copy";
 import { playTypewriter } from "../model/3-typewriter";
 import { HeroLogo } from "./1-hero-logo";
@@ -46,6 +47,7 @@ export function HeroPage() {
                 </div>
 
                 <HeroOptOut />
+                <Section3_Footer />
             </motion.section>
         </MotionConfig>
     );

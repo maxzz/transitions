@@ -8,7 +8,7 @@ export function HeroOptOut() {
     const { showHeroPage } = useSnapshot(appSettings.heroPage);
 
     return (
-        <div className="px-6 pb-8 w-full flex items-center justify-center">
+        <div className="px-6 pb-4 w-full flex items-center justify-center">
             <Label className="text-xs font-normal text-muted-foreground cursor-pointer">
                 <Checkbox
                     checked={!showHeroPage}
