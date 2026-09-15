@@ -6,7 +6,7 @@ import { AppLogoViewTransition } from "@/components/0-all/8-page-navigation";
 export function HeroLogo({ onReady, skipEnterMotion = false }: { onReady: () => void; skipEnterMotion?: boolean; }) {
     return (
         <motion.div
-            className="flex flex-col items-center will-change-transform"
+            className="flex flex-col items-center will-change-transform select-none"
             initial={skipEnterMotion ? false : undefined}
             variants={logoVariants}
             onAnimationComplete={(definition: AnimationDefinition) => {
@@ -41,9 +41,15 @@ export function HeroLogo({ onReady, skipEnterMotion = false }: { onReady: () => 
                 laboratory
             </p>
 
+            {/* <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+                react-spring, motion, and gsap
+            </p> */}
+
             <h1 id="hero-page-title" className="mt-1 px-4 max-w-full text-3xl sm:text-5xl uppercase tracking-tight text-[#70a749] text-center scale-y-75">
-                Transitions Visualizer
+            Transitions Visualizer
             </h1>
+            {/* Transitions Visualizer */}
+            {/* Transitions laboratory */}
         </motion.div>
     );
 }
