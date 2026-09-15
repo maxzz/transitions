@@ -16,7 +16,7 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
             <button
                 className="cursor-pointer"
                 onClick={() => window.location.reload()}
-                title="Reload hero page"
+                // title="Reload hero page"
                 aria-label="Reload hero page"
                 type="button"
             >

@@ -26,7 +26,7 @@ export function Section3_Footer({ className, ...rest }: HTMLAttributes<HTMLDivEl
                 </Tooltip>
             </TooltipProvider>
 
-            <a className={urlClasses} href="https://github.com/maxzz/tm-template-shadcn-26" target="_blank" rel="noopener">
+            <a className={urlClasses} href="https://github.com/maxzz/transitions" target="_blank" rel="noopener">
                 Open source code on GitHub
             </a>
         </div>
