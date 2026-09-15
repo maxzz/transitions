@@ -3,10 +3,11 @@ import { motion } from "motion/react";
 import hummingbird from "@/assets/icons/logo.svg";
 import { AppLogoViewTransition } from "@/components/0-all/8-page-navigation";
 
-export function HeroLogo({ onReady }: { onReady: () => void; }) {
+export function HeroLogo({ onReady, skipEnterMotion = false }: { onReady: () => void; skipEnterMotion?: boolean; }) {
     return (
         <motion.div
             className="flex flex-col items-center will-change-transform"
+            initial={skipEnterMotion ? false : undefined}
             variants={logoVariants}
             onAnimationComplete={(definition: AnimationDefinition) => {
                 if (definition === "show") {

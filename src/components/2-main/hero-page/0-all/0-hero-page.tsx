@@ -56,7 +56,7 @@ export function HeroPage() {
                 </div>
 
                 <div className="px-6 min-h-0 flex-1 flex flex-col items-center justify-center">
-                    <HeroLogo onReady={startDescription} />
+                    <HeroLogo onReady={startDescription} skipEnterMotion={skipEnterMotion} />
                     <HeroEnter />
                     <HeroDescription typed={typed} />
                 </div>

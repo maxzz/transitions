@@ -14,9 +14,40 @@
 ::view-transition-group(.nav-exit-forward),
 ::view-transition-group(.nav-enter-back),
 ::view-transition-group(.nav-exit-back),
-::view-transition-group(.logo-morph) {
+::view-transition-group(.logo-morph),
+::view-transition-group(app-logo) {
     animation-duration: var(--nav-vt-duration);
     animation-timing-function: var(--nav-vt-ease);
+}
+
+/* Incoming page snapshots paint above old-DOM names. Keep the shared logo on top
+   so the fading laboratory page cannot cover it on the last stretch of the morph. */
+::view-transition-group(.logo-morph),
+::view-transition-group(app-logo) {
+    z-index: 10;
+}
+
+::view-transition-image-pair(.logo-morph),
+::view-transition-image-pair(app-logo) {
+    isolation: isolate;
+}
+
+::view-transition-old(.logo-morph),
+::view-transition-new(.logo-morph),
+::view-transition-old(app-logo),
+::view-transition-new(app-logo) {
+    animation: none;
+    mix-blend-mode: normal;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Prefer the outgoing snapshot for the whole morph so a still-fading
+   incoming capture cannot punch a hole in the bird at the last frame. */
+::view-transition-old(.logo-morph),
+::view-transition-old(app-logo) {
+    z-index: 1;
 }
 
 ::view-transition-new(.nav-enter-forward) {
