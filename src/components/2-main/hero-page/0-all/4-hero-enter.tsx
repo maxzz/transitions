@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import { Button } from "@/ui/shadcn/button";
-import { HERO_CONTINUE_LABEL } from "../model/1-copy";
 import { openPage } from "@/store/1-ui-settings";
 
 const enterVariants = {
@@ -27,7 +26,9 @@ export function HeroEnter() {
                     aria-hidden
                     className="absolute inset-0 bg-linear-to-b from-white/60 to-transparent dark:from-white/20 rounded-full pointer-events-none"
                 />
-                <span className="relative">{HERO_CONTINUE_LABEL}</span>
+                <span className="relative">
+                    Enter the laboratory
+                </span>
             </Button>
         </motion.div>
     );

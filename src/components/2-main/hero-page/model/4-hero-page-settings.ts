@@ -1,4 +1,4 @@
-import { type AppPageId, type HeroPageSettings, type HeroPageState } from "./2-types";
+import { type AppPageId, type HeroPageSettings, type HeroPageState } from "./9-types-hero";
 
 export const DEFAULT_HERO_PAGE_SETTINGS: HeroPageSettings = {
     showHeroPage: true,

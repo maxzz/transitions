@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/ui/s
 
 export function Section3_Footer({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
     return (
-        <div className={classNames("h-12 text-xs text-foreground border-t border-foreground/10 flex items-center justify-center", className)} {...rest}>
+        <div className={classNames("h-12 text-xs text-foreground flex items-center justify-center", className)} {...rest}>
 
             <a className={urlClasses} href="https://github.com/maxzz" target="_blank" rel="noopener">
                 Created by Max Zakharzhevskiy

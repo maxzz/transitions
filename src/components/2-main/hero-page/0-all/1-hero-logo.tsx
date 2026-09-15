@@ -1,7 +1,6 @@
 import { type AnimationDefinition, type Transition, type Variants } from "motion/react";
 import { motion } from "motion/react";
 import hummingbird from "@/assets/icons/logo.svg";
-import { HERO_EYEBROW, HERO_TITLE } from "../model/1-copy";
 
 export function HeroLogo({ onReady }: { onReady: () => void; }) {
     return (
@@ -35,11 +34,11 @@ export function HeroLogo({ onReady }: { onReady: () => void; }) {
             </button>
 
             <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-                {HERO_EYEBROW}
+                laboratory
             </p>
 
             <h1 id="hero-page-title" className="mt-1 px-4 max-w-full text-3xl sm:text-5xl uppercase tracking-tight text-[#70a749] text-center scale-y-75">
-                {HERO_TITLE}
+                Transitions Visualizer
             </h1>
         </motion.div>
     );

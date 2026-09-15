@@ -1,7 +1,7 @@
 import { proxy, subscribe } from "valtio";
 import { type ThemeMode, themeApplyMode } from "../utils/theme-apply";
 import { type PanelSizes, getValidPanelSizes } from "./2-panel-sizes";
-import { type AppPageId, type HeroPageState } from "@/components/2-main/hero-page/model/2-types";
+import { type AppPageId, type HeroPageState } from "@/components/2-main/hero-page/model/9-types-hero";
 import {
     DEFAULT_HERO_PAGE_SETTINGS,
     createInitialHeroPageState,

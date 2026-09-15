@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type HeroPageSettings } from "../model/2-types";
+import { type HeroPageSettings } from "../model/9-types-hero";
 import {
     DEFAULT_HERO_PAGE_SETTINGS,
     createInitialHeroPageState,
