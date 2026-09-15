@@ -2,17 +2,6 @@ import { motion } from "motion/react";
 import { Button } from "@/ui/shadcn/button";
 import { useAppPageNav } from "@/components/0-all/8-page-navigation";
 
-const enterVariants = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            duration: 0.4,
-            ease: "easeOut" as const,
-        },
-    },
-};
-
 export function HeroEnter() {
     const { navigatePage } = useAppPageNav();
 
@@ -35,6 +24,17 @@ export function HeroEnter() {
         </motion.div>
     );
 }
+
+const enterVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            duration: 0.4,
+            ease: "easeOut" as const,
+        },
+    },
+};
 
 const enterButtonClasses = "\
 relative isolate \

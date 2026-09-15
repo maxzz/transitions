@@ -29,10 +29,7 @@ export function HeroLogo({ onReady, skipEnterMotion = false }: { onReady: () => 
                         alt="Hummingbird logo"
                         width={112}
                         height={112}
-                        whileHover={{
-                            scaleX: [null, 0.9, 0.95, 1, -0.9, -0.95, -1],
-                            transition: logoHoverTransition,
-                        }}
+                        whileHover={{ scaleX: [null, 0.9, 0.95, 1, -0.9, -0.95, -1], transition: logoHoverTransition }}
                     />
                 </AppLogoViewTransition>
             </button>
@@ -54,16 +51,6 @@ export function HeroLogo({ onReady, skipEnterMotion = false }: { onReady: () => 
     );
 }
 
-const logoHoverDuration = 0.2 + 0.7 + 0.1 + 0.2 + 0.7 + 0.1;
-
-const logoHoverTransition: Transition = {
-    duration: logoHoverDuration,
-    times: [0, 0.2 / logoHoverDuration, 0.5 / logoHoverDuration, 1],
-    repeat: Infinity,
-    repeatType: "reverse",
-    ease: "easeInOut",
-};
-
 const logoVariants: Variants = {
     hidden: {
         opacity: 0,
@@ -72,10 +59,18 @@ const logoVariants: Variants = {
     show: {
         opacity: 1,
         scale: 1,
-        transition: {
-            type: "spring",
-            bounce: 0.2,
-            visualDuration: 0.45,
-        },
+        transition: { type: "spring", bounce: 0.2, visualDuration: 0.45 },
     },
+};
+
+//---------------------------------------------------------------------------
+
+const logoHoverDuration = 0.2 + 0.7 + 0.1 + 0.2 + 0.7 + 0.1;
+
+const logoHoverTransition: Transition = {
+    duration: logoHoverDuration,
+    times: [0, 0.2 / logoHoverDuration, 0.5 / logoHoverDuration, 1],
+    repeat: Infinity,
+    repeatType: "reverse",
+    ease: "easeInOut",
 };

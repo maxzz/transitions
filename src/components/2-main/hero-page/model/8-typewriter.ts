@@ -28,8 +28,22 @@ export function playTypewriter(text: string, onUpdate: (typed: string) => void, 
     };
 }
 
+/* exported for testing */
+export function buildCumulativeDelays(text: string): number[] {
+    const cumulative: number[] = [];
+    let elapsed = 0;
+
+    for (let index = 0; index < text.length; index++) {
+        elapsed += characterDelayMs(text[index]!, index);
+        cumulative.push(elapsed);
+    }
+
+    return cumulative;
+}
+
 //---------------------------------------------------------------------------
 
+/* exported for testing */
 export function characterDelayMs(char: string, index: number): number {
     const variance = 0.88 + ((index * 37) % 21) / 100;
 
@@ -56,23 +70,12 @@ const BREAK_MS = 320;
 
 //---------------------------------------------------------------------------
 
-export function buildCumulativeDelays(text: string): number[] {
-    const cumulative: number[] = [];
-    let elapsed = 0;
-
-    for (let index = 0; index < text.length; index++) {
-        elapsed += characterDelayMs(text[index]!, index);
-        cumulative.push(elapsed);
-    }
-
-    return cumulative;
-}
-
+/* exported for testing */
 export function lengthAtProgress(progress: number, cumulative: readonly number[], totalMs: number): number {
     if (cumulative.length === 0) {
         return 0;
     }
-    
+
     if (progress >= 1) {
         return cumulative.length;
     }
