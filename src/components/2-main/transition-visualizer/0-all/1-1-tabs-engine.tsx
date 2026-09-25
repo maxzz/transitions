@@ -14,7 +14,7 @@ export function EngineTabs() {
             <TabsListAnimated className="h-9 flex items-center" layoutId="engine-tabs">
                 {engineIds.map(
                     (id) => (
-                        <TabsTriggerAnimated className="h-full" value={id} valueAtom={activeEngineAtom} key={id}>
+                        <TabsTriggerAnimated className="h-full" value={id} isSelected={engineId === id} key={id}>
                             {engineDefinitions[id].label}
                         </TabsTriggerAnimated>
                     )
