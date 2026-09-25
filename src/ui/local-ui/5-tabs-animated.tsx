@@ -18,10 +18,12 @@ export function TabsListAnimated({ layoutId, className, children, ...rest }: Tab
 }
 
 type AnimatedTabsTriggerProps = ComponentProps<typeof TabsTrigger> & {
-    isSelected: boolean;
+    selectedValue: string;
 };
 
-export function TabsTriggerAnimated({ className, children, value, isSelected, ...rest }: AnimatedTabsTriggerProps) {
+export function TabsTriggerAnimated({ className, children, value, selectedValue, ...rest }: AnimatedTabsTriggerProps) {
+    const isSelected = selectedValue === value;
+
     return (
         <TabsTrigger className={classNames(animatedTabsTriggerClasses, isSelected ? "text-foreground" : "text-foreground/60 hover:text-foreground", className)} value={value} {...rest}>
             {isSelected && (
