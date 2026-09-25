@@ -1,14 +1,14 @@
 import { type ComponentProps } from "react";
-import { useAtomValue, type Atom } from "jotai";
-import { LayoutGroup, motion } from "motion/react";
+import { type Atom, useAtomValue } from "jotai";
 import { classNames } from "@/utils";
 import { TabsList, TabsTrigger } from "@/ui/shadcn/tabs";
+import { LayoutGroup, motion } from "motion/react";
 
-type AnimatedTabsListProps = ComponentProps<typeof TabsList> & {
+type TabsListAnimatedProps = ComponentProps<typeof TabsList> & {
     layoutId: string; // Unique id for the sliding indicator within a LayoutGroup. For example, "animated-tab-outline".
 };
 
-export function AnimatedTabsList({ layoutId, className, children, ...rest }: AnimatedTabsListProps) {
+export function TabsListAnimated({ layoutId, className, children, ...rest }: TabsListAnimatedProps) {
     return (
         <LayoutGroup id={layoutId}>
             <TabsList className={classNames("p-0.75 w-fit text-muted-foreground bg-muted rounded inline-flex items-center justify-center", className)} {...rest}>
@@ -23,7 +23,7 @@ type AnimatedTabsTriggerProps = ComponentProps<typeof TabsTrigger> & {
     valueAtom: Atom<string>;
 };
 
-export function AnimatedTabsTrigger({ className, children, value, valueAtom, ...rest }: AnimatedTabsTriggerProps) {
+export function TabsTriggerAnimated({ className, children, value, valueAtom, ...rest }: AnimatedTabsTriggerProps) {
     const selectedValue = useAtomValue(valueAtom);
     const selected = selectedValue === value;
 

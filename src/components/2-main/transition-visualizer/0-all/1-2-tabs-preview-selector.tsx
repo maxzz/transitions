@@ -2,18 +2,10 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { subscribeKey } from "valtio/utils";
 import { appSettings, type VisualizerDisplay } from "@/store/1-ui-settings";
 import { Tabs } from "@/ui/shadcn/tabs";
-import { AnimatedTabsList, AnimatedTabsTrigger } from "@/ui/local-ui/5-animated-tabs";
-
-const displayOptions: readonly { value: VisualizerDisplay; label: string; }[] = [
-    { value: "mechanical", label: "Mechanical" },
-    { value: "split", label: "Both" },
-    { value: "graph", label: "Graph" },
-];
+import { TabsListAnimated, TabsTriggerAnimated } from "@/ui/local-ui/5-tabs-animated";
 
 const visualizerDisplayValueAtom = atom(appSettings.visualizerDisplay);
-
-visualizerDisplayValueAtom.onMount = (setAtom) =>
-    subscribeKey(appSettings, "visualizerDisplay", setAtom);
+visualizerDisplayValueAtom.onMount = (setAtom) => subscribeKey(appSettings, "visualizerDisplay", setAtom);
 
 const visualizerDisplayAtom = atom(
     (get) => get(visualizerDisplayValueAtom),
@@ -28,23 +20,22 @@ export function PreviewSelectorTab() {
     const setVisualizerDisplay = useSetAtom(visualizerDisplayAtom);
 
     return (
-        <Tabs
-            value={visualizerDisplay}
-            onValueChange={(value) => setVisualizerDisplay(value as VisualizerDisplay)}
-            aria-label="Visualizer display"
-        >
-            <AnimatedTabsList layoutId="preview-selector-tabs" className="h-9">
-                {displayOptions.map((option) => (
-                    <AnimatedTabsTrigger
-                        className="px-4 min-w-16 h-full"
-                        key={option.value}
-                        value={option.value}
-                        valueAtom={visualizerDisplayAtom}
-                    >
-                        {option.label}
-                    </AnimatedTabsTrigger>
-                ))}
-            </AnimatedTabsList>
+        <Tabs value={visualizerDisplay} onValueChange={(value) => setVisualizerDisplay(value as VisualizerDisplay)} aria-label="Visualizer display"        >
+            <TabsListAnimated layoutId="preview-selector-tabs" className="h-9">
+                {displayOptions.map(
+                    (option) => (
+                        <TabsTriggerAnimated className="px-4 min-w-16 h-full" value={option.value} valueAtom={visualizerDisplayAtom} key={option.value}>
+                            {option.label}
+                        </TabsTriggerAnimated>
+                    )
+                )}
+            </TabsListAnimated>
         </Tabs>
     );
 }
+
+const displayOptions: readonly { value: VisualizerDisplay; label: string; }[] = [
+    { value: "mechanical", label: "Mechanical" },
+    { value: "split", label: "Both" },
+    { value: "graph", label: "Graph" },
+];
