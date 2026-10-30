@@ -16,7 +16,7 @@
         "tailwindcss": "^4.3.3",
         "tailwindcss-plugin-debug-screens-tw4": "^1.0.4",
         "tailwindcss-plugin-overflow-tw4": "^1.0.1",
-        "tsx": "^4.23.12",
+        "tsx": "^4.23.15",
         "typescript": "~7.0.2",
         "upen": "^1.0.2",
         "vite": "^8.2.2",
